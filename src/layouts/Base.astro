@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import Arcade from '../components/Arcade.astro';
+import Cursor from '../components/Cursor.astro';
 
 interface Props {
   title?: string;
@@ -40,13 +42,18 @@ const {
   </head>
   <body class="ambient-noise min-h-screen">
     <div class="aurora" aria-hidden="true"></div>
+    <div id="page-reveal" class="fixed inset-0 z-[500] bg-ink-950 pointer-events-none"></div>
+    <Cursor />
     <Nav />
     <main class="relative z-10">
       <slot />
     </main>
     <Footer />
+    <Arcade />
 
     <script>
+      import '../scripts/i18n-runtime';
+
       const revealObserver = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -59,6 +66,17 @@ const {
         { threshold: 0.15, rootMargin: '0px 0px -10% 0px' }
       );
       document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
+
+      // page entry reveal
+      requestAnimationFrame(() => {
+        document.getElementById('page-reveal')?.animate(
+          [
+            { opacity: 1, transform: 'scaleY(1)' },
+            { opacity: 1, transform: 'scaleY(0)', transformOrigin: 'top' }
+          ],
+          { duration: 900, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', fill: 'forwards' }
+        );
+      });
     </script>
   </body>
 </html>

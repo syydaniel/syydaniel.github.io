@@ -1,10 +1,12 @@
 ---
+import LangSwitcher from './LangSwitcher.astro';
+
 const links = [
-  { href: '#hero', label: 'Home' },
-  { href: '#about', label: 'About' },
-  { href: '#journey', label: 'Journey' },
-  { href: '#photography', label: 'Photography' },
-  { href: '#contact', label: 'Contact' }
+  { href: '#hero', label: 'Home', i18n: 'nav.home' },
+  { href: '#about', label: 'About', i18n: 'nav.about' },
+  { href: '#journey', label: 'Journey', i18n: 'nav.journey' },
+  { href: '#photography', label: 'Photography', i18n: 'nav.photography' },
+  { href: '#contact', label: 'Contact', i18n: 'nav.contact' }
 ];
 ---
 
@@ -13,7 +15,7 @@ const links = [
   class="fixed top-0 inset-x-0 z-50 transition-all duration-500"
 >
   <div class="mx-auto max-w-6xl px-6 mt-4">
-    <nav class="glass rounded-full px-5 py-3 flex items-center justify-between">
+    <nav class="glass rounded-full px-5 py-3 flex items-center justify-between gap-4">
       <a href="#hero" class="flex items-center gap-2 group">
         <span class="relative flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-aqua-400 to-sol-400 text-ink-950 font-display text-sm font-bold">
           Y
@@ -30,6 +32,7 @@ const links = [
                 href={link.href}
                 class="nav-link px-3.5 py-1.5 rounded-full text-sm text-ink-300 hover:text-ink-100 transition-colors"
                 data-target={link.href}
+                data-i18n={link.i18n}
               >
                 {link.label}
               </a>
@@ -38,22 +41,26 @@ const links = [
         }
       </ul>
 
-      <a
-        href="mailto:syydaniel@gmail.com"
-        class="btn btn-primary !py-2 !px-4 text-sm hidden md:inline-flex"
-      >
-        Let's talk
-      </a>
+      <div class="flex items-center gap-3">
+        <LangSwitcher />
+        <a
+          href="mailto:syydaniel@gmail.com"
+          class="btn btn-primary !py-2 !px-4 text-sm hidden md:inline-flex"
+          data-i18n="nav.cta"
+        >
+          Let's talk
+        </a>
 
-      <button
-        id="nav-toggle"
-        aria-label="Open menu"
-        class="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors"
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M3 7h18M3 12h18M3 17h18" />
-        </svg>
-      </button>
+        <button
+          id="nav-toggle"
+          aria-label="Open menu"
+          class="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 7h18M3 12h18M3 17h18" />
+          </svg>
+        </button>
+      </div>
     </nav>
 
     <div id="mobile-menu" class="md:hidden hidden glass rounded-2xl mt-2 p-3">
@@ -64,6 +71,7 @@ const links = [
               <a
                 href={link.href}
                 class="block px-4 py-2.5 rounded-xl text-ink-200 hover:bg-white/5 transition-colors"
+                data-i18n={link.i18n}
               >
                 {link.label}
               </a>

@@ -15,16 +15,18 @@ function fmt(s: string) {
   <div class="mx-auto max-w-6xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal">
       <div>
-        <span class="section-eyebrow">Research journey</span>
+        <span class="section-eyebrow" data-i18n="journey.eyebrow">Research journey</span>
         <h2 class="section-title mt-4 max-w-2xl">
-          Four countries. Four universities. <span class="text-gradient">One question</span>: how do water and life co-evolve under pressure?
+          <span data-i18n="journey.title.a">Four countries. Four universities.</span>
+          <span class="text-gradient" data-i18n="journey.title.b">One question</span>
+          <span data-i18n="journey.title.c">: how do water and life co-evolve under pressure?</span>
         </h2>
       </div>
       <div class="flex gap-2 flex-wrap" id="journey-filters">
-        <button class="journey-filter chip active" data-filter="all">All</button>
-        <button class="journey-filter chip chip-sol" data-filter="education">Education</button>
-        <button class="journey-filter chip chip-moss" data-filter="experience">Experience</button>
-        <button class="journey-filter chip" data-filter="project">Projects</button>
+        <button class="journey-filter chip active" data-filter="all" data-i18n="journey.filter.all">All</button>
+        <button class="journey-filter chip chip-sol" data-filter="education" data-i18n="journey.filter.education">Education</button>
+        <button class="journey-filter chip chip-moss" data-filter="experience" data-i18n="journey.filter.experience">Experience</button>
+        <button class="journey-filter chip" data-filter="project" data-i18n="journey.filter.project">Projects</button>
       </div>
     </div>
 
@@ -56,10 +58,13 @@ function fmt(s: string) {
                   <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div>
                       <div class="flex items-center gap-2 flex-wrap">
-                        <span class={`chip ${item.kind === 'education' ? 'chip-sol' : item.kind === 'experience' ? 'chip-moss' : ''}`}>
+                        <span
+                          class={`chip ${item.kind === 'education' ? 'chip-sol' : item.kind === 'experience' ? 'chip-moss' : ''}`}
+                          data-i18n={`journey.kind.${item.kind}`}
+                        >
                           {item.kind}
                         </span>
-                        {item.ongoing && <span class="chip">Ongoing</span>}
+                        {item.ongoing && <span class="chip" data-i18n="journey.ongoing">Ongoing</span>}
                       </div>
                       <h3 class="font-display text-xl md:text-2xl text-ink-100 mt-3 leading-snug">{item.title}</h3>
                       <p class="text-ink-300 text-sm mt-1">{item.org} — {item.location}</p>
@@ -69,7 +74,9 @@ function fmt(s: string) {
                     </span>
                   </div>
                   {item.supervisor && (
-                    <p class="text-xs text-ink-400 mt-3">Supervisor: <span class="text-ink-200">{item.supervisor}</span></p>
+                    <p class="text-xs text-ink-400 mt-3">
+                      <span data-i18n="journey.supervisor">Supervisor</span>: <span class="text-ink-200">{item.supervisor}</span>
+                    </p>
                   )}
                   <p class="text-ink-200 text-sm mt-3 leading-relaxed">{item.summary}</p>
                   {item.bullets && (
@@ -95,8 +102,8 @@ function fmt(s: string) {
       <aside class="lg:sticky lg:top-28 self-start">
         <div class="glass rounded-2xl p-5 reveal">
           <div class="flex items-center justify-between mb-3">
-            <p class="section-eyebrow !tracking-[0.22em]">Places</p>
-            <span class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Hover a card</span>
+            <p class="section-eyebrow !tracking-[0.22em]" data-i18n="journey.places">Places</p>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="journey.hover_hint">Hover a card</span>
           </div>
           <div
             id="journey-map"

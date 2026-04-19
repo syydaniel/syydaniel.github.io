@@ -1,0 +1,525 @@
+---
+// Hidden arcade — triggered by Konami code (↑↑↓↓←→←→BA) or by clicking the
+// secret "Y" logo 5 times. Cleans up high scores in localStorage.
+---
+
+<div
+  id="arcade-trigger-hint"
+  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-500"
+>
+  <div class="glass rounded-full px-4 py-2 text-xs text-ink-100 font-mono flex items-center gap-2">
+    <span class="inline-block w-1.5 h-1.5 rounded-full bg-sol-400 animate-pulse"></span>
+    ↑ ↑ ↓ ↓ ← → ← → B A
+  </div>
+</div>
+
+<div
+  id="arcade-modal"
+  class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/90 backdrop-blur-lg p-4"
+  aria-hidden="true"
+  role="dialog"
+>
+  <button
+    id="arcade-close"
+    class="absolute top-5 right-5 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 hover:scale-110 transition-transform"
+    aria-label="Close arcade"
+  >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+
+  <div class="glass rounded-3xl w-full max-w-2xl overflow-hidden">
+    <div class="p-6 border-b border-white/5">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="section-eyebrow !tracking-[0.3em]">Secret arcade</p>
+          <h3 class="font-display text-3xl text-ink-100 mt-1">Coffee break 🕹️</h3>
+        </div>
+        <div class="glass-soft rounded-full p-1 inline-flex gap-1">
+          <button class="arcade-tab active px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="snake">Snake</button>
+          <button class="arcade-tab px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="n2048">2048</button>
+          <button class="arcade-tab px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="about">About</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Snake -->
+    <div id="game-snake" class="arcade-game p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-sm text-ink-300">
+            Guide the 💧 water drop. Eat 🧬 microplastic particles. Don't crash into yourself.
+          </p>
+          <p class="text-xs text-ink-400 mt-1 font-mono">Arrow keys · WASD · tap-direction on mobile</p>
+        </div>
+        <div class="text-right">
+          <div class="font-display text-2xl text-ink-100"><span id="snake-score">0</span></div>
+          <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400">Score · best <span id="snake-best">0</span></div>
+        </div>
+      </div>
+      <div class="bg-ink-900 rounded-2xl overflow-hidden border border-white/5 aspect-square max-w-md mx-auto relative">
+        <canvas id="snake-canvas" class="w-full h-full"></canvas>
+        <div id="snake-overlay" class="absolute inset-0 bg-ink-950/70 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
+          <p class="font-display text-2xl text-ink-100">Ready?</p>
+          <button id="snake-start" class="btn btn-primary">Start game</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2048 -->
+    <div id="game-n2048" class="arcade-game hidden p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-sm text-ink-300">Combine tiles to reach 2048. Arrow keys or swipe.</p>
+          <p class="text-xs text-ink-400 mt-1 font-mono">Good luck.</p>
+        </div>
+        <div class="flex gap-3 items-start">
+          <div class="text-right">
+            <div class="font-display text-2xl text-ink-100"><span id="n2048-score">0</span></div>
+            <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400">Score</div>
+          </div>
+          <div class="text-right">
+            <div class="font-display text-2xl text-sol-400"><span id="n2048-best">0</span></div>
+            <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400">Best</div>
+          </div>
+          <button id="n2048-restart" class="ml-3 px-3 py-1.5 rounded-full text-xs bg-white/5 hover:bg-white/10 transition-colors text-ink-200">New</button>
+        </div>
+      </div>
+      <div class="bg-ink-900 rounded-2xl border border-white/5 p-3 max-w-md mx-auto relative">
+        <div id="n2048-board" class="grid grid-cols-4 gap-2 aspect-square"></div>
+        <div id="n2048-overlay" class="hidden absolute inset-0 rounded-2xl bg-ink-950/80 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
+          <p id="n2048-msg" class="font-display text-3xl text-ink-100">You win!</p>
+          <button id="n2048-again" class="btn btn-primary">Play again</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div id="game-about" class="arcade-game hidden p-6 text-sm text-ink-300 space-y-3">
+      <p>
+        Hey 👋 — you found the secret arcade! There are a few more easter eggs hiding on this site.
+        Try clicking the <span class="text-aqua-400">Y</span> logo at the top 5 times, or pressing
+        <code class="text-aqua-400 font-mono">↑ ↑ ↓ ↓ ← → ← → B A</code> on any page.
+      </p>
+      <p>
+        Both games here are vanilla JS, no libraries. High scores are stored locally in your browser.
+      </p>
+      <p class="text-ink-400 text-xs">
+        Easter eggs added because Daniel believes personal sites should be <em>fun</em>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- Konami + logo trigger ----------
+  const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let buf: string[] = [];
+
+  const modal = document.getElementById('arcade-modal')!;
+  const hint = document.getElementById('arcade-trigger-hint');
+
+  function openArcade() {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    window.dispatchEvent(new CustomEvent('arcade:open'));
+  }
+  function closeArcade() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    window.dispatchEvent(new CustomEvent('arcade:close'));
+  }
+  (window as any).__openArcade = openArcade;
+
+  document.addEventListener('keydown', (e) => {
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    buf.push(key);
+    if (buf.length > KONAMI.length) buf.shift();
+    const match = KONAMI.every((k, i) => buf[i] === k);
+    if (match) {
+      buf = [];
+      openArcade();
+    }
+    // hint if they're trying
+    if (buf.length >= 4 && buf.slice(0, 4).every((k, i) => k === KONAMI[i]) && hint) {
+      hint.style.opacity = '1';
+      setTimeout(() => (hint.style.opacity = '0'), 2200);
+    }
+  });
+
+  // Logo click easter egg (5 clicks in 3 seconds)
+  let logoClicks = 0;
+  let logoTimer: ReturnType<typeof setTimeout> | undefined;
+  document.querySelector('a[href="#hero"]')?.addEventListener('click', () => {
+    logoClicks++;
+    clearTimeout(logoTimer);
+    logoTimer = setTimeout(() => (logoClicks = 0), 3000);
+    if (logoClicks >= 5) {
+      logoClicks = 0;
+      openArcade();
+    }
+  });
+
+  document.getElementById('arcade-close')?.addEventListener('click', closeArcade);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeArcade();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('hidden') && e.key === 'Escape') closeArcade();
+  });
+
+  // Tab switching
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.arcade-tab');
+  const games = document.querySelectorAll<HTMLElement>('.arcade-game');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      const g = tab.dataset.game;
+      games.forEach((el) => el.classList.toggle('hidden', el.id !== `game-${g}`));
+    });
+  });
+
+  // ---------- Snake ----------
+  const snakeCanvas = document.getElementById('snake-canvas') as HTMLCanvasElement;
+  const snakeOverlay = document.getElementById('snake-overlay')!;
+  const scoreEl = document.getElementById('snake-score')!;
+  const bestEl = document.getElementById('snake-best')!;
+  const snakeStartBtn = document.getElementById('snake-start')!;
+  const sCtx = snakeCanvas.getContext('2d')!;
+
+  const GRID = 20;
+  const CELL = 20;
+  snakeCanvas.width = GRID * CELL;
+  snakeCanvas.height = GRID * CELL;
+
+  type P = { x: number; y: number };
+  let snakeBody: P[] = [];
+  let snakeDir: P = { x: 1, y: 0 };
+  let snakeNextDir: P = { x: 1, y: 0 };
+  let food: P = { x: 0, y: 0 };
+  let snakeScore = 0;
+  let snakeRunning = false;
+  let snakeTimer: number | null = null;
+  let snakeBest = Number(localStorage.getItem('snake-best') ?? 0);
+  bestEl.textContent = String(snakeBest);
+
+  function placeFood() {
+    while (true) {
+      const p = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
+      if (!snakeBody.some((s) => s.x === p.x && s.y === p.y)) {
+        food = p;
+        return;
+      }
+    }
+  }
+
+  function resetSnake() {
+    snakeBody = [{ x: 5, y: 10 }, { x: 4, y: 10 }, { x: 3, y: 10 }];
+    snakeDir = { x: 1, y: 0 };
+    snakeNextDir = { x: 1, y: 0 };
+    snakeScore = 0;
+    scoreEl.textContent = '0';
+    placeFood();
+  }
+
+  function drawSnake() {
+    // bg grid (subtle)
+    sCtx.fillStyle = '#0a0b12';
+    sCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+    sCtx.strokeStyle = 'rgba(56,228,210,0.05)';
+    sCtx.lineWidth = 1;
+    for (let i = 1; i < GRID; i++) {
+      sCtx.beginPath();
+      sCtx.moveTo(i * CELL, 0);
+      sCtx.lineTo(i * CELL, snakeCanvas.height);
+      sCtx.stroke();
+      sCtx.beginPath();
+      sCtx.moveTo(0, i * CELL);
+      sCtx.lineTo(snakeCanvas.width, i * CELL);
+      sCtx.stroke();
+    }
+
+    // food (microplastic particle)
+    sCtx.fillStyle = '#ff9f43';
+    sCtx.beginPath();
+    sCtx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.3, 0, Math.PI * 2);
+    sCtx.fill();
+    sCtx.shadowColor = '#ffc46b';
+    sCtx.shadowBlur = 12;
+    sCtx.beginPath();
+    sCtx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.2, 0, Math.PI * 2);
+    sCtx.fill();
+    sCtx.shadowBlur = 0;
+
+    // snake (water drop body)
+    snakeBody.forEach((seg, i) => {
+      const alpha = 1 - (i / snakeBody.length) * 0.55;
+      sCtx.fillStyle = i === 0 ? `rgba(56,228,210,1)` : `rgba(56,228,210,${alpha})`;
+      sCtx.beginPath();
+      sCtx.roundRect(seg.x * CELL + 2, seg.y * CELL + 2, CELL - 4, CELL - 4, 5);
+      sCtx.fill();
+    });
+  }
+
+  function tickSnake() {
+    if (!snakeRunning) return;
+    snakeDir = snakeNextDir;
+    const head = { x: snakeBody[0].x + snakeDir.x, y: snakeBody[0].y + snakeDir.y };
+    if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) return loseSnake();
+    if (snakeBody.some((s) => s.x === head.x && s.y === head.y)) return loseSnake();
+    snakeBody.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      snakeScore += 10;
+      scoreEl.textContent = String(snakeScore);
+      placeFood();
+    } else {
+      snakeBody.pop();
+    }
+    drawSnake();
+  }
+
+  function loseSnake() {
+    snakeRunning = false;
+    if (snakeTimer) clearInterval(snakeTimer);
+    if (snakeScore > snakeBest) {
+      snakeBest = snakeScore;
+      localStorage.setItem('snake-best', String(snakeBest));
+      bestEl.textContent = String(snakeBest);
+    }
+    snakeOverlay.innerHTML = `
+      <p class="font-display text-3xl text-ink-100">Game over</p>
+      <p class="text-ink-300">Score: <span class="text-aqua-400">${snakeScore}</span></p>
+      <button id="snake-again" class="btn btn-primary">Try again</button>
+    `;
+    snakeOverlay.classList.remove('hidden');
+    document.getElementById('snake-again')?.addEventListener('click', startSnake);
+  }
+
+  function startSnake() {
+    resetSnake();
+    snakeOverlay.classList.add('hidden');
+    snakeRunning = true;
+    drawSnake();
+    if (snakeTimer) clearInterval(snakeTimer);
+    snakeTimer = window.setInterval(tickSnake, 100);
+  }
+  snakeStartBtn.addEventListener('click', startSnake);
+
+  const SNAKE_KEYS: Record<string, P> = {
+    ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 }, W: { x: 0, y: -1 },
+    ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 }, S: { x: 0, y: 1 },
+    ArrowLeft: { x: -1, y: 0 }, a: { x: -1, y: 0 }, A: { x: -1, y: 0 },
+    ArrowRight: { x: 1, y: 0 }, d: { x: 1, y: 0 }, D: { x: 1, y: 0 }
+  };
+
+  window.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('hidden')) return;
+    if (document.querySelector('.arcade-tab.active')?.getAttribute('data-game') !== 'snake') return;
+    const d = SNAKE_KEYS[e.key];
+    if (!d) return;
+    if (d.x === -snakeDir.x && d.y === -snakeDir.y) return;
+    snakeNextDir = d;
+    e.preventDefault();
+  });
+
+  // touch swipe for snake
+  let tStart: P | null = null;
+  snakeCanvas.addEventListener('touchstart', (e) => {
+    const t = e.changedTouches[0];
+    tStart = { x: t.clientX, y: t.clientY };
+  });
+  snakeCanvas.addEventListener('touchend', (e) => {
+    if (!tStart) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - tStart.x;
+    const dy = t.clientY - tStart.y;
+    if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+    const d: P = Math.abs(dx) > Math.abs(dy)
+      ? { x: dx > 0 ? 1 : -1, y: 0 }
+      : { x: 0, y: dy > 0 ? 1 : -1 };
+    if (!(d.x === -snakeDir.x && d.y === -snakeDir.y)) snakeNextDir = d;
+  });
+
+  // Reset on close
+  window.addEventListener('arcade:close', () => {
+    snakeRunning = false;
+    if (snakeTimer) clearInterval(snakeTimer);
+  });
+
+  // Draw initial board
+  resetSnake();
+  drawSnake();
+
+  // ---------- 2048 ----------
+  const boardEl = document.getElementById('n2048-board')!;
+  const n2048Score = document.getElementById('n2048-score')!;
+  const n2048Best = document.getElementById('n2048-best')!;
+  const n2048Overlay = document.getElementById('n2048-overlay')!;
+  const n2048Msg = document.getElementById('n2048-msg')!;
+
+  let grid: number[][] = [];
+  let gScore = 0;
+  let gBest = Number(localStorage.getItem('n2048-best') ?? 0);
+  n2048Best.textContent = String(gBest);
+  let won = false;
+
+  const TILE_COLORS: Record<number, string> = {
+    0: 'bg-white/5 text-transparent',
+    2: 'bg-ink-700 text-ink-100',
+    4: 'bg-ink-600 text-ink-100',
+    8: 'bg-aqua-600/60 text-ink-100',
+    16: 'bg-aqua-500/70 text-ink-950',
+    32: 'bg-aqua-400 text-ink-950',
+    64: 'bg-sol-600/80 text-ink-100',
+    128: 'bg-sol-500 text-ink-950',
+    256: 'bg-sol-400 text-ink-950',
+    512: 'bg-moss-500 text-ink-950',
+    1024: 'bg-moss-400 text-ink-950',
+    2048: 'bg-gradient-to-br from-aqua-400 to-sol-400 text-ink-950'
+  };
+
+  function resetGame() {
+    grid = Array.from({ length: 4 }, () => [0, 0, 0, 0]);
+    gScore = 0;
+    won = false;
+    spawn();
+    spawn();
+    render();
+    n2048Overlay.classList.add('hidden');
+  }
+
+  function spawn() {
+    const empties: [number, number][] = [];
+    for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) if (grid[y][x] === 0) empties.push([x, y]);
+    if (!empties.length) return;
+    const [x, y] = empties[Math.floor(Math.random() * empties.length)];
+    grid[y][x] = Math.random() < 0.9 ? 2 : 4;
+  }
+
+  function render() {
+    n2048Score.textContent = String(gScore);
+    if (gScore > gBest) {
+      gBest = gScore;
+      localStorage.setItem('n2048-best', String(gBest));
+      n2048Best.textContent = String(gBest);
+    }
+    boardEl.innerHTML = '';
+    for (let y = 0; y < 4; y++) {
+      for (let x = 0; x < 4; x++) {
+        const v = grid[y][x];
+        const tile = document.createElement('div');
+        tile.className = `rounded-xl flex items-center justify-center font-display text-2xl md:text-3xl font-bold transition-all duration-200 ${TILE_COLORS[v] ?? 'bg-ink-500 text-ink-100'}`;
+        tile.textContent = v ? String(v) : '';
+        boardEl.appendChild(tile);
+      }
+    }
+  }
+
+  function move(dx: number, dy: number): boolean {
+    const rotated = dx === 1 || dy === -1;
+    let moved = false;
+    const axis = dy !== 0; // true = vertical
+    const reverse = dx === 1 || dy === 1;
+
+    for (let i = 0; i < 4; i++) {
+      let line: number[] = [];
+      for (let j = 0; j < 4; j++) line.push(axis ? grid[j][i] : grid[i][j]);
+      if (reverse) line.reverse();
+      let compact = line.filter((n) => n !== 0);
+      for (let k = 0; k < compact.length - 1; k++) {
+        if (compact[k] === compact[k + 1]) {
+          compact[k] *= 2;
+          gScore += compact[k];
+          compact.splice(k + 1, 1);
+          if (compact[k] === 2048 && !won) {
+            won = true;
+            n2048Msg.textContent = 'You win! 🎉';
+            n2048Overlay.classList.remove('hidden');
+          }
+        }
+      }
+      while (compact.length < 4) compact.push(0);
+      if (reverse) compact.reverse();
+      for (let j = 0; j < 4; j++) {
+        const old = axis ? grid[j][i] : grid[i][j];
+        if (old !== compact[j]) moved = true;
+        if (axis) grid[j][i] = compact[j];
+        else grid[i][j] = compact[j];
+      }
+    }
+
+    if (moved) {
+      spawn();
+      render();
+      if (!hasMoves()) {
+        n2048Msg.textContent = 'No more moves';
+        n2048Overlay.classList.remove('hidden');
+      }
+    }
+    return moved;
+  }
+
+  function hasMoves(): boolean {
+    for (let y = 0; y < 4; y++)
+      for (let x = 0; x < 4; x++) {
+        if (grid[y][x] === 0) return true;
+        if (x < 3 && grid[y][x] === grid[y][x + 1]) return true;
+        if (y < 3 && grid[y][x] === grid[y + 1][x]) return true;
+      }
+    return false;
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('hidden')) return;
+    if (document.querySelector('.arcade-tab.active')?.getAttribute('data-game') !== 'n2048') return;
+    const k = e.key;
+    if (['ArrowUp', 'w', 'W'].includes(k)) {
+      e.preventDefault();
+      move(0, -1);
+    } else if (['ArrowDown', 's', 'S'].includes(k)) {
+      e.preventDefault();
+      move(0, 1);
+    } else if (['ArrowLeft', 'a', 'A'].includes(k)) {
+      e.preventDefault();
+      move(-1, 0);
+    } else if (['ArrowRight', 'd', 'D'].includes(k)) {
+      e.preventDefault();
+      move(1, 0);
+    }
+  });
+
+  document.getElementById('n2048-restart')?.addEventListener('click', resetGame);
+  document.getElementById('n2048-again')?.addEventListener('click', resetGame);
+
+  // touch swipe for 2048
+  let ts2: P | null = null;
+  boardEl.addEventListener('touchstart', (e) => {
+    const t = e.changedTouches[0];
+    ts2 = { x: t.clientX, y: t.clientY };
+  });
+  boardEl.addEventListener('touchend', (e) => {
+    if (!ts2) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - ts2.x;
+    const dy = t.clientY - ts2.y;
+    if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+    if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 1 : -1, 0);
+    else move(0, dy > 0 ? 1 : -1);
+  });
+
+  resetGame();
+</script>
+
+<style>
+  .arcade-tab {
+    color: #6b7190;
+  }
+  .arcade-tab.active {
+    background: rgba(56, 228, 210, 0.15);
+    color: #38e4d2;
+  }
+</style>

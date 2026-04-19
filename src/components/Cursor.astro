@@ -1,0 +1,94 @@
+---
+// Custom animated cursor — desktop only, disabled on touch + reduced-motion.
+---
+
+<div id="cursor-dot" aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+
+<style>
+  #cursor-dot,
+  #cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    opacity: 0;
+    transition: opacity 250ms ease;
+  }
+  #cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: #38e4d2;
+    mix-blend-mode: difference;
+  }
+  #cursor-ring {
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(56, 228, 210, 0.5);
+    transition: width 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      height 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      background 200ms ease,
+      opacity 250ms ease,
+      border-color 200ms ease;
+  }
+  .cursor-hover #cursor-ring {
+    width: 56px;
+    height: 56px;
+    background: rgba(56, 228, 210, 0.08);
+    border-color: rgba(56, 228, 210, 0.9);
+  }
+
+  /* disable on touch */
+  @media (hover: none), (pointer: coarse) {
+    #cursor-dot, #cursor-ring { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #cursor-dot, #cursor-ring { display: none; }
+  }
+</style>
+
+<script>
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  if (dot && ring && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX = mouseX;
+    let ringY = mouseY;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dot.style.opacity = '1';
+      ring.style.opacity = '1';
+      dot.style.transform = `translate(${mouseX - 3}px, ${mouseY - 3}px)`;
+    });
+    window.addEventListener('mouseleave', () => {
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+    });
+
+    function loop() {
+      ringX += (mouseX - ringX) * 0.18;
+      ringY += (mouseY - ringY) * 0.18;
+      ring.style.transform = `translate(${ringX - 17}px, ${ringY - 17}px)`;
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    // hover state on interactive elements
+    const interactive = 'a, button, .photo-pin, .research-pin, .journey-filter, .view-toggle, .arcade-tab, .lang-opt, [role="button"]';
+    document.addEventListener('pointerover', (e) => {
+      const t = e.target as HTMLElement | null;
+      if (t?.closest(interactive)) document.body.classList.add('cursor-hover');
+    });
+    document.addEventListener('pointerout', (e) => {
+      const t = e.target as HTMLElement | null;
+      if (t?.closest(interactive)) document.body.classList.remove('cursor-hover');
+    });
+  }
+</script>

@@ -8,10 +8,10 @@ const year = new Date().getFullYear();
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
       <div>
         <p class="font-display text-3xl md:text-4xl text-ink-100 leading-tight max-w-md">
-          Let's collaborate on <span class="text-gradient">water, change, and the world we photograph</span>.
+          <span data-i18n="footer.title.a">Let's collaborate on</span> <span class="text-gradient" data-i18n="footer.title.b">water, change, and the world we photograph</span>.
         </p>
         <p class="mt-4 text-ink-300 text-sm">
-          {profile.location} · Available for research collaborations and editorial photo use.
+          {profile.location} · <span data-i18n="footer.location_hint">Available for research collaborations and editorial photo use.</span>
         </p>
       </div>
       <div class="flex flex-col gap-2 md:items-end">
@@ -38,8 +38,8 @@ const year = new Date().getFullYear();
             ))
           }
         </div>
-        <p class="text-xs text-ink-400">
-          © {year} Yiyang Shen · Built with Astro, loved with Inter &amp; Fraunces
+        <p class="text-xs text-ink-400" data-i18n="footer.rights" data-i18n-vars={JSON.stringify({ year })}>
+          © {year} Yiyang Shen · Built with Astro
         </p>
       </div>
     </div>

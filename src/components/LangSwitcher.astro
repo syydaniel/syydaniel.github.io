@@ -1,0 +1,19 @@
+---
+// Small pill toggle: EN / 中文. Runs purely client-side using the
+// data-i18n attribute pattern defined in base i18n runtime.
+---
+
+<div
+  id="lang-switcher"
+  class="glass-soft rounded-full p-0.5 inline-flex text-[11px] font-mono"
+  role="group"
+  aria-label="Language"
+>
+  <button class="lang-opt active px-3 py-1.5 rounded-full transition-colors" data-lang="en">EN</button>
+  <button class="lang-opt px-3 py-1.5 rounded-full transition-colors" data-lang="zh">中</button>
+</div>
+
+<style>
+  .lang-opt { color: #6b7190; }
+  .lang-opt.active { background: rgba(56,228,210,0.15); color: #38e4d2; }
+</style>

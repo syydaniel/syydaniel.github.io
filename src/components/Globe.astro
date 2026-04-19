@@ -1,0 +1,370 @@
+---
+import { researchCities } from '../data/journey';
+
+const cities = researchCities;
+---
+
+<div class="globe-wrap relative w-full aspect-square max-w-md mx-auto">
+  <canvas id="globe-canvas" class="w-full h-full"></canvas>
+  <div id="globe-label" class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass-soft rounded-full px-3 py-1.5 text-xs text-ink-100 font-mono opacity-0 transition-opacity duration-300 whitespace-nowrap">
+    —
+  </div>
+  <div class="absolute top-4 left-4 text-[10px] uppercase tracking-[0.24em] text-ink-400 pointer-events-none">
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block w-1.5 h-1.5 rounded-full bg-aqua-400 animate-pulse"></span>
+      Drag · Scroll
+    </span>
+  </div>
+</div>
+
+<script is:inline define:vars={{ cityData: cities }}>
+  window.__GLOBE_CITIES__ = cityData;
+</script>
+
+<script>
+  import * as THREE from 'three';
+
+  type City = {
+    id: string;
+    name: string;
+    country: string;
+    coords: [number, number];
+    role: string;
+  };
+
+  const cities = ((window as unknown as { __GLOBE_CITIES__: City[] }).__GLOBE_CITIES__ ?? []) as City[];
+
+  const canvas = document.getElementById('globe-canvas') as HTMLCanvasElement | null;
+  const label = document.getElementById('globe-label');
+  if (!canvas) throw new Error('no canvas');
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 3.2);
+
+  const globe = new THREE.Group();
+  scene.add(globe);
+
+  // ---- Core sphere (dark ocean) ----
+  const coreGeom = new THREE.SphereGeometry(1, 64, 64);
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0x0a0e1c, transparent: true, opacity: 0.95 });
+  const core = new THREE.Mesh(coreGeom, coreMat);
+  globe.add(core);
+
+  // ---- Fibonacci sphere dots (simulates continents / coverage) ----
+  const N = 2800;
+  const positions = new Float32Array(N * 3);
+  const colors = new Float32Array(N * 3);
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i / (N - 1)) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const theta = goldenAngle * i;
+    const x = Math.cos(theta) * r;
+    const z = Math.sin(theta) * r;
+    positions[i * 3] = x * 1.005;
+    positions[i * 3 + 1] = y * 1.005;
+    positions[i * 3 + 2] = z * 1.005;
+    // gentle color variation: aqua → slate
+    const brightness = 0.3 + Math.random() * 0.5;
+    colors[i * 3] = 0.22 * brightness;
+    colors[i * 3 + 1] = 0.89 * brightness;
+    colors[i * 3 + 2] = 0.82 * brightness;
+  }
+  const dotsGeom = new THREE.BufferGeometry();
+  dotsGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  dotsGeom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const dotsMat = new THREE.PointsMaterial({
+    size: 0.018,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85,
+    sizeAttenuation: true,
+    depthWrite: false
+  });
+  const dots = new THREE.Points(dotsGeom, dotsMat);
+  globe.add(dots);
+
+  // ---- Latitude lines (subtle) ----
+  const latGroup = new THREE.Group();
+  for (let lat = -60; lat <= 60; lat += 30) {
+    if (lat === 0) continue;
+    const points: THREE.Vector3[] = [];
+    const phi = (lat * Math.PI) / 180;
+    for (let i = 0; i <= 128; i++) {
+      const theta = (i / 128) * Math.PI * 2;
+      points.push(
+        new THREE.Vector3(
+          Math.cos(phi) * Math.cos(theta) * 1.01,
+          Math.sin(phi) * 1.01,
+          Math.cos(phi) * Math.sin(theta) * 1.01
+        )
+      );
+    }
+    const g = new THREE.BufferGeometry().setFromPoints(points);
+    const m = new THREE.LineBasicMaterial({ color: 0x38e4d2, transparent: true, opacity: 0.08 });
+    latGroup.add(new THREE.LineLoop(g, m));
+  }
+  globe.add(latGroup);
+
+  // ---- Equator (stronger) ----
+  const eqPoints: THREE.Vector3[] = [];
+  for (let i = 0; i <= 128; i++) {
+    const t = (i / 128) * Math.PI * 2;
+    eqPoints.push(new THREE.Vector3(Math.cos(t) * 1.01, 0, Math.sin(t) * 1.01));
+  }
+  const eqGeom = new THREE.BufferGeometry().setFromPoints(eqPoints);
+  const eqMat = new THREE.LineBasicMaterial({ color: 0x38e4d2, transparent: true, opacity: 0.18 });
+  globe.add(new THREE.LineLoop(eqGeom, eqMat));
+
+  // ---- Atmosphere glow (back-facing inverted sphere) ----
+  const atmosGeom = new THREE.SphereGeometry(1.22, 64, 64);
+  const atmosMat = new THREE.ShaderMaterial({
+    uniforms: {
+      glowColor: { value: new THREE.Color(0x38e4d2) }
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 glowColor;
+      varying vec3 vNormal;
+      void main() {
+        float intensity = pow(0.72 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+        gl_FragColor = vec4(glowColor, 1.0) * intensity;
+      }
+    `,
+    side: THREE.BackSide,
+    blending: THREE.AdditiveBlending,
+    transparent: true
+  });
+  const atmosphere = new THREE.Mesh(atmosGeom, atmosMat);
+  globe.add(atmosphere);
+
+  // ---- City markers ----
+  function latLonToVec3(lon: number, lat: number, r = 1.01): THREE.Vector3 {
+    const phi = (90 - lat) * (Math.PI / 180);
+    const theta = (lon + 180) * (Math.PI / 180);
+    return new THREE.Vector3(
+      -r * Math.sin(phi) * Math.cos(theta),
+      r * Math.cos(phi),
+      r * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+
+  type MarkerEntry = { city: City; pos: THREE.Vector3; group: THREE.Group; core: THREE.Mesh };
+  const markers: MarkerEntry[] = [];
+
+  cities.forEach((city, idx) => {
+    const pos = latLonToVec3(city.coords[0], city.coords[1], 1.02);
+    const g = new THREE.Group();
+    const primary = idx === 0;
+    // core dot
+    const mkGeom = new THREE.SphereGeometry(primary ? 0.035 : 0.022, 16, 16);
+    const mkMat = new THREE.MeshBasicMaterial({ color: primary ? 0xffc46b : 0x38e4d2 });
+    const mk = new THREE.Mesh(mkGeom, mkMat);
+    g.add(mk);
+    // glow ring
+    const ringGeom = new THREE.RingGeometry(0.05, 0.065, 32);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: primary ? 0xffc46b : 0x38e4d2,
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide
+    });
+    const ring = new THREE.Mesh(ringGeom, ringMat);
+    ring.lookAt(new THREE.Vector3(0, 0, 0));
+    ring.scale.set(1, 1, 1);
+    (ring as any).__initialScale = 1;
+    g.add(ring);
+
+    g.position.copy(pos);
+    g.lookAt(new THREE.Vector3(0, 0, 0));
+    g.rotateY(Math.PI);
+    globe.add(g);
+    markers.push({ city, pos, group: g, core: mk });
+  });
+
+  // ---- Arc connections ----
+  const order = [...cities].sort(); // no order needed; just connect pairs
+  function makeArc(p1: THREE.Vector3, p2: THREE.Vector3) {
+    const mid = p1.clone().add(p2).multiplyScalar(0.5);
+    const midLen = mid.length();
+    const arcHeight = 0.25 + p1.distanceTo(p2) * 0.3;
+    mid.normalize().multiplyScalar(midLen + arcHeight);
+    const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
+    const pts = curve.getPoints(60);
+    const geom = new THREE.BufferGeometry().setFromPoints(pts);
+    return geom;
+  }
+
+  const arcs: { line: THREE.Line; segCount: number; offset: number }[] = [];
+  for (let i = 0; i < markers.length; i++) {
+    for (let j = i + 1; j < markers.length; j++) {
+      const geom = makeArc(markers[i].pos, markers[j].pos);
+      const mat = new THREE.LineDashedMaterial({
+        color: 0x38e4d2,
+        transparent: true,
+        opacity: 0.35,
+        dashSize: 0.04,
+        gapSize: 0.03
+      });
+      const line = new THREE.Line(geom, mat);
+      line.computeLineDistances();
+      globe.add(line);
+      arcs.push({ line, segCount: 60, offset: Math.random() * 10 });
+    }
+  }
+
+  // ---- Interaction (drag + scroll + hover) ----
+  let rotationVX = 0;
+  let rotationVY = 0;
+  let isDragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  let autoRotate = !prefersReduced;
+
+  const setLabel = (text: string, x?: number, y?: number) => {
+    if (!label) return;
+    if (!text) {
+      label.style.opacity = '0';
+      return;
+    }
+    label.textContent = text;
+    label.style.opacity = '1';
+    if (x !== undefined && y !== undefined) {
+      const rect = canvas.getBoundingClientRect();
+      label.style.left = `${((x - rect.left) / rect.width) * 100}%`;
+      label.style.top = `${((y - rect.top) / rect.height) * 100}%`;
+    }
+  };
+
+  canvas.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    autoRotate = false;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (isDragging) {
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      rotationVY = dx * 0.005;
+      rotationVX = dy * 0.005;
+      globe.rotation.y += rotationVY;
+      globe.rotation.x = Math.max(-0.8, Math.min(0.8, globe.rotation.x + rotationVX));
+      lastX = e.clientX;
+      lastY = e.clientY;
+    } else {
+      // hover test for markers
+      const rect = canvas.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(mouse, camera);
+      const cores = markers.map((m) => m.core);
+      const hit = raycaster.intersectObjects(cores, false)[0];
+      if (hit) {
+        const idx = cores.indexOf(hit.object as THREE.Mesh);
+        const m = markers[idx];
+        setLabel(`${m.city.name}, ${m.city.country} — ${m.city.role}`, e.clientX, e.clientY);
+        canvas.style.cursor = 'pointer';
+      } else {
+        setLabel('');
+        canvas.style.cursor = 'grab';
+      }
+    }
+  });
+  canvas.addEventListener('pointerup', (e) => {
+    isDragging = false;
+    canvas.releasePointerCapture(e.pointerId);
+    setTimeout(() => {
+      autoRotate = !prefersReduced;
+    }, 2200);
+  });
+  canvas.addEventListener('pointerleave', () => {
+    setLabel('');
+  });
+
+  const raycaster = new THREE.Raycaster();
+
+  canvas.addEventListener(
+    'wheel',
+    (e) => {
+      e.preventDefault();
+      camera.position.z = Math.max(2.2, Math.min(5, camera.position.z + e.deltaY * 0.002));
+    },
+    { passive: false }
+  );
+
+  // ---- Resize ----
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    renderer.setSize(rect.width, rect.height, false);
+    camera.aspect = rect.width / rect.height;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  new ResizeObserver(resize).observe(canvas);
+
+  // ---- Animate ----
+  const clock = new THREE.Clock();
+  let running = true;
+
+  function animate() {
+    if (!running) return;
+    const t = clock.getElapsedTime();
+
+    if (autoRotate && !isDragging) {
+      globe.rotation.y += 0.0015;
+    } else {
+      rotationVY *= 0.95;
+      rotationVX *= 0.95;
+    }
+
+    // pulse markers
+    markers.forEach((m, i) => {
+      const ring = m.group.children[1] as THREE.Mesh;
+      if (ring) {
+        const scale = 1 + Math.sin(t * 2 + i) * 0.25;
+        ring.scale.setScalar(scale);
+        (ring.material as THREE.MeshBasicMaterial).opacity = 0.4 + Math.sin(t * 2 + i) * 0.2;
+      }
+    });
+
+    // animate arc dashing
+    arcs.forEach((arc) => {
+      (arc.line.material as THREE.LineDashedMaterial).dashSize = 0.04;
+      arc.offset += 0.01;
+      // Not directly animatable without shader; use opacity sparkle
+      (arc.line.material as THREE.LineDashedMaterial).opacity = 0.28 + Math.sin(t + arc.offset) * 0.1;
+    });
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  document.addEventListener('visibilitychange', () => {
+    running = !document.hidden;
+    if (running) animate();
+  });
+</script>
+
+<style>
+  #globe-canvas { cursor: grab; display: block; }
+  #globe-canvas:active { cursor: grabbing; }
+  .globe-wrap { filter: drop-shadow(0 20px 50px rgba(56, 228, 210, 0.15)); }
+</style>

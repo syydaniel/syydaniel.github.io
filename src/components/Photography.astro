@@ -16,11 +16,11 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
       <div>
-        <span class="section-eyebrow">Photography</span>
+        <span class="section-eyebrow" data-i18n="photo.eyebrow">Photography</span>
         <h2 class="section-title mt-4 max-w-3xl">
-          A <span class="text-gradient italic font-display">field notebook</span> in light and silver.
+          <span data-i18n="photo.title.a">A</span> <span class="text-gradient italic font-display" data-i18n="photo.title.b">field notebook</span> <span data-i18n="photo.title.c">in light and silver.</span>
         </h2>
-        <p class="mt-5 text-ink-300 max-w-2xl">
+        <p class="mt-5 text-ink-300 max-w-2xl" data-i18n="photo.intro">
           Every pin on the map is a place I've stood with a camera. Click one to open the frames.
           Drag the time slider to travel years, or switch to the timeline view for a chronological ribbon.
         </p>
@@ -28,15 +28,15 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-3 gap-6 min-w-[260px]">
         <div>
           <div class="font-display text-2xl text-ink-100">{total}</div>
-          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Frames</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="photo.stat.frames">Frames</div>
         </div>
         <div>
           <div class="font-display text-2xl text-ink-100">{countries}</div>
-          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Countries</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="photo.stat.countries">Countries</div>
         </div>
         <div>
           <div class="font-display text-2xl text-ink-100">{yearMax - yearMin + 1}</div>
-          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Years</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="photo.stat.years">Years</div>
         </div>
       </div>
     </div>
@@ -44,10 +44,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     {
       isUsingSeedPhotos && (
         <div class="mb-6 glass-soft border-l-2 border-sol-400 rounded-xl px-4 py-3 text-sm text-ink-300">
-          <strong class="text-sol-400">Demo mode:</strong> currently showing placeholder pins. Drop
-          photos in <code class="text-aqua-400">/photos/</code> and run{' '}
-          <code class="text-aqua-400">npm run photos:manifest</code> — the EXIF will be read and pins
-          generated automatically.
+          <strong class="text-sol-400" data-i18n="photo.demo_label">Demo mode:</strong> <span data-i18n="photo.demo_body">currently showing placeholder pins. Drop photos in /photos/ and run npm run photos:manifest.</span>
         </div>
       )
     }
@@ -55,10 +52,10 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     <!-- view toggle -->
     <div class="flex items-center gap-3 mb-4 reveal">
       <div class="glass-soft rounded-full p-1 inline-flex gap-1">
-        <button class="view-toggle active px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-view="map">
+        <button class="view-toggle active px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-view="map" data-i18n="photo.view.map">
           Map
         </button>
-        <button class="view-toggle px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-view="timeline">
+        <button class="view-toggle px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-view="timeline" data-i18n="photo.view.timeline">
           Timeline
         </button>
       </div>
@@ -73,7 +70,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
         <!-- timeline scrubber -->
         <div class="border-t border-white/5 p-5 bg-ink-900/40">
           <div class="flex items-center justify-between mb-3">
-            <span class="text-[10px] uppercase tracking-[0.25em] text-ink-400">Time range</span>
+            <span class="text-[10px] uppercase tracking-[0.25em] text-ink-400" data-i18n="photo.time_range">Time range</span>
             <span class="text-xs font-mono text-aqua-400" id="scrubber-label">{yearMin} — {yearMax}</span>
           </div>
           <div class="relative h-10" id="scrubber-track">
