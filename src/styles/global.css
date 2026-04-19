@@ -1,0 +1,306 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Base ---------- */
+:root {
+  --ink-950: 5 6 10;
+  --aqua-glow: 56 228 210;
+  --sol-glow: 255 159 67;
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background: #05060a;
+  color: #d0d3e4;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(56, 228, 210, 0.25);
+  color: #eef0fa;
+}
+
+/* ---------- Noise + Aurora ambient ---------- */
+.ambient-noise::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.12  0 0 0 0.08 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+}
+
+.aurora {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.aurora::before,
+.aurora::after {
+  content: '';
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.3;
+  animation: drift 22s ease-in-out infinite;
+}
+
+.aurora::before {
+  top: -20%;
+  left: -10%;
+  background: radial-gradient(circle, #14c7b8 0%, transparent 70%);
+}
+
+.aurora::after {
+  bottom: -30%;
+  right: -10%;
+  background: radial-gradient(circle, #ff9f43 0%, transparent 70%);
+  animation-delay: -11s;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8vw, 4vh) scale(1.1); }
+  66% { transform: translate(-4vw, 6vh) scale(0.95); }
+}
+
+/* ---------- Typography ---------- */
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: 'opsz' 72, 'SOFT' 50;
+  letter-spacing: -0.02em;
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #38e4d2 0%, #a0a5c0 40%, #ffc46b 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-shift 8s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ---------- Components ---------- */
+.glass {
+  background: linear-gradient(180deg, rgba(26, 29, 43, 0.6), rgba(10, 11, 18, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+
+.glass-soft {
+  background: rgba(16, 18, 29, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: rgba(56, 228, 210, 0.08);
+  color: #38e4d2;
+  border: 1px solid rgba(56, 228, 210, 0.2);
+}
+
+.chip-sol { background: rgba(255, 159, 67, 0.08); color: #ffc46b; border-color: rgba(255, 159, 67, 0.25); }
+.chip-moss { background: rgba(66, 184, 131, 0.08); color: #7cd97c; border-color: rgba(66, 184, 131, 0.25); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: transform 180ms ease, box-shadow 240ms ease, background 240ms ease;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, #14c7b8, #38e4d2 60%, #ffc46b);
+  color: #0a0b12;
+  box-shadow: 0 10px 30px -10px rgba(56, 228, 210, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -12px rgba(56, 228, 210, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.04);
+  color: #eef0fa;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ---------- Section plate ---------- */
+.section-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  letter-spacing: -0.03em;
+  color: #eef0fa;
+  font-weight: 400;
+}
+
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #38e4d2;
+}
+
+.section-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 2rem;
+  height: 1px;
+  background: #38e4d2;
+  opacity: 0.6;
+}
+
+/* ---------- Reveal animations (JS-driven) ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 900ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- MapLibre overrides ---------- */
+.maplibregl-canvas { outline: none; }
+.maplibregl-ctrl-attrib { font-size: 10px; opacity: 0.6; }
+.maplibregl-popup-content {
+  background: rgba(10, 11, 18, 0.92) !important;
+  color: #d0d3e4 !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(56, 228, 210, 0.2);
+  overflow: hidden;
+}
+.maplibregl-popup-tip { display: none !important; }
+
+/* ---------- Photo pin ---------- */
+.photo-pin {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 0 6px rgba(56, 228, 210, 0.15);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.photo-pin:hover {
+  transform: scale(1.15);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 0 10px rgba(56, 228, 210, 0.25);
+}
+
+.photo-pin::after {
+  content: attr(data-count);
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: #ffc46b;
+  color: #0a0b12;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #05060a;
+}
+
+.photo-pin[data-count="1"]::after { display: none; }
+
+.research-pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #38e4d2;
+  box-shadow: 0 0 0 0 rgba(56, 228, 210, 0.6);
+  animation: pulse-dot 2.5s ease-out infinite;
+  cursor: pointer;
+}
+
+.research-pin.primary {
+  background: #ffc46b;
+  width: 22px;
+  height: 22px;
+  box-shadow: 0 0 0 0 rgba(255, 196, 107, 0.6);
+}
+
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(56, 228, 210, 0.6); }
+  70% { box-shadow: 0 0 0 16px rgba(56, 228, 210, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 228, 210, 0); }
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0a0b12; }
+::-webkit-scrollbar-thumb { background: #262a3d; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3f57; }
+
+/* ---------- Prefers reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .aurora::before, .aurora::after { animation: none; }
+}

@@ -1,0 +1,487 @@
+---
+import { photos as photosInitial, isUsingSeedPhotos } from '../data/photos-loader';
+
+const photos = photosInitial;
+const total = photos.length;
+const countries = new Set(photos.map((p) => p.location.country)).size;
+const hasCoords = photos.filter((p) => Array.isArray(p.location?.coords) && p.location.coords.length === 2);
+
+// year range
+const years = photos.map((p) => new Date(p.takenAt).getFullYear()).filter((n) => !isNaN(n));
+const yearMin = years.length ? Math.min(...years) : new Date().getFullYear();
+const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
+---
+
+<section id="photography" class="relative py-28 md:py-40 scroll-mt-20">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
+      <div>
+        <span class="section-eyebrow">Photography</span>
+        <h2 class="section-title mt-4 max-w-3xl">
+          A <span class="text-gradient italic font-display">field notebook</span> in light and silver.
+        </h2>
+        <p class="mt-5 text-ink-300 max-w-2xl">
+          Every pin on the map is a place I've stood with a camera. Click one to open the frames.
+          Drag the time slider to travel years, or switch to the timeline view for a chronological ribbon.
+        </p>
+      </div>
+      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-3 gap-6 min-w-[260px]">
+        <div>
+          <div class="font-display text-2xl text-ink-100">{total}</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Frames</div>
+        </div>
+        <div>
+          <div class="font-display text-2xl text-ink-100">{countries}</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Countries</div>
+        </div>
+        <div>
+          <div class="font-display text-2xl text-ink-100">{yearMax - yearMin + 1}</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Years</div>
+        </div>
+      </div>
+    </div>
+
+    {
+      isUsingSeedPhotos && (
+        <div class="mb-6 glass-soft border-l-2 border-sol-400 rounded-xl px-4 py-3 text-sm text-ink-300">
+          <strong class="text-sol-400">Demo mode:</strong> currently showing placeholder pins. Drop
+          photos in <code class="text-aqua-400">/photos/</code> and run{' '}
+          <code class="text-aqua-400">npm run photos:manifest</code> — the EXIF will be read and pins
+          generated automatically.
+        </div>
+      )
+    }
+
+    <!-- view toggle -->
+    <div class="flex items-center gap-3 mb-4 reveal">
+      <div class="glass-soft rounded-full p-1 inline-flex gap-1">
+        <button class="view-toggle active px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-view="map">
+          Map
+        </button>
+        <button class="view-toggle px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-view="timeline">
+          Timeline
+        </button>
+      </div>
+      <div class="text-xs text-ink-400 font-mono" id="photo-count">{total} frames visible</div>
+    </div>
+
+    <!-- MAP VIEW -->
+    <div id="photo-map-view" class="reveal">
+      <div class="glass rounded-2xl overflow-hidden">
+        <div id="photo-map" class="w-full h-[560px] bg-ink-800"></div>
+
+        <!-- timeline scrubber -->
+        <div class="border-t border-white/5 p-5 bg-ink-900/40">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[10px] uppercase tracking-[0.25em] text-ink-400">Time range</span>
+            <span class="text-xs font-mono text-aqua-400" id="scrubber-label">{yearMin} — {yearMax}</span>
+          </div>
+          <div class="relative h-10" id="scrubber-track">
+            <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/10 rounded-full"></div>
+            <div id="scrubber-fill" class="absolute top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-aqua-400 to-sol-400 rounded-full" style="left:0%; right:0%;"></div>
+            <div class="absolute inset-0 flex items-center pointer-events-none">
+              <div class="flex-1 flex justify-between text-[10px] font-mono text-ink-400 pt-6">
+                {
+                  (() => {
+                    const ticks = Math.max(2, Math.min(yearMax - yearMin + 1, 8));
+                    return Array.from({ length: ticks }, (_, i) => {
+                      const y = Math.round(yearMin + ((yearMax - yearMin) * i) / (ticks - 1));
+                      return <span>{y}</span>;
+                    });
+                  })()
+                }
+              </div>
+            </div>
+            <button
+              id="scrubber-start"
+              class="scrubber-thumb absolute top-1/2 w-5 h-5 -mt-2.5 -ml-2.5 rounded-full bg-ink-100 border-2 border-aqua-400 shadow-lg cursor-grab touch-none"
+              style="left:0%;"
+              aria-label="Start year"
+            ></button>
+            <button
+              id="scrubber-end"
+              class="scrubber-thumb absolute top-1/2 w-5 h-5 -mt-2.5 -ml-2.5 rounded-full bg-ink-100 border-2 border-sol-400 shadow-lg cursor-grab touch-none"
+              style="left:100%;"
+              aria-label="End year"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE VIEW -->
+    <div id="photo-timeline-view" class="hidden reveal">
+      <div class="glass rounded-2xl p-6 md:p-8">
+        <div id="timeline-groups" class="space-y-10"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="fixed inset-0 z-[100] bg-black/92 backdrop-blur-md hidden items-center justify-center p-4" aria-hidden="true">
+    <button id="lightbox-close" aria-label="Close" class="absolute top-5 right-5 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 hover:scale-110 transition-transform">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <button id="lightbox-prev" aria-label="Previous" class="absolute left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 hover:scale-110 transition-transform">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <button id="lightbox-next" aria-label="Next" class="absolute right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 hover:scale-110 transition-transform">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+    <figure id="lightbox-figure" class="max-w-6xl w-full flex flex-col gap-4 items-center">
+      <img id="lightbox-img" alt="" class="max-h-[78vh] w-auto rounded-xl shadow-2xl bg-ink-800" />
+      <figcaption id="lightbox-meta" class="text-center text-ink-300 text-sm"></figcaption>
+    </figure>
+  </div>
+</section>
+
+<script is:inline define:vars={{ initialPhotos: photos, yearMin, yearMax }}>
+  window.__SITE_PHOTOS__ = initialPhotos;
+  window.__YEAR_MIN__ = yearMin;
+  window.__YEAR_MAX__ = yearMax;
+</script>
+
+<script>
+  import 'maplibre-gl/dist/maplibre-gl.css';
+  import maplibregl from 'maplibre-gl';
+
+  type Photo = {
+    id: string;
+    src: string;
+    thumb: string;
+    width?: number;
+    height?: number;
+    takenAt: string;
+    location: { name: string; country: string; coords: [number, number] };
+    caption?: string;
+    camera?: string;
+    exposure?: string;
+  };
+
+  const allPhotos: Photo[] = ((window as unknown as { __SITE_PHOTOS__: Photo[] }).__SITE_PHOTOS__ ?? []).filter(
+    (p) => Array.isArray(p.location?.coords) && p.location.coords.length === 2
+  );
+  const yearMin = (window as unknown as { __YEAR_MIN__: number }).__YEAR_MIN__;
+  const yearMax = (window as unknown as { __YEAR_MAX__: number }).__YEAR_MAX__;
+
+  let startYear = yearMin;
+  let endYear = yearMax;
+
+  // ---------- MAP ----------
+  const mapEl = document.getElementById('photo-map');
+  if (!mapEl) throw new Error('no map el');
+
+  const map = new maplibregl.Map({
+    container: mapEl,
+    style: {
+      version: 8,
+      sources: {
+        basemap: {
+          type: 'raster',
+          tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OpenStreetMap contributors'
+        }
+      },
+      layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
+    },
+    center: [20, 30],
+    zoom: 1.3,
+    attributionControl: true,
+    dragRotate: false
+  });
+
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+
+  let markers: maplibregl.Marker[] = [];
+
+  function photoYear(p: Photo) {
+    const y = new Date(p.takenAt).getFullYear();
+    return isNaN(y) ? yearMin : y;
+  }
+
+  function visiblePhotos(): Photo[] {
+    return allPhotos.filter((p) => {
+      const y = photoYear(p);
+      return y >= startYear && y <= endYear;
+    });
+  }
+
+  function groupByLocation(list: Photo[]) {
+    const groups = new Map<string, { coords: [number, number]; photos: Photo[]; name: string; country: string }>();
+    for (const p of list) {
+      const key = `${p.location.coords[0].toFixed(2)},${p.location.coords[1].toFixed(2)}`;
+      const g = groups.get(key);
+      if (g) {
+        g.photos.push(p);
+      } else {
+        groups.set(key, {
+          coords: p.location.coords,
+          photos: [p],
+          name: p.location.name,
+          country: p.location.country
+        });
+      }
+    }
+    return [...groups.values()];
+  }
+
+  function renderMarkers() {
+    markers.forEach((m) => m.remove());
+    markers = [];
+    const groups = groupByLocation(visiblePhotos());
+    for (const g of groups) {
+      const el = document.createElement('div');
+      el.className = 'photo-pin';
+      el.dataset.count = String(g.photos.length);
+      const thumb = g.photos[0]?.thumb || g.photos[0]?.src;
+      if (thumb) {
+        el.style.backgroundImage = `url(${thumb})`;
+      } else {
+        el.style.background = 'linear-gradient(135deg, #14c7b8, #ff9f43)';
+      }
+      el.addEventListener('click', () => openLightbox(g.photos, 0));
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(g.coords).addTo(map);
+      markers.push(marker);
+    }
+    const countEl = document.getElementById('photo-count');
+    if (countEl) {
+      const shown = visiblePhotos().length;
+      countEl.textContent = `${shown} frame${shown === 1 ? '' : 's'} visible`;
+    }
+  }
+
+  map.on('load', () => {
+    renderMarkers();
+    // fit bounds to initial photos
+    const pts = visiblePhotos();
+    if (pts.length) {
+      const bounds = new maplibregl.LngLatBounds();
+      pts.forEach((p) => bounds.extend(p.location.coords));
+      map.fitBounds(bounds, { padding: 80, maxZoom: 4, duration: 1400 });
+    }
+  });
+
+  // ---------- SCRUBBER ----------
+  const trackEl = document.getElementById('scrubber-track') as HTMLElement;
+  const startThumb = document.getElementById('scrubber-start') as HTMLElement;
+  const endThumb = document.getElementById('scrubber-end') as HTMLElement;
+  const fillEl = document.getElementById('scrubber-fill') as HTMLElement;
+  const label = document.getElementById('scrubber-label') as HTMLElement;
+
+  const total = Math.max(1, yearMax - yearMin);
+
+  function pctFor(year: number) {
+    return ((year - yearMin) / total) * 100;
+  }
+  function yearFor(pct: number) {
+    return Math.round(yearMin + (pct / 100) * total);
+  }
+  function updateUI() {
+    const a = pctFor(startYear);
+    const b = pctFor(endYear);
+    startThumb.style.left = `${a}%`;
+    endThumb.style.left = `${b}%`;
+    fillEl.style.left = `${a}%`;
+    fillEl.style.right = `${100 - b}%`;
+    label.textContent = startYear === endYear ? String(startYear) : `${startYear} — ${endYear}`;
+    renderMarkers();
+    renderTimeline();
+  }
+  updateUI();
+
+  function drag(thumb: HTMLElement, setter: (year: number) => void) {
+    let active = false;
+    const onMove = (clientX: number) => {
+      const rect = trackEl.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+      const y = yearFor(pct);
+      setter(y);
+      updateUI();
+    };
+
+    const onDown = (e: PointerEvent) => {
+      active = true;
+      thumb.setPointerCapture(e.pointerId);
+      thumb.style.cursor = 'grabbing';
+    };
+    const onUp = (e: PointerEvent) => {
+      active = false;
+      thumb.releasePointerCapture(e.pointerId);
+      thumb.style.cursor = 'grab';
+    };
+    const onP = (e: PointerEvent) => {
+      if (!active) return;
+      e.preventDefault();
+      onMove(e.clientX);
+    };
+    thumb.addEventListener('pointerdown', onDown);
+    thumb.addEventListener('pointerup', onUp);
+    thumb.addEventListener('pointercancel', onUp);
+    thumb.addEventListener('pointermove', onP);
+  }
+
+  drag(startThumb, (y) => {
+    startYear = Math.min(y, endYear);
+  });
+  drag(endThumb, (y) => {
+    endYear = Math.max(y, startYear);
+  });
+
+  // ---------- VIEW TOGGLE ----------
+  const toggleBtns = document.querySelectorAll<HTMLButtonElement>('.view-toggle');
+  const mapView = document.getElementById('photo-map-view')!;
+  const timelineView = document.getElementById('photo-timeline-view')!;
+  toggleBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.dataset.view === 'map') {
+        mapView.classList.remove('hidden');
+        timelineView.classList.add('hidden');
+        setTimeout(() => map.resize(), 60);
+      } else {
+        timelineView.classList.remove('hidden');
+        mapView.classList.add('hidden');
+        renderTimeline();
+      }
+    });
+  });
+
+  // ---------- TIMELINE ----------
+  function renderTimeline() {
+    const container = document.getElementById('timeline-groups');
+    if (!container) return;
+
+    const list = visiblePhotos().slice().sort((a, b) => (a.takenAt < b.takenAt ? 1 : -1));
+
+    // group by year
+    const byYear = new Map<number, Photo[]>();
+    for (const p of list) {
+      const y = photoYear(p);
+      byYear.set(y, [...(byYear.get(y) ?? []), p]);
+    }
+
+    container.innerHTML = '';
+    for (const [year, group] of [...byYear.entries()].sort((a, b) => b[0] - a[0])) {
+      const section = document.createElement('div');
+      section.innerHTML = `
+        <div class="flex items-baseline gap-4 mb-4">
+          <span class="font-display text-4xl md:text-5xl text-ink-100">${year}</span>
+          <span class="h-px flex-1 bg-gradient-to-r from-aqua-400/40 to-transparent"></span>
+          <span class="font-mono text-xs text-ink-400">${group.length} frame${group.length === 1 ? '' : 's'}</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+      `;
+      const grid = section.querySelector('.grid') as HTMLElement;
+      group.forEach((p, i) => {
+        const tile = document.createElement('button');
+        tile.className = 'group relative aspect-[4/3] overflow-hidden rounded-xl bg-ink-800 border border-white/5 hover:border-aqua-400/40 transition-all';
+        const bg = p.thumb || p.src;
+        tile.innerHTML = `
+          ${bg ? `<img src="${bg}" alt="${escapeHtml(p.location.name)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>` : `<div class="w-full h-full bg-gradient-to-br from-ink-700 to-ink-800 flex items-center justify-center"><span class="text-ink-500 text-xs">${escapeHtml(p.location.name)}</span></div>`}
+          <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent text-left">
+            <div class="text-ink-100 text-xs font-medium truncate">${escapeHtml(p.location.name)}</div>
+            <div class="text-ink-400 text-[10px] font-mono">${new Date(p.takenAt).toISOString().slice(0, 10)}</div>
+          </div>
+        `;
+        tile.addEventListener('click', () => openLightbox(group, i));
+        grid.appendChild(tile);
+      });
+      container.appendChild(section);
+    }
+
+    if (!list.length) {
+      container.innerHTML = `<p class="text-ink-400 text-center py-12">No photos in this time range.</p>`;
+    }
+  }
+
+  function escapeHtml(s: string) {
+    return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  }
+
+  // ---------- LIGHTBOX ----------
+  const lightbox = document.getElementById('lightbox')!;
+  const lbImg = document.getElementById('lightbox-img') as HTMLImageElement;
+  const lbMeta = document.getElementById('lightbox-meta')!;
+  let lbGroup: Photo[] = [];
+  let lbIndex = 0;
+
+  function openLightbox(group: Photo[], i: number) {
+    lbGroup = group;
+    lbIndex = i;
+    renderLightbox();
+    lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  function renderLightbox() {
+    const p = lbGroup[lbIndex];
+    if (!p) return;
+    if (p.src) {
+      lbImg.src = p.src;
+      lbImg.style.display = '';
+    } else {
+      lbImg.style.display = 'none';
+    }
+    const parts = [
+      `<strong class="text-ink-100">${escapeHtml(p.location.name)}</strong>`,
+      `<span>${escapeHtml(p.location.country)}</span>`,
+      `<span class="font-mono">${new Date(p.takenAt).toISOString().slice(0, 10)}</span>`
+    ];
+    if (p.camera) parts.push(`<span class="font-mono text-ink-400">${escapeHtml(p.camera)}</span>`);
+    if (p.caption) parts.push(`<em class="text-ink-200">${escapeHtml(p.caption)}</em>`);
+    lbMeta.innerHTML =
+      parts.join(' · ') +
+      `<div class="mt-2 text-ink-500 text-[11px] font-mono">${lbIndex + 1} / ${lbGroup.length}</div>`;
+  }
+  document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
+  document.getElementById('lightbox-prev')?.addEventListener('click', () => {
+    lbIndex = (lbIndex - 1 + lbGroup.length) % lbGroup.length;
+    renderLightbox();
+  });
+  document.getElementById('lightbox-next')?.addEventListener('click', () => {
+    lbIndex = (lbIndex + 1) % lbGroup.length;
+    renderLightbox();
+  });
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (lightbox.classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowLeft') {
+      lbIndex = (lbIndex - 1 + lbGroup.length) % lbGroup.length;
+      renderLightbox();
+    } else if (e.key === 'ArrowRight') {
+      lbIndex = (lbIndex + 1) % lbGroup.length;
+      renderLightbox();
+    }
+  });
+
+  renderTimeline();
+</script>
+
+<style>
+  .view-toggle {
+    color: #6b7190;
+  }
+  .view-toggle.active {
+    background: rgba(56, 228, 210, 0.15);
+    color: #38e4d2;
+  }
+  .scrubber-thumb {
+    transition: transform 160ms ease;
+  }
+  .scrubber-thumb:hover,
+  .scrubber-thumb:active {
+    transform: scale(1.2);
+  }
+</style>

@@ -1,0 +1,61 @@
+---
+import { profile } from '../data/profile';
+
+const channels = [
+  { label: 'Personal', value: profile.email.personal, href: `mailto:${profile.email.personal}`, hint: 'For collaborations, photo licensing, open talk.' },
+  { label: 'Academic', value: profile.email.academic, href: `mailto:${profile.email.academic}`, hint: 'For research & WUR-related correspondence.' },
+  { label: 'LinkedIn', value: 'linkedin.com/in/yiyang-shen-…', href: profile.socials[0].href, hint: 'The long-form version of my journey.' }
+];
+---
+
+<section id="contact" class="relative py-28 md:py-40 scroll-mt-20">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="grid lg:grid-cols-[1fr_1.1fr] gap-16">
+      <div class="reveal">
+        <span class="section-eyebrow">Contact</span>
+        <h2 class="section-title mt-4">
+          Say <span class="text-gradient italic font-display">hello</span>.
+        </h2>
+        <p class="mt-6 text-ink-300 max-w-md">
+          I'm open to research collaborations, photography licensing, and good conversations about
+          water, cities, and forests. Pick whichever channel fits.
+        </p>
+        <div class="mt-10 glass rounded-2xl p-5 text-sm">
+          <div class="flex items-center gap-3 text-ink-300">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div>
+              <div class="text-ink-100">Based in {profile.location}</div>
+              <div class="text-xs text-ink-400">Currently — MSc at Wageningen University</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4 reveal">
+        {
+          channels.map((c) => (
+            <a
+              href={c.href}
+              target={c.href.startsWith('mailto:') ? '_self' : '_blank'}
+              rel="noreferrer"
+              class="group block glass rounded-2xl p-5 md:p-6 hover:border-aqua-400/30 transition-colors"
+            >
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <div class="text-[10px] uppercase tracking-[0.28em] text-aqua-400 mb-2">{c.label}</div>
+                  <div class="font-display text-xl md:text-2xl text-ink-100 break-all">{c.value}</div>
+                  <div class="text-ink-400 text-sm mt-1">{c.hint}</div>
+                </div>
+                <div class="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center text-ink-200 group-hover:bg-aqua-400/15 group-hover:text-aqua-400 transition-all shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+                    <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
+                  </svg>
+                </div>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

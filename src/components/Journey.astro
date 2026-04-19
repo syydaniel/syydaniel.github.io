@@ -1,0 +1,198 @@
+---
+import { journey, researchCities } from '../data/journey';
+
+const sorted = [...journey].sort((a, b) => (a.start < b.start ? 1 : -1));
+
+function fmt(s: string) {
+  if (!s) return '';
+  const [y, m] = s.split('-');
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${months[parseInt(m, 10) - 1]} ${y}`;
+}
+---
+
+<section id="journey" class="relative py-28 md:py-40 scroll-mt-20">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal">
+      <div>
+        <span class="section-eyebrow">Research journey</span>
+        <h2 class="section-title mt-4 max-w-2xl">
+          Four countries. Four universities. <span class="text-gradient">One question</span>: how do water and life co-evolve under pressure?
+        </h2>
+      </div>
+      <div class="flex gap-2 flex-wrap" id="journey-filters">
+        <button class="journey-filter chip active" data-filter="all">All</button>
+        <button class="journey-filter chip chip-sol" data-filter="education">Education</button>
+        <button class="journey-filter chip chip-moss" data-filter="experience">Experience</button>
+        <button class="journey-filter chip" data-filter="project">Projects</button>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-[1.4fr_1fr] gap-10">
+      <!-- timeline -->
+      <div class="relative">
+        <div class="absolute left-[11px] top-3 bottom-3 w-px bg-gradient-to-b from-aqua-400/60 via-ink-600 to-transparent"></div>
+        <ul class="space-y-6" id="journey-list">
+          {
+            sorted.map((item) => (
+              <li class="journey-item reveal relative pl-10" data-kind={item.kind} data-id={item.id}>
+                <span
+                  class={`absolute left-0 top-4 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    item.kind === 'education'
+                      ? 'bg-sol-500/15 border-sol-400'
+                      : item.kind === 'experience'
+                      ? 'bg-moss-500/15 border-moss-400'
+                      : 'bg-aqua-500/15 border-aqua-400'
+                  }`}
+                >
+                  <span
+                    class={`w-1.5 h-1.5 rounded-full ${
+                      item.kind === 'education' ? 'bg-sol-400' : item.kind === 'experience' ? 'bg-moss-400' : 'bg-aqua-400'
+                    }`}
+                  ></span>
+                </span>
+
+                <article class="glass rounded-2xl p-5 md:p-6 hover:border-aqua-400/30 transition-colors" data-coords={JSON.stringify(item.coords)}>
+                  <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class={`chip ${item.kind === 'education' ? 'chip-sol' : item.kind === 'experience' ? 'chip-moss' : ''}`}>
+                          {item.kind}
+                        </span>
+                        {item.ongoing && <span class="chip">Ongoing</span>}
+                      </div>
+                      <h3 class="font-display text-xl md:text-2xl text-ink-100 mt-3 leading-snug">{item.title}</h3>
+                      <p class="text-ink-300 text-sm mt-1">{item.org} — {item.location}</p>
+                    </div>
+                    <span class="font-mono text-xs text-ink-400 shrink-0">
+                      {fmt(item.start)} → {item.ongoing ? 'present' : fmt(item.end)}
+                    </span>
+                  </div>
+                  {item.supervisor && (
+                    <p class="text-xs text-ink-400 mt-3">Supervisor: <span class="text-ink-200">{item.supervisor}</span></p>
+                  )}
+                  <p class="text-ink-200 text-sm mt-3 leading-relaxed">{item.summary}</p>
+                  {item.bullets && (
+                    <ul class="mt-3 space-y-1 text-sm text-ink-300 list-disc pl-4 marker:text-aqua-400">
+                      {item.bullets.map((b) => (
+                        <li>{b}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <div class="mt-4 flex flex-wrap gap-1.5">
+                    {item.tags.map((t) => (
+                      <span class="px-2.5 py-1 rounded-full bg-white/5 border border-white/5 text-[11px] text-ink-300">{t}</span>
+                    ))}
+                  </div>
+                </article>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- map -->
+      <aside class="lg:sticky lg:top-28 self-start">
+        <div class="glass rounded-2xl p-5 reveal">
+          <div class="flex items-center justify-between mb-3">
+            <p class="section-eyebrow !tracking-[0.22em]">Places</p>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-ink-400">Hover a card</span>
+          </div>
+          <div
+            id="journey-map"
+            class="w-full aspect-square rounded-xl overflow-hidden bg-ink-800 border border-white/5"
+          ></div>
+          <ul class="mt-4 space-y-2">
+            {
+              researchCities.map((c) => (
+                <li class="flex items-start gap-3 text-sm" data-city={c.id}>
+                  <span class="mt-1.5 w-2 h-2 rounded-full bg-aqua-400 shrink-0"></span>
+                  <div>
+                    <div class="text-ink-100">
+                      {c.name}
+                      <span class="text-ink-400">, {c.country}</span>
+                    </div>
+                    <div class="text-ink-400 text-xs">{c.role}</div>
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  import 'maplibre-gl/dist/maplibre-gl.css';
+  import maplibregl from 'maplibre-gl';
+
+  // Filter chips
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.journey-filter');
+  const items = document.querySelectorAll<HTMLElement>('.journey-item');
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.filter;
+      filterBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      items.forEach((i) => {
+        const match = f === 'all' || i.dataset.kind === f;
+        i.style.display = match ? '' : 'none';
+      });
+    });
+  });
+
+  // Map
+  const el = document.getElementById('journey-map');
+  if (el) {
+    const map = new maplibregl.Map({
+      container: el,
+      style: {
+        version: 8,
+        sources: {
+          basemap: {
+            type: 'raster',
+            tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OSM'
+          }
+        },
+        layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
+      },
+      center: [20, 40],
+      zoom: 1,
+      attributionControl: true,
+      dragRotate: false
+    });
+
+    map.on('load', () => {
+      document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
+        try {
+          const coords = JSON.parse(card.dataset.coords || '[]');
+          if (!Array.isArray(coords) || coords.length !== 2) return;
+          const pin = document.createElement('div');
+          pin.className = 'research-pin';
+          new maplibregl.Marker({ element: pin }).setLngLat(coords as [number, number]).addTo(map);
+        } catch {}
+      });
+
+      document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+          try {
+            const coords = JSON.parse(card.dataset.coords || '[]');
+            if (Array.isArray(coords) && coords.length === 2) {
+              map.flyTo({ center: coords as [number, number], zoom: 4, speed: 1.4, curve: 1.4 });
+            }
+          } catch {}
+        });
+      });
+    });
+  }
+</script>
+
+<style>
+  .journey-filter.active {
+    box-shadow: 0 0 0 2px rgba(56, 228, 210, 0.6);
+  }
+</style>

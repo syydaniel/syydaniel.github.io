@@ -1,0 +1,233 @@
+---
+import { profile } from '../data/profile';
+---
+
+<section id="hero" class="relative min-h-[100vh] flex items-center overflow-hidden">
+  <canvas
+    id="hero-canvas"
+    class="absolute inset-0 w-full h-full"
+    aria-hidden="true"
+  ></canvas>
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950 pointer-events-none"></div>
+  <div class="absolute inset-0 bg-grid-fade bg-[size:60px_60px] opacity-30 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]"></div>
+
+  <div class="relative z-10 mx-auto max-w-6xl px-6 w-full pt-32 pb-20">
+    <div class="grid lg:grid-cols-[1.3fr_1fr] gap-16 items-center">
+      <div>
+        <div class="section-eyebrow reveal" style="transition-delay: 60ms;">
+          <span>Environmental Researcher · Photographer</span>
+        </div>
+
+        <h1 class="mt-6 font-display text-[clamp(3rem,9vw,7rem)] leading-[0.95] text-ink-100 reveal" style="transition-delay: 120ms;">
+          <span
+            id="hero-name"
+            data-names={JSON.stringify([profile.name.en, profile.name.nickname, profile.name.cn])}
+            class="text-gradient inline-block"
+          >{profile.name.en}</span>
+        </h1>
+
+        <p class="mt-8 max-w-xl text-lg md:text-xl text-ink-300 leading-relaxed reveal" style="transition-delay: 240ms;">
+          {profile.tagline}
+        </p>
+
+        <p class="mt-4 max-w-xl text-sm text-ink-400 reveal" style="transition-delay: 300ms;">
+          {profile.subtitle}
+        </p>
+
+        <div class="mt-10 flex flex-wrap gap-3 reveal" style="transition-delay: 380ms;">
+          <a href="#journey" class="btn btn-primary">
+            Explore journey
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+          <a href="#photography" class="btn btn-ghost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            Photography map
+          </a>
+        </div>
+
+        <div class="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-lg reveal" style="transition-delay: 460ms;">
+          {
+            profile.stats.map((stat) => (
+              <div class="glass-soft rounded-xl px-4 py-3">
+                <div class="font-display text-3xl text-ink-100">{stat.value}</div>
+                <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400 mt-0.5">{stat.label}</div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="relative hidden lg:block">
+        <div id="hero-orbit" class="relative aspect-square w-full max-w-md mx-auto">
+          <!-- research-location rings, rendered by Three.js overlay -->
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-ink-400 text-xs tracking-[0.3em] uppercase">
+      <span>Scroll</span>
+      <div class="w-px h-10 bg-gradient-to-b from-ink-400 to-transparent"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import * as THREE from 'three';
+
+  const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (canvas && !prefersReduced) {
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+    camera.position.z = 6;
+
+    // particle field — evokes water + pollen drift
+    const count = 1800;
+    const positions = new Float32Array(count * 3);
+    const speeds = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 16;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      speeds[i] = Math.random() * 0.003 + 0.0008;
+    }
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const tex = new THREE.CanvasTexture(createCircleSprite());
+    const mat = new THREE.PointsMaterial({
+      map: tex,
+      color: 0x38e4d2,
+      size: 0.055,
+      transparent: true,
+      opacity: 0.7,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    const points = new THREE.Points(geom, mat);
+    scene.add(points);
+
+    // second layer — warmer, slower
+    const warmCount = 400;
+    const warmPositions = new Float32Array(warmCount * 3);
+    for (let i = 0; i < warmCount; i++) {
+      warmPositions[i * 3] = (Math.random() - 0.5) * 14;
+      warmPositions[i * 3 + 1] = (Math.random() - 0.5) * 8;
+      warmPositions[i * 3 + 2] = (Math.random() - 0.5) * 6;
+    }
+    const warmGeom = new THREE.BufferGeometry();
+    warmGeom.setAttribute('position', new THREE.BufferAttribute(warmPositions, 3));
+    const warmMat = new THREE.PointsMaterial({
+      map: tex,
+      color: 0xffc46b,
+      size: 0.085,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const warmPoints = new THREE.Points(warmGeom, warmMat);
+    scene.add(warmPoints);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    window.addEventListener('mousemove', (e) => {
+      targetX = (e.clientX / window.innerWidth - 0.5) * 1.2;
+      targetY = (e.clientY / window.innerHeight - 0.5) * 0.8;
+    });
+
+    let running = true;
+    const clock = new THREE.Clock();
+
+    function resize() {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function animate() {
+      if (!running) return;
+      const t = clock.getElapsedTime();
+      mouseX += (targetX - mouseX) * 0.04;
+      mouseY += (targetY - mouseY) * 0.04;
+
+      const arr = geom.attributes.position.array as Float32Array;
+      for (let i = 0; i < count; i++) {
+        arr[i * 3 + 1] += speeds[i];
+        arr[i * 3] += Math.sin(t * 0.25 + i * 0.01) * 0.0015;
+        if (arr[i * 3 + 1] > 5) arr[i * 3 + 1] = -5;
+      }
+      geom.attributes.position.needsUpdate = true;
+
+      points.rotation.y = mouseX * 0.4 + t * 0.02;
+      points.rotation.x = mouseY * 0.3;
+      warmPoints.rotation.y = -mouseX * 0.2 - t * 0.015;
+      warmPoints.rotation.x = -mouseY * 0.15;
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    document.addEventListener('visibilitychange', () => {
+      running = !document.hidden;
+      if (running) animate();
+    });
+
+    function createCircleSprite() {
+      const c = document.createElement('canvas');
+      c.width = 64;
+      c.height = 64;
+      const ctx = c.getContext('2d')!;
+      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.4, 'rgba(255,255,255,0.5)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 64, 64);
+      return c;
+    }
+  }
+
+  // Name morph (cycles between Yiyang Shen / Daniel / 沈亦旸)
+  const nameEl = document.getElementById('hero-name');
+  if (nameEl) {
+    const raw = nameEl.dataset.names;
+    if (raw) {
+      try {
+        const names = JSON.parse(raw) as string[];
+        let idx = 0;
+        setInterval(() => {
+          idx = (idx + 1) % names.length;
+          nameEl.animate(
+            [
+              { opacity: 1, transform: 'translateY(0) skewY(0)' },
+              { opacity: 0, transform: 'translateY(-12px) skewY(-6deg)' }
+            ],
+            { duration: 380, easing: 'cubic-bezier(0.7,0,0.2,1)', fill: 'forwards' }
+          ).onfinish = () => {
+            nameEl.textContent = names[idx];
+            nameEl.animate(
+              [
+                { opacity: 0, transform: 'translateY(12px) skewY(6deg)' },
+                { opacity: 1, transform: 'translateY(0) skewY(0)' }
+              ],
+              { duration: 420, easing: 'cubic-bezier(0.2,0.8,0.2,1)', fill: 'forwards' }
+            );
+          };
+        }, 3600);
+      } catch {}
+    }
+  }
+</script>
