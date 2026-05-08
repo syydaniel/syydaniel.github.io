@@ -44,6 +44,16 @@ const links = [
       <div class="flex items-center gap-3">
         <LangSwitcher />
         <a
+          href="/Yiyang_Shen_CV.pdf"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-ghost !py-2 !px-4 text-sm hidden md:inline-flex gap-1.5"
+          aria-label="Download CV (PDF)"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="nav.cv">CV</span>
+        </a>
+        <a
           href="mailto:syydaniel@gmail.com"
           class="btn btn-primary !py-2 !px-4 text-sm hidden md:inline-flex"
           data-i18n="nav.cta"
@@ -78,6 +88,18 @@ const links = [
             </li>
           ))
         }
+        <li>
+          <a
+            href="/Yiyang_Shen_CV.pdf"
+            target="_blank"
+            rel="noopener"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-aqua-300 hover:bg-white/5 transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-i18n="nav.cv">CV</span>
+            <span class="text-xs text-ink-400 ml-auto">PDF</span>
+          </a>
+        </li>
       </ul>
     </div>
   </div>

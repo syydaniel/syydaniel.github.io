@@ -8,6 +8,7 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.photography': { en: 'Photography', zh: '摄影' },
   'nav.contact': { en: 'Contact', zh: '联系' },
   'nav.cta': { en: "Let's talk", zh: '聊聊' },
+  'nav.cv': { en: 'CV', zh: '简历' },
 
   // Hero
   'hero.eyebrow': { en: 'Environmental Researcher · Photographer', zh: '环境研究员 · 摄影师' },
@@ -21,6 +22,7 @@ export const dict: Record<string, Record<Lang, string>> = {
   },
   'hero.cta.primary': { en: 'Explore journey', zh: '探索我的履历' },
   'hero.cta.secondary': { en: 'Photography map', zh: '摄影地图' },
+  'hero.cta.cv': { en: 'Download CV (PDF)', zh: '下载简历 (PDF)' },
   'hero.scroll': { en: 'Scroll', zh: '下滑' },
   'stat.countries': { en: 'Countries', zh: '国家' },
   'stat.universities': { en: 'Universities', zh: '高校' },
@@ -100,9 +102,11 @@ export const dict: Record<string, Record<Lang, string>> = {
   'contact.channel.personal': { en: 'Personal', zh: '个人邮箱' },
   'contact.channel.academic': { en: 'Academic', zh: '学术邮箱' },
   'contact.channel.linkedin': { en: 'LinkedIn', zh: 'LinkedIn' },
+  'contact.channel.cv': { en: 'CV (PDF)', zh: '简历 (PDF)' },
   'contact.channel.hint.personal': { en: 'For collaborations, photo licensing, open talk.', zh: '合作、图片授权、随意聊天。' },
   'contact.channel.hint.academic': { en: 'For research & WUR-related correspondence.', zh: '科研相关、瓦大事务。' },
   'contact.channel.hint.linkedin': { en: 'The long-form version of my journey.', zh: '更完整的履历版本。' },
+  'contact.channel.hint.cv': { en: 'Latest version — May 2026. Education, research, awards.', zh: '最新版本 —— 2026 年 5 月。教育、科研、奖项。' },
   'contact.based': { en: 'Based in', zh: '常驻' },
   'contact.current': { en: 'Currently — MSc at Wageningen University', zh: '目前 —— 瓦赫宁根大学硕士在读' },
 

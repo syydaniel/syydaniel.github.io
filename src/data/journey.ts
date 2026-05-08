@@ -29,26 +29,40 @@ export const journey: JourneyItem[] = [
     end: '2026-06',
     ongoing: true,
     summary:
-      'Specialization: Water System and Global Change. Focus on water quality, microplastic fate, and scenario analysis at catchment scale.',
-    supervisor: 'Prof. Maryna Strokal',
-    tags: ['Water Systems', 'Global Change', 'Microplastics'],
+      'Specialization: Water System and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale.',
+    supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
+    tags: ['Water Systems', 'Global Change', 'Microplastics', 'WIMEK Honours'],
     status: 'active'
   },
   {
     id: 'thesis-marina',
     kind: 'project',
-    title: 'MSc Thesis — MARINA-Plastic Model Enhancement',
+    title: 'MSc Thesis — Hybrid Framework for Microplastic Retention',
     org: 'Wageningen University & Research',
     location: 'Wageningen, Netherlands',
     coords: [5.6645, 51.9692],
-    start: '2025-10',
-    end: '2026-03',
+    start: '2025-11',
+    end: '2026-05',
     ongoing: true,
     summary:
-      'Using machine learning to refine sub-basin microplastic river retention rates within the MARINA-Plastic framework.',
-    supervisor: 'Prof. Maryna Strokal',
+      'Developing a hybrid framework for estimating microplastic retention rates in global river systems, within the MARINA-Plastic chair group.',
+    supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Machine Learning', 'MARINA-Plastic', 'Microplastics', 'Water Systems'],
     status: 'active'
+  },
+  {
+    id: 'ta-uef',
+    kind: 'experience',
+    title: 'Teaching Assistant — AI4Science Summer School',
+    org: 'University of Eastern Finland',
+    location: 'Joensuu, Finland',
+    coords: [29.7636, 62.6010],
+    start: '2025-08',
+    end: '2025-08',
+    summary:
+      'Co-taught an AI4Science lecture and supported students through the international summer school programme.',
+    tags: ['Teaching', 'AI4Science', 'Summer School'],
+    status: 'complete'
   },
   {
     id: 'ra-uef',
@@ -60,14 +74,14 @@ export const journey: JourneyItem[] = [
     start: '2025-05',
     end: '2025-09',
     summary:
-      'Boreal-forest fieldwork: soil-water collection in Lapland, spectral measurements, GIS watershed analysis, summer-school support.',
+      'Boreal-forest fieldwork in Lapland focused on dissolved organic carbon (DOC) in subarctic catchments, plus lab work and GIS watershed analysis.',
     supervisor: 'Prof. Frank Berninger',
     bullets: [
-      'Field sampling in Lapland — soil water & spectral measurements',
-      'GIS analysis of watershed land use',
-      'Assisted in international summer school'
+      'Field sampling in Lapland — water samples for DOC measurement',
+      'Lab preparation and instrument work for DOC analysis',
+      'Manuscript in preparation: "Hydraulic Shunting and the Mobilization of Terrestrial Dissolved Organic Carbon in Subarctic Boreal Catchments"'
     ],
-    tags: ['Field Research', 'Boreal Forest', 'Spectral', 'GIS'],
+    tags: ['Field Research', 'Boreal Forest', 'DOC', 'GIS'],
     status: 'complete'
   },
   {
@@ -79,7 +93,7 @@ export const journey: JourneyItem[] = [
     coords: [-123.2460, 49.2606],
     start: '2021-09',
     end: '2024-05',
-    summary: 'GPA 83.7 / 100. Graduated with honors. Supervisor: Prof. Andrew Almas.',
+    summary: 'GPA 83.7 / 100. Graduated with honors and named to the Dean\'s Honor List. Supervisor: Dr. Andrew Almas.',
     tags: ['Urban Forestry', 'Green Space', 'GIS'],
     status: 'complete'
   },
@@ -94,7 +108,7 @@ export const journey: JourneyItem[] = [
     end: '2024-04',
     summary:
       '130,000+ tree inventory analysis for the City of Surrey — mortality, species, life-span patterns.',
-    supervisor: 'Prof. Andrew Adams',
+    supervisor: 'Dr. Andrew Adams',
     tags: ['Tree Inventory', 'Data Analysis', 'GIS'],
     status: 'complete'
   },
