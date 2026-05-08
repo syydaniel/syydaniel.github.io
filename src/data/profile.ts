@@ -4,7 +4,7 @@ export const profile = {
     cn: '沈亦旸',
     nickname: 'Daniel'
   },
-  title: 'Environmental Researcher · Photographer',
+  title: 'Graduating MSc (May 2026) · Photographer',
   tagline: 'Water systems, global change, and the quiet choreography of light on landscapes.',
   subtitle:
     "MSc student in Urban Environmental Management at Wageningen University & Research. I study water and plastic, and I photograph the places I study.",
