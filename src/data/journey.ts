@@ -26,10 +26,10 @@ export const journey: JourneyItem[] = [
     location: 'Wageningen, Netherlands',
     coords: [5.6645, 51.9692],
     start: '2024-09',
-    end: '2026-06',
+    end: '2026-05',
     ongoing: true,
     summary:
-      'Specialization: Water System and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale.',
+      'Specialization: Water System and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale. Graduating end of May 2026.',
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Water Systems', 'Global Change', 'Microplastics', 'WIMEK Honours'],
     status: 'active'
@@ -45,7 +45,7 @@ export const journey: JourneyItem[] = [
     end: '2026-05',
     ongoing: true,
     summary:
-      'Developing a hybrid framework for estimating microplastic retention rates in global river systems, within the MARINA-Plastic chair group.',
+      'Developing a hybrid framework for estimating microplastic retention rates in global river systems. Hosted by the Earth Systems and Global Change chair group, building on the MARINA-Plastic modelling framework.',
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Machine Learning', 'MARINA-Plastic', 'Microplastics', 'Water Systems'],
     status: 'active'
@@ -122,8 +122,9 @@ export const journey: JourneyItem[] = [
     start: '2024-01',
     end: '2024-04',
     summary:
-      'Mapped UBC campus urban structure at 30 m resolution; analyzed land-use change impact on surface temperature 2014-2022.',
-    tags: ['Urban Forestry', 'Climate', 'Remote Sensing'],
+      'Mapped UBC campus urban structure at 30 m resolution and analyzed land-use change impact on surface temperature 2014-2022. Group project applied a random-forest model to predict future LST in Wesbrook Village.',
+    supervisor: 'Prof. Melissa McHale & Cody Bingham (MSc)',
+    tags: ['Urban Forestry', 'Climate', 'Remote Sensing', 'Random Forest'],
     status: 'complete'
   },
   {
@@ -136,9 +137,9 @@ export const journey: JourneyItem[] = [
     start: '2023-05',
     end: '2023-08',
     summary:
-      'Surveyed insect–plant interactions across 18 urban parks in Vancouver.',
+      'Field survey of insect and bumble bee — plant interactions across 18 urban parks in Vancouver, with the Faculty of Land and Food Systems.',
     supervisor: 'Prof. Risa Sargant & Dr. Jens Ulrich',
-    tags: ['Pollinators', 'Urban Ecology', 'Climate'],
+    tags: ['Pollinators', 'Bumble Bees', 'Urban Ecology', 'Climate'],
     status: 'complete'
   },
   {
@@ -150,8 +151,8 @@ export const journey: JourneyItem[] = [
     coords: [119.7249, 30.2588],
     start: '2019-09',
     end: '2024-06',
-    summary: 'GPA 87.7 / 100. Supervisors: Prof. Yeqing Ying & Prof. Wenhui Shi.',
-    tags: ['Forestry', 'Biology'],
+    summary: 'GPA 87.7 / 100. Multiple national, provincial and institutional scholarships and life-science competition awards. Supervisors: Prof. Yeqing Ying & Prof. Wenhui Shi.',
+    tags: ['Forestry', 'Biology', 'Scholarships'],
     status: 'complete'
   },
   {
@@ -164,15 +165,19 @@ export const journey: JourneyItem[] = [
     start: '2019-10',
     end: '2021-08',
     summary:
-      'Phosphorus-solubilizing microorganisms — strain interactions and their role in Phyllostachys edulis growth. Team lead.',
+      'Two consecutive projects in the State Key Laboratory of Subtropical Silviculture, on phosphorus-solubilizing microorganism (PSM) ecology in moso bamboo (Phyllostachys edulis) systems.',
     supervisor: 'Prof. Yeqing Ying & Prof. Wenhui Shi',
-    tags: ['Microbiology', 'Plant-Microbe', 'Forestry'],
+    bullets: [
+      '2019-10 → 2020-11 — PSM × Phyllostachys edulis: field work and data analysis',
+      '2020-10 → 2021-08 — PSM strain interactions: team leader, proposal writing, leading the team to completion'
+    ],
+    tags: ['Microbiology', 'Plant-Microbe', 'Forestry', 'Team Lead'],
     status: 'complete'
   }
 ];
 
 export const researchCities = [
-  { id: 'wageningen', name: 'Wageningen', country: 'Netherlands', coords: [5.6645, 51.9692] as [number, number], role: 'Current — MSc & thesis' },
+  { id: 'wageningen', name: 'Wageningen', country: 'Netherlands', coords: [5.6645, 51.9692] as [number, number], role: 'MSc & thesis — graduating May 2026' },
   { id: 'lapland', name: 'Joensuu / Lapland', country: 'Finland', coords: [29.7636, 62.6010] as [number, number], role: 'Boreal forest fieldwork' },
   { id: 'vancouver', name: 'Vancouver', country: 'Canada', coords: [-123.2460, 49.2606] as [number, number], role: 'BSc, urban forestry research' },
   { id: 'hangzhou', name: 'Hangzhou', country: 'China', coords: [119.7249, 30.2588] as [number, number], role: 'Forestry BSc & microbiology RA' }
