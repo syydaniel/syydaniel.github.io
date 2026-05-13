@@ -1,13 +1,22 @@
 ---
 import { researchCities } from '../data/journey';
+import { photos as allPhotos } from '../data/photos-loader';
 
 const cities = researchCities;
+const orbitPhotos = allPhotos
+  .filter((p) => p.thumb || p.src)
+  .map((p) => ({
+    id: p.id,
+    thumb: p.thumb || p.src,
+    caption: p.caption ?? '',
+    location: p.location?.name ?? ''
+  }));
 ---
 
 <div class="globe-wrap relative w-full aspect-square max-w-md mx-auto">
   <canvas id="globe-canvas" class="w-full h-full"></canvas>
   <div id="globe-label" class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass-soft rounded-full px-3 py-1.5 text-xs text-ink-100 font-mono opacity-0 transition-opacity duration-300 whitespace-nowrap">
-    —
+    .
   </div>
   <div class="absolute top-4 left-4 text-[10px] uppercase tracking-[0.24em] text-ink-400 pointer-events-none">
     <span class="flex items-center gap-1.5">
@@ -17,8 +26,9 @@ const cities = researchCities;
   </div>
 </div>
 
-<script is:inline define:vars={{ cityData: cities }}>
+<script is:inline define:vars={{ cityData: cities, photoData: orbitPhotos }}>
   window.__GLOBE_CITIES__ = cityData;
+  window.__GLOBE_PHOTOS__ = photoData;
 </script>
 
 <script>
@@ -32,7 +42,15 @@ const cities = researchCities;
     role: string;
   };
 
+  type OrbitPhoto = {
+    id: string;
+    thumb: string;
+    caption: string;
+    location: string;
+  };
+
   const cities = ((window as unknown as { __GLOBE_CITIES__: City[] }).__GLOBE_CITIES__ ?? []) as City[];
+  const orbitPhotos = ((window as unknown as { __GLOBE_PHOTOS__: OrbitPhoto[] }).__GLOBE_PHOTOS__ ?? []) as OrbitPhoto[];
 
   const canvas = document.getElementById('globe-canvas') as HTMLCanvasElement | null;
   const label = document.getElementById('globe-label');
@@ -225,6 +243,74 @@ const cities = researchCities;
     }
   }
 
+  // ---- Photo orbit ring ----
+  // Photos billboarded toward camera, positioned on a tilted ring orbiting the globe.
+  // Ring auto-rotates at its own cadence, independent of globe drag.
+  type OrbitSprite = { sprite: THREE.Sprite; baseAngle: number; aspect: number };
+
+  const photoSprites: OrbitSprite[] = [];
+  const ORBIT_RADIUS = 1.78;
+  const ORBIT_TILT = THREE.MathUtils.degToRad(22);
+  const SPRITE_WIDTH = 0.62;
+
+  if (orbitPhotos.length > 0) {
+    const loader = new THREE.TextureLoader();
+    loader.crossOrigin = 'anonymous';
+    orbitPhotos.forEach((p, i) => {
+      const tex = loader.load(p.thumb, (t) => {
+        const img = t.image as HTMLImageElement;
+        const aspect = img && img.width && img.height ? img.width / img.height : 16 / 9;
+        sp.aspect = aspect;
+        sprite.scale.set(SPRITE_WIDTH, SPRITE_WIDTH / aspect, 1);
+      });
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 4;
+      const mat = new THREE.SpriteMaterial({
+        map: tex,
+        transparent: true,
+        depthTest: true,
+        depthWrite: false,
+        opacity: 1
+      });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(SPRITE_WIDTH, SPRITE_WIDTH * 0.62, 1);
+      sprite.userData.photoId = p.id;
+      sprite.userData.caption = p.caption;
+      sprite.userData.location = p.location;
+      scene.add(sprite);
+      const sp: OrbitSprite = {
+        sprite,
+        baseAngle: (i / orbitPhotos.length) * Math.PI * 2,
+        aspect: 16 / 9
+      };
+      photoSprites.push(sp);
+    });
+  }
+
+  // Faint orbit guide ring (subtle dashed circle in the ring plane)
+  if (orbitPhotos.length > 0) {
+    const guidePts: THREE.Vector3[] = [];
+    for (let i = 0; i <= 192; i++) {
+      const a = (i / 192) * Math.PI * 2;
+      const x = Math.cos(a) * ORBIT_RADIUS;
+      const z = Math.sin(a) * ORBIT_RADIUS;
+      guidePts.push(
+        new THREE.Vector3(x, z * Math.sin(ORBIT_TILT), z * Math.cos(ORBIT_TILT))
+      );
+    }
+    const guideGeom = new THREE.BufferGeometry().setFromPoints(guidePts);
+    const guideMat = new THREE.LineDashedMaterial({
+      color: 0xffc46b,
+      transparent: true,
+      opacity: 0.18,
+      dashSize: 0.06,
+      gapSize: 0.05
+    });
+    const guideLine = new THREE.Line(guideGeom, guideMat);
+    guideLine.computeLineDistances();
+    scene.add(guideLine);
+  }
+
   // ---- Interaction (drag + scroll + hover) ----
   let rotationVX = 0;
   let rotationVY = 0;
@@ -274,11 +360,19 @@ const cities = researchCities;
       );
       raycaster.setFromCamera(mouse, camera);
       const cores = markers.map((m) => m.core);
-      const hit = raycaster.intersectObjects(cores, false)[0];
-      if (hit) {
-        const idx = cores.indexOf(hit.object as THREE.Mesh);
+      const sprites = photoSprites.map((p) => p.sprite);
+      const cityHit = raycaster.intersectObjects(cores, false)[0];
+      const photoHit = raycaster.intersectObjects(sprites, false)[0];
+      const closest = [cityHit, photoHit].filter(Boolean).sort((a, b) => a!.distance - b!.distance)[0];
+      if (closest && closest === cityHit) {
+        const idx = cores.indexOf(cityHit.object as THREE.Mesh);
         const m = markers[idx];
-        setLabel(`${m.city.name}, ${m.city.country} — ${m.city.role}`, e.clientX, e.clientY);
+        setLabel(`${m.city.name}, ${m.city.country}. ${m.city.role}`, e.clientX, e.clientY);
+        canvas.style.cursor = 'pointer';
+      } else if (closest && closest === photoHit) {
+        const sprite = photoHit.object as THREE.Sprite;
+        const cap = sprite.userData.caption || sprite.userData.location || 'Photograph';
+        setLabel(cap, e.clientX, e.clientY);
         canvas.style.cursor = 'pointer';
       } else {
         setLabel('');
@@ -350,6 +444,22 @@ const cities = researchCities;
       arc.offset += 0.01;
       // Not directly animatable without shader; use opacity sparkle
       (arc.line.material as THREE.LineDashedMaterial).opacity = 0.28 + Math.sin(t + arc.offset) * 0.1;
+    });
+
+    // animate photo orbit ring
+    const ringRate = 0.18; // radians/sec — slower than globe for visual distinction
+    const ringAngle = t * ringRate;
+    const cosT = Math.cos(ORBIT_TILT);
+    const sinT = Math.sin(ORBIT_TILT);
+    photoSprites.forEach((sp) => {
+      const a = sp.baseAngle + ringAngle;
+      const localX = Math.cos(a) * ORBIT_RADIUS;
+      const localZ = Math.sin(a) * ORBIT_RADIUS;
+      sp.sprite.position.set(localX, localZ * sinT, localZ * cosT);
+      // Fade sprites that are behind the globe to ease the depth occlusion edge
+      const front = (localZ * cosT) / ORBIT_RADIUS; // ~ -1 (behind) to 1 (front)
+      const opacity = THREE.MathUtils.clamp(0.55 + front * 0.45, 0.15, 1);
+      (sp.sprite.material as THREE.SpriteMaterial).opacity = opacity;
     });
 
     renderer.render(scene, camera);

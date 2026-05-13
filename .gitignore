@@ -14,3 +14,4 @@ _old_snapshot/
 
 # generated
 src/data/photos.generated.json
+public/photos/

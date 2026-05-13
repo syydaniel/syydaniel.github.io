@@ -40,10 +40,20 @@ async function walk(dir, out = []) {
   const entries = await readdir(dir, { withFileTypes: true });
   for (const e of entries) {
     const full = join(dir, e.name);
-    if (e.isDirectory()) await walk(full, out);
-    else if (SUPPORTED.has(extname(e.name).toLowerCase())) out.push(full);
+    if (e.isDirectory()) {
+      if (e.name.startsWith('_') || e.name.startsWith('.')) continue;
+      await walk(full, out);
+    } else if (SUPPORTED.has(extname(e.name).toLowerCase())) {
+      out.push(full);
+    }
   }
   return out;
+}
+
+async function copyTree(src, dest) {
+  if (!(await exists(src))) return;
+  const { cp } = await import('node:fs/promises');
+  await cp(src, dest, { recursive: true });
 }
 
 async function readSidecar(photoPath) {
@@ -118,10 +128,11 @@ async function main() {
         ? exif.CreateDate.toISOString()
         : new Date(0).toISOString());
 
+    const srcUrl = '/photos/' + rel.split('\\').join('/');
     const photo = {
       id: sidecar?.id ?? slugify(rel),
-      src: '/photos/' + rel.split('\\').join('/'),
-      thumb: '/photos/' + rel.split('\\').join('/'), // TODO: generate real thumbs
+      src: srcUrl,
+      thumb: sidecar?.thumb ?? srcUrl,
       width: exif.ExifImageWidth ?? exif.ImageWidth ?? 1600,
       height: exif.ExifImageHeight ?? exif.ImageHeight ?? 1067,
       takenAt,
@@ -132,6 +143,7 @@ async function main() {
       },
       caption: sidecar?.caption,
       camera: sidecar?.camera ?? (exif.Make ? `${exif.Make} ${exif.Model ?? ''}`.trim() : undefined),
+      tags: sidecar?.tags ?? [],
       exposure:
         sidecar?.exposure ??
         (exif.FNumber || exif.ExposureTime || exif.ISO
@@ -147,6 +159,18 @@ async function main() {
     };
 
     manifest.push(photo);
+  }
+
+  // Also copy thumbnail directories (named `_thumbs`) so they're served too.
+  const photosDirEntries = await readdir(PHOTOS_DIR, { recursive: true, withFileTypes: true });
+  for (const e of photosDirEntries) {
+    if (e.isDirectory() && (e.name === '_thumbs' || e.name.startsWith('_thumbs'))) {
+      const parentPath = e.parentPath ?? e.path ?? PHOTOS_DIR;
+      const src = join(parentPath, e.name);
+      const relDir = relative(PHOTOS_DIR, src);
+      const dest = join(publicPhotos, relDir);
+      await copyTree(src, dest);
+    }
   }
 
   // Sort newest first

@@ -13,6 +13,7 @@ export interface Photo {
   caption?: string;
   camera?: string;
   exposure?: string;
+  tags?: string[];
 }
 
 /**
