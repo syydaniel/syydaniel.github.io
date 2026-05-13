@@ -21,7 +21,7 @@ const orbitPhotos = allPhotos
   <div class="absolute top-4 left-4 text-[10px] uppercase tracking-[0.24em] text-ink-400 pointer-events-none">
     <span class="flex items-center gap-1.5">
       <span class="inline-block w-1.5 h-1.5 rounded-full bg-aqua-400 animate-pulse"></span>
-      Drag · Scroll
+      Drag to rotate
     </span>
   </div>
 </div>
@@ -392,15 +392,6 @@ const orbitPhotos = allPhotos
   });
 
   const raycaster = new THREE.Raycaster();
-
-  canvas.addEventListener(
-    'wheel',
-    (e) => {
-      e.preventDefault();
-      camera.position.z = Math.max(2.2, Math.min(5, camera.position.z + e.deltaY * 0.002));
-    },
-    { passive: false }
-  );
 
   // ---- Resize ----
   function resize() {
