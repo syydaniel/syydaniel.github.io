@@ -8,6 +8,7 @@ const orbitPhotos = allPhotos
   .map((p) => ({
     id: p.id,
     thumb: p.thumb || p.src,
+    src: p.src || p.thumb,
     caption: p.caption ?? '',
     location: p.location?.name ?? ''
   }));
@@ -15,15 +16,24 @@ const orbitPhotos = allPhotos
 
 <div class="globe-wrap relative w-full aspect-square max-w-md mx-auto">
   <canvas id="globe-canvas" class="w-full h-full"></canvas>
-  <div id="globe-label" class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass-soft rounded-full px-3 py-1.5 text-xs text-ink-100 font-mono opacity-0 transition-opacity duration-300 whitespace-nowrap">
-    .
-  </div>
+  <div id="globe-label" class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass-soft rounded-xl p-1.5 text-xs text-ink-100 font-mono opacity-0 transition-opacity duration-300 max-w-[220px] z-20"></div>
   <div class="absolute top-4 left-4 text-[10px] uppercase tracking-[0.24em] text-ink-400 pointer-events-none">
     <span class="flex items-center gap-1.5">
       <span class="inline-block w-1.5 h-1.5 rounded-full bg-aqua-400 animate-pulse"></span>
       Drag to rotate
     </span>
   </div>
+</div>
+
+<div
+  id="globe-lightbox"
+  class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/90 backdrop-blur-md p-6 cursor-zoom-out"
+  aria-hidden="true"
+>
+  <figure class="flex flex-col items-center gap-3 max-w-5xl">
+    <img id="globe-lightbox-img" alt="" class="max-h-[82vh] max-w-[90vw] rounded-xl shadow-2xl bg-ink-800" />
+    <figcaption id="globe-lightbox-cap" class="text-center text-sm text-ink-300 font-mono"></figcaption>
+  </figure>
 </div>
 
 <script is:inline define:vars={{ cityData: cities, photoData: orbitPhotos }}>
@@ -64,49 +74,102 @@ const orbitPhotos = allPhotos
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.set(0, 0, 3.2);
+  // Half-extent (world units) the camera must always frame: planet + star halo + margin.
+  // fitCamera() derives the camera distance from this so the halo never clips the canvas edge.
+  const FRAME_RADIUS = 1.58;
 
   const globe = new THREE.Group();
   scene.add(globe);
 
   // ---- Core sphere (dark ocean) ----
+  // Opaque so it renders in the opaque pass and reliably writes depth: this
+  // occludes the far-side land dots/lines instead of letting them bleed through
+  // (a transparent core sorts unstably against the dots and looks see-through).
   const coreGeom = new THREE.SphereGeometry(1, 64, 64);
-  const coreMat = new THREE.MeshBasicMaterial({ color: 0x0a0e1c, transparent: true, opacity: 0.95 });
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0x0a0e1c });
   const core = new THREE.Mesh(coreGeom, coreMat);
   globe.add(core);
 
-  // ---- Fibonacci sphere dots (simulates continents / coverage) ----
-  const N = 2800;
-  const positions = new Float32Array(N * 3);
-  const colors = new Float32Array(N * 3);
+  // ---- Land dots (continents sampled from an equirectangular land mask) ----
+  // Dots are placed only where the self-hosted mask shows land, so they trace the
+  // real continents. Same-origin asset → canvas pixel reads work without CORS.
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < N; i++) {
-    const y = 1 - (i / (N - 1)) * 2;
-    const r = Math.sqrt(1 - y * y);
-    const theta = goldenAngle * i;
-    const x = Math.cos(theta) * r;
-    const z = Math.sin(theta) * r;
-    positions[i * 3] = x * 1.005;
-    positions[i * 3 + 1] = y * 1.005;
-    positions[i * 3 + 2] = z * 1.005;
-    // gentle color variation: aqua → slate
-    const brightness = 0.3 + Math.random() * 0.5;
-    colors[i * 3] = 0.22 * brightness;
-    colors[i * 3 + 1] = 0.89 * brightness;
-    colors[i * 3 + 2] = 0.82 * brightness;
-  }
-  const dotsGeom = new THREE.BufferGeometry();
-  dotsGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  dotsGeom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   const dotsMat = new THREE.PointsMaterial({
     size: 0.018,
     vertexColors: true,
     transparent: true,
-    opacity: 0.85,
+    opacity: 0.95,
     sizeAttenuation: true,
     depthWrite: false
   });
-  const dots = new THREE.Points(dotsGeom, dotsMat);
-  globe.add(dots);
+
+  function addDots(pos: number[], col: number[]) {
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
+    geom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(col), 3));
+    globe.add(new THREE.Points(geom, dotsMat));
+  }
+
+  function dotsFromMask(img: HTMLImageElement) {
+    const W = img.naturalWidth;
+    const H = img.naturalHeight;
+    const off = document.createElement('canvas');
+    off.width = W;
+    off.height = H;
+    const octx = off.getContext('2d', { willReadFrequently: true });
+    if (!octx) return dotsFallback();
+    octx.drawImage(img, 0, 0);
+    const data = octx.getImageData(0, 0, W, H).data;
+
+    const CANDIDATES = 32000;
+    // In earth-dark.jpg land is near-black (~0) and ocean is dark grey (~14), so
+    // land is the LOW-luminance pixels.
+    const LAND_MAX_LUM = 8; // luminance 0..255 below which a pixel counts as land
+    const pos: number[] = [];
+    const col: number[] = [];
+    for (let i = 0; i < CANDIDATES; i++) {
+      const y = 1 - (i / (CANDIDATES - 1)) * 2; // unit y
+      const rr = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = goldenAngle * i;
+      const x = Math.cos(theta) * rr;
+      const z = Math.sin(theta) * rr;
+      // inverse of latLonToVec3 → equirectangular uv, so dots align with city markers
+      let th = Math.atan2(z, -x);
+      if (th < 0) th += Math.PI * 2;
+      const u = th / (Math.PI * 2);
+      const v = Math.acos(Math.min(1, Math.max(-1, y))) / Math.PI;
+      const px = Math.min(W - 1, Math.floor(u * W));
+      const py = Math.min(H - 1, Math.floor(v * H));
+      const idx = (py * W + px) * 4;
+      const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+      if (lum >= LAND_MAX_LUM) continue; // ocean → skip
+      pos.push(x * 1.005, y * 1.005, z * 1.005);
+      const b = 0.55 + Math.random() * 0.45;
+      col.push(0.22 * b, 0.89 * b, 0.82 * b);
+    }
+    addDots(pos, col);
+  }
+
+  // Fallback: even Fibonacci coverage if the mask can't load.
+  function dotsFallback() {
+    const N = 2800;
+    const pos: number[] = [];
+    const col: number[] = [];
+    for (let i = 0; i < N; i++) {
+      const y = 1 - (i / (N - 1)) * 2;
+      const rr = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = goldenAngle * i;
+      pos.push(Math.cos(theta) * rr * 1.005, y * 1.005, Math.sin(theta) * rr * 1.005);
+      const b = 0.3 + Math.random() * 0.5;
+      col.push(0.22 * b, 0.89 * b, 0.82 * b);
+    }
+    addDots(pos, col);
+  }
+
+  const maskImg = new Image();
+  maskImg.onload = () => dotsFromMask(maskImg);
+  maskImg.onerror = () => dotsFallback();
+  maskImg.src = '/textures/earth-dark.jpg';
 
   // ---- Latitude lines (subtle) ----
   const latGroup = new THREE.Group();
@@ -243,72 +306,94 @@ const orbitPhotos = allPhotos
     }
   }
 
-  // ---- Photo orbit ring ----
-  // Photos billboarded toward camera, positioned on a tilted ring orbiting the globe.
-  // Ring auto-rotates at its own cadence, independent of globe drag.
-  type OrbitSprite = { sprite: THREE.Sprite; baseAngle: number; aspect: number };
+  // ---- Photo "stars" ----
+  // Each photograph orbits the planet as a small twinkling star (a glowing point
+  // with a soft halo + diffraction spikes). Hover reveals the photo, click opens
+  // it full size. Stars live in `scene` space so the halo keeps its own slow orbit
+  // independent of globe drag. Kept small + close so the halo never clips the edge.
+  type PhotoStar = {
+    sprite: THREE.Sprite;
+    baseAngle: number;
+    radius: number;
+    yJitter: number;
+    twinklePhase: number;
+    twinkleSpeed: number;
+    baseScale: number;
+  };
 
-  const photoSprites: OrbitSprite[] = [];
-  const ORBIT_RADIUS = 1.78;
-  const ORBIT_TILT = THREE.MathUtils.degToRad(22);
-  const SPRITE_WIDTH = 0.62;
+  const photoStars: PhotoStar[] = [];
+  const ORBIT_RADIUS = 1.34;
+  const ORBIT_TILT = THREE.MathUtils.degToRad(20);
+
+  function createStarTexture(): THREE.CanvasTexture {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const ctx = c.getContext('2d')!;
+    const cx = 64;
+    const cy = 64;
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 64);
+    glow.addColorStop(0, 'rgba(255,255,255,1)');
+    glow.addColorStop(0.16, 'rgba(255,255,255,0.85)');
+    glow.addColorStop(0.42, 'rgba(255,255,255,0.22)');
+    glow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, 128, 128);
+    // four-point diffraction spikes for a "star" read
+    ctx.globalCompositeOperation = 'lighter';
+    [0, Math.PI / 2].forEach((angle) => {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
+      const grd = ctx.createLinearGradient(-60, 0, 60, 0);
+      grd.addColorStop(0, 'rgba(255,255,255,0)');
+      grd.addColorStop(0.5, 'rgba(255,255,255,0.7)');
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.strokeStyle = grd;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-60, 0);
+      ctx.lineTo(60, 0);
+      ctx.stroke();
+      ctx.restore();
+    });
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  const starTex = createStarTexture();
+  const STAR_TINTS = [0xffffff, 0xc6f3ff, 0x9fe6ff, 0xffe3b0, 0xd8c8ff];
 
   if (orbitPhotos.length > 0) {
-    const loader = new THREE.TextureLoader();
-    loader.crossOrigin = 'anonymous';
     orbitPhotos.forEach((p, i) => {
-      const tex = loader.load(p.thumb, (t) => {
-        const img = t.image as HTMLImageElement;
-        const aspect = img && img.width && img.height ? img.width / img.height : 16 / 9;
-        sp.aspect = aspect;
-        sprite.scale.set(SPRITE_WIDTH, SPRITE_WIDTH / aspect, 1);
-      });
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.anisotropy = 4;
       const mat = new THREE.SpriteMaterial({
-        map: tex,
+        map: starTex,
+        color: new THREE.Color(STAR_TINTS[i % STAR_TINTS.length]),
         transparent: true,
         depthTest: true,
         depthWrite: false,
+        blending: THREE.AdditiveBlending,
         opacity: 1
       });
       const sprite = new THREE.Sprite(mat);
-      sprite.scale.set(SPRITE_WIDTH, SPRITE_WIDTH * 0.62, 1);
+      const baseScale = 0.18 + Math.random() * 0.08; // generous transparent quad → easy to hover/click
+      sprite.scale.setScalar(baseScale);
       sprite.userData.photoId = p.id;
       sprite.userData.caption = p.caption;
       sprite.userData.location = p.location;
+      sprite.userData.thumb = p.thumb;
+      sprite.userData.src = p.src;
       scene.add(sprite);
-      const sp: OrbitSprite = {
+      photoStars.push({
         sprite,
         baseAngle: (i / orbitPhotos.length) * Math.PI * 2,
-        aspect: 16 / 9
-      };
-      photoSprites.push(sp);
+        radius: ORBIT_RADIUS + (Math.random() - 0.5) * 0.12,
+        yJitter: (Math.random() - 0.5) * 0.26,
+        twinklePhase: Math.random() * Math.PI * 2,
+        twinkleSpeed: 1.3 + Math.random() * 1.7,
+        baseScale
+      });
     });
-  }
-
-  // Faint orbit guide ring (subtle dashed circle in the ring plane)
-  if (orbitPhotos.length > 0) {
-    const guidePts: THREE.Vector3[] = [];
-    for (let i = 0; i <= 192; i++) {
-      const a = (i / 192) * Math.PI * 2;
-      const x = Math.cos(a) * ORBIT_RADIUS;
-      const z = Math.sin(a) * ORBIT_RADIUS;
-      guidePts.push(
-        new THREE.Vector3(x, z * Math.sin(ORBIT_TILT), z * Math.cos(ORBIT_TILT))
-      );
-    }
-    const guideGeom = new THREE.BufferGeometry().setFromPoints(guidePts);
-    const guideMat = new THREE.LineDashedMaterial({
-      color: 0xffc46b,
-      transparent: true,
-      opacity: 0.18,
-      dashSize: 0.06,
-      gapSize: 0.05
-    });
-    const guideLine = new THREE.Line(guideGeom, guideMat);
-    guideLine.computeLineDistances();
-    scene.add(guideLine);
   }
 
   // ---- Interaction (drag + scroll + hover) ----
@@ -318,6 +403,9 @@ const orbitPhotos = allPhotos
   let lastX = 0;
   let lastY = 0;
   let autoRotate = !prefersReduced;
+  let hoveredStarSprite: THREE.Sprite | null = null;
+  let downX = 0;
+  let downY = 0;
 
   const setLabel = (text: string, x?: number, y?: number) => {
     if (!label) return;
@@ -334,11 +422,31 @@ const orbitPhotos = allPhotos
     }
   };
 
+  const escapeHtml = (s: string) =>
+    String(s).replace(
+      /[&<>"']/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!
+    );
+
+  const setPhotoLabel = (thumb: string, caption: string, location: string, x: number, y: number) => {
+    if (!label) return;
+    const cap = caption || location || 'Photograph';
+    label.innerHTML = `<img src="${thumb}" alt="" class="w-full h-auto rounded-lg block" /><span class="block text-center mt-1.5 leading-snug text-ink-200">${escapeHtml(cap)}</span>`;
+    label.style.opacity = '1';
+    const rect = canvas.getBoundingClientRect();
+    label.style.left = `${((x - rect.left) / rect.width) * 100}%`;
+    label.style.top = `${((y - rect.top) / rect.height) * 100}%`;
+  };
+
   canvas.addEventListener('pointerdown', (e) => {
     isDragging = true;
     autoRotate = false;
     lastX = e.clientX;
     lastY = e.clientY;
+    downX = e.clientX;
+    downY = e.clientY;
+    hoveredStarSprite = null;
+    if (label) label.style.opacity = '0';
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', (e) => {
@@ -360,21 +468,29 @@ const orbitPhotos = allPhotos
       );
       raycaster.setFromCamera(mouse, camera);
       const cores = markers.map((m) => m.core);
-      const sprites = photoSprites.map((p) => p.sprite);
+      const sprites = photoStars.map((s) => s.sprite);
       const cityHit = raycaster.intersectObjects(cores, false)[0];
       const photoHit = raycaster.intersectObjects(sprites, false)[0];
       const closest = [cityHit, photoHit].filter(Boolean).sort((a, b) => a!.distance - b!.distance)[0];
       if (closest && closest === cityHit) {
         const idx = cores.indexOf(cityHit.object as THREE.Mesh);
         const m = markers[idx];
+        hoveredStarSprite = null;
         setLabel(`${m.city.name}, ${m.city.country}. ${m.city.role}`, e.clientX, e.clientY);
         canvas.style.cursor = 'pointer';
       } else if (closest && closest === photoHit) {
         const sprite = photoHit.object as THREE.Sprite;
-        const cap = sprite.userData.caption || sprite.userData.location || 'Photograph';
-        setLabel(cap, e.clientX, e.clientY);
+        hoveredStarSprite = sprite;
+        setPhotoLabel(
+          sprite.userData.thumb,
+          sprite.userData.caption,
+          sprite.userData.location,
+          e.clientX,
+          e.clientY
+        );
         canvas.style.cursor = 'pointer';
       } else {
+        hoveredStarSprite = null;
         setLabel('');
         canvas.style.cursor = 'grab';
       }
@@ -383,6 +499,23 @@ const orbitPhotos = allPhotos
   canvas.addEventListener('pointerup', (e) => {
     isDragging = false;
     canvas.releasePointerCapture(e.pointerId);
+    // a near-stationary release over a star = a click → open the photo
+    if (Math.hypot(e.clientX - downX, e.clientY - downY) < 6) {
+      const rect = canvas.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(mouse, camera);
+      const hit = raycaster.intersectObjects(
+        photoStars.map((s) => s.sprite),
+        false
+      )[0];
+      if (hit) {
+        const sp = hit.object as THREE.Sprite;
+        openLightbox(sp.userData.src || sp.userData.thumb, sp.userData.caption || sp.userData.location);
+      }
+    }
     setTimeout(() => {
       autoRotate = !prefersReduced;
     }, 2200);
@@ -393,11 +526,51 @@ const orbitPhotos = allPhotos
 
   const raycaster = new THREE.Raycaster();
 
+  // ---- Lightbox (click a star to open the full photo) ----
+  const lightboxEl = document.getElementById('globe-lightbox');
+  const lightboxImg = document.getElementById('globe-lightbox-img') as HTMLImageElement | null;
+  const lightboxCap = document.getElementById('globe-lightbox-cap');
+  // The hero column carries `will-change: transform` (.reveal), which makes it a
+  // containing block for position:fixed. Re-parent the overlay to <body> so it
+  // covers the whole viewport instead of being trapped inside the column.
+  if (lightboxEl && lightboxEl.parentElement !== document.body) {
+    document.body.appendChild(lightboxEl);
+  }
+  function openLightbox(src: string, caption: string) {
+    if (!lightboxEl || !lightboxImg || !src) return;
+    lightboxImg.src = src;
+    if (lightboxCap) lightboxCap.textContent = caption || '';
+    lightboxEl.classList.remove('hidden');
+    lightboxEl.classList.add('flex');
+    lightboxEl.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    if (!lightboxEl) return;
+    lightboxEl.classList.add('hidden');
+    lightboxEl.classList.remove('flex');
+    lightboxEl.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  lightboxEl?.addEventListener('click', closeLightbox);
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
   // ---- Resize ----
+  // Pull the camera back just far enough that FRAME_RADIUS fits in BOTH axes, so
+  // the planet + star halo are always fully framed and never clip at the canvas edge.
+  function fitCamera() {
+    const halfH = Math.tan((camera.fov * Math.PI) / 360);
+    const aspect = camera.aspect || 1;
+    const halfW = halfH * aspect;
+    camera.position.z = Math.max(FRAME_RADIUS / halfH, FRAME_RADIUS / halfW);
+  }
   function resize() {
     const rect = canvas.getBoundingClientRect();
     renderer.setSize(rect.width, rect.height, false);
-    camera.aspect = rect.width / rect.height;
+    camera.aspect = (rect.width || 1) / (rect.height || 1);
+    fitCamera();
     camera.updateProjectionMatrix();
   }
   resize();
@@ -437,20 +610,25 @@ const orbitPhotos = allPhotos
       (arc.line.material as THREE.LineDashedMaterial).opacity = 0.28 + Math.sin(t + arc.offset) * 0.1;
     });
 
-    // animate photo orbit ring
-    const ringRate = 0.18; // radians/sec — slower than globe for visual distinction
+    // animate photo "stars": slow orbit + twinkle + depth fade + hover boost
+    const ringRate = 0.1; // radians/sec, slower than the globe for visual distinction
     const ringAngle = t * ringRate;
     const cosT = Math.cos(ORBIT_TILT);
     const sinT = Math.sin(ORBIT_TILT);
-    photoSprites.forEach((sp) => {
-      const a = sp.baseAngle + ringAngle;
-      const localX = Math.cos(a) * ORBIT_RADIUS;
-      const localZ = Math.sin(a) * ORBIT_RADIUS;
-      sp.sprite.position.set(localX, localZ * sinT, localZ * cosT);
-      // Fade sprites that are behind the globe to ease the depth occlusion edge
-      const front = (localZ * cosT) / ORBIT_RADIUS; // ~ -1 (behind) to 1 (front)
-      const opacity = THREE.MathUtils.clamp(0.55 + front * 0.45, 0.15, 1);
-      (sp.sprite.material as THREE.SpriteMaterial).opacity = opacity;
+    photoStars.forEach((st) => {
+      const a = st.baseAngle + ringAngle;
+      const localX = Math.cos(a) * st.radius;
+      const localZ = Math.sin(a) * st.radius;
+      st.sprite.position.set(localX, localZ * sinT + st.yJitter, localZ * cosT);
+      // stars passing behind the planet dim toward the back
+      const front = (localZ * cosT) / st.radius; // -cosT (behind) .. cosT (front)
+      const depthFade = THREE.MathUtils.clamp(0.2 + ((front + 1) / 2) * 0.8, 0.2, 1);
+      const twinkle = 0.7 + 0.3 * Math.sin(t * st.twinkleSpeed + st.twinklePhase);
+      const hovered = st.sprite === hoveredStarSprite;
+      const mat = st.sprite.material as THREE.SpriteMaterial;
+      mat.opacity = hovered ? 1 : depthFade * twinkle;
+      const targetScale = st.baseScale * (hovered ? 1.85 : 0.92 + 0.12 * twinkle);
+      st.sprite.scale.setScalar(st.sprite.scale.x + (targetScale - st.sprite.scale.x) * 0.2);
     });
 
     renderer.render(scene, camera);
