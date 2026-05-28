@@ -11,7 +11,7 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.cv': { en: 'CV', zh: '简历' },
 
   // Hero
-  'hero.eyebrow': { en: 'Graduating MSc (May 2026) · Photographer', zh: '即将毕业的硕士（2026 年 5 月）· 摄影师' },
+  'hero.eyebrow': { en: 'MSc graduate, May 2026 · Photographer', zh: '硕士毕业（2026 年 5 月）· 摄影师' },
   'hero.tagline': {
     en: 'Water systems, global change, and the quiet choreography of light on landscapes.',
     zh: '研究水、研究变化，也在光影落于大地的时刻按下快门。'
@@ -46,8 +46,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   'about.title.b': { en: 'quiet systems', zh: '静默运转' },
   'about.title.c': { en: 'we take for granted.', zh: '却被我们视为理所当然的系统。' },
   'about.p1': {
-    en: "I'm wrapping up an MSc in Urban Environmental Management at Wageningen, graduating end of May 2026. My work sits at the intersection of water systems, global change, and urban sustainability — with a thesis on how microplastics move through catchments.",
-    zh: '我是瓦赫宁根大学城市环境管理硕士，2026 年 5 月底毕业。研究处在水系统、全球变化与城市可持续的交叉地带，论文方向是微塑料在流域中的迁移。'
+    en: "I've just graduated with an MSc in Urban Environmental Management from Wageningen (end of May 2026). My thesis, on how microplastics move through catchments, sits at the intersection of water systems, global change, and urban sustainability.",
+    zh: '我刚从瓦赫宁根大学城市环境管理硕士毕业（2026 年 5 月底）。研究处在水系统、全球变化与城市可持续的交叉地带，论文方向是微塑料在流域中的迁移。'
   },
   'about.p2': {
     en: "Before Wageningen, I studied forestry across Canada and China and interned with the University of Eastern Finland doing soil-water fieldwork in Lapland. I've been lucky to learn in four very different landscapes — and I carry a camera to each of them.",
@@ -121,7 +121,7 @@ export const dict: Record<string, Record<Lang, string>> = {
   'contact.channel.hint.cv': { en: 'Latest version — May 2026. Education, research, awards.', zh: '最新版本 —— 2026 年 5 月。教育、科研、奖项。' },
   'contact.channel.hint.transcript': { en: 'WUR academic record — kept current as new grades land.', zh: '瓦大成绩记录 —— 有新成绩会同步更新。' },
   'contact.based': { en: 'Based in', zh: '常驻' },
-  'contact.current': { en: 'Currently — MSc at Wageningen University', zh: '目前 —— 瓦赫宁根大学硕士在读' },
+  'contact.current': { en: 'MSc, Wageningen University · Graduated May 2026', zh: '瓦赫宁根大学硕士 · 2026 年 5 月毕业' },
 
   // Footer
   'footer.title.a': { en: "Let's collaborate on", zh: '让我们一起探索' },

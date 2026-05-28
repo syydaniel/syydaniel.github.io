@@ -27,12 +27,12 @@ export const journey: JourneyItem[] = [
     coords: [5.6645, 51.9692],
     start: '2024-09',
     end: '2026-05',
-    ongoing: true,
+    ongoing: false,
     summary:
-      'Specialization: Water System and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale. Graduating end of May 2026.',
+      'Specialization: Water System and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale. Graduated end of May 2026.',
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Water Systems', 'Global Change', 'Microplastics', 'WIMEK Honours'],
-    status: 'active'
+    status: 'complete'
   },
   {
     id: 'thesis-marina',
@@ -43,12 +43,12 @@ export const journey: JourneyItem[] = [
     coords: [5.6645, 51.9692],
     start: '2025-11',
     end: '2026-05',
-    ongoing: true,
+    ongoing: false,
     summary:
-      'Developing a hybrid framework for estimating microplastic retention rates in global river systems. Hosted by the Earth Systems and Global Change chair group, building on the MARINA-Plastic modelling framework.',
+      'Developed a hybrid framework for estimating microplastic retention rates in global river systems, graded 9.0/10. Hosted by the Earth Systems and Global Change chair group, building on the MARINA-Plastic modelling framework.',
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Machine Learning', 'MARINA-Plastic', 'Microplastics', 'Water Systems'],
-    status: 'active'
+    status: 'complete'
   },
   {
     id: 'ta-uef',
@@ -177,7 +177,7 @@ export const journey: JourneyItem[] = [
 ];
 
 export const researchCities = [
-  { id: 'wageningen', name: 'Wageningen', country: 'Netherlands', coords: [5.6645, 51.9692] as [number, number], role: 'MSc & thesis — graduating May 2026' },
+  { id: 'wageningen', name: 'Wageningen', country: 'Netherlands', coords: [5.6645, 51.9692] as [number, number], role: 'MSc & thesis, graduated May 2026' },
   { id: 'lapland', name: 'Joensuu / Lapland', country: 'Finland', coords: [29.7636, 62.6010] as [number, number], role: 'Boreal forest fieldwork' },
   { id: 'vancouver', name: 'Vancouver', country: 'Canada', coords: [-123.2460, 49.2606] as [number, number], role: 'BSc, urban forestry research' },
   { id: 'hangzhou', name: 'Hangzhou', country: 'China', coords: [119.7249, 30.2588] as [number, number], role: 'Forestry BSc & microbiology RA' }
