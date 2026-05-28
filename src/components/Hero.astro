@@ -12,6 +12,11 @@ import Globe from './Globe.astro';
   <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950 pointer-events-none"></div>
   <div class="absolute inset-0 bg-grid-fade bg-[size:60px_60px] opacity-30 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]"></div>
 
+  <!-- Graduation celebration banner -->
+  <div class="grad-banner">
+    <span data-i18n="hero.gradbanner">Celebrating my MSc graduation!</span>
+  </div>
+
   <div class="relative z-10 mx-auto max-w-6xl px-6 w-full pt-32 pb-20">
     <div class="grid lg:grid-cols-[1.3fr_1fr] gap-16 items-center">
       <div>
@@ -133,6 +138,42 @@ import Globe from './Globe.astro';
     </div>
   </div>
 </section>
+
+<style>
+  .grad-banner {
+    position: absolute;
+    top: 5rem;
+    left: 50%;
+    z-index: 20;
+    transform-origin: center top;
+    transform: translateX(-50%) rotate(-2.6deg);
+    padding: 0.5rem 2.4rem;
+    background: linear-gradient(135deg, #ff4646 0%, #e01b2b 48%, #a8101b 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 12px 30px -10px rgba(216, 24, 40, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 13px) 50%, 100% 100%, 0 100%, 13px 50%);
+    animation: grad-wave 3.8s ease-in-out infinite;
+    pointer-events: none;
+    will-change: transform;
+  }
+  @keyframes grad-wave {
+    0%, 100% { transform: translateX(-50%) rotate(-2.6deg) translateY(0) skewX(0deg); }
+    25%      { transform: translateX(-50%) rotate(-1.1deg) translateY(-4px) skewX(2.2deg); }
+    50%      { transform: translateX(-50%) rotate(-2.6deg) translateY(3px) skewX(0deg); }
+    75%      { transform: translateX(-50%) rotate(-4.1deg) translateY(-2px) skewX(-2.2deg); }
+  }
+  @media (max-width: 640px) {
+    .grad-banner { font-size: 0.78rem; padding: 0.42rem 1.5rem; top: 4.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .grad-banner { animation: none; }
+  }
+</style>
 
 <script>
   import * as THREE from 'three';

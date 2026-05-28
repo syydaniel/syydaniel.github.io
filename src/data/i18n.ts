@@ -12,6 +12,7 @@ export const dict: Record<string, Record<Lang, string>> = {
 
   // Hero
   'hero.eyebrow': { en: 'MSc graduate, May 2026 · Photographer', zh: '硕士毕业（2026 年 5 月）· 摄影师' },
+  'hero.gradbanner': { en: 'Celebrating my MSc graduation!', zh: '庆祝我硕士毕业！' },
   'hero.tagline': {
     en: 'Water systems, global change, and the quiet choreography of light on landscapes.',
     zh: '研究水、研究变化，也在光影落于大地的时刻按下快门。'
