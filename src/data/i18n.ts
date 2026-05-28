@@ -18,8 +18,8 @@ export const dict: Record<string, Record<Lang, string>> = {
     zh: '研究水、研究变化，也在光影落于大地的时刻按下快门。'
   },
   'hero.subtitle': {
-    en: "MSc student in Urban Environmental Management at Wageningen University & Research. I study water and plastic, and I photograph the places I study.",
-    zh: '瓦赫宁根大学城市环境管理硕士在读。研究水与塑料，也记录我研究过的每一处土地。'
+    en: "MSc in Urban Environmental Management from Wageningen University & Research. I study water and plastic, and I photograph the places I study.",
+    zh: '瓦赫宁根大学城市环境管理硕士。研究水与塑料，也记录我研究过的每一处土地。'
   },
   'hero.cta.primary': { en: 'Explore journey', zh: '探索我的履历' },
   'hero.cta.secondary': { en: 'Photography map', zh: '摄影地图' },

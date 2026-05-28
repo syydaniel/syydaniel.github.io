@@ -7,7 +7,7 @@ export const profile = {
   title: 'MSc graduate, May 2026 · Photographer',
   tagline: 'Water systems, global change, and the quiet choreography of light on landscapes.',
   subtitle:
-    "MSc student in Urban Environmental Management at Wageningen University & Research. I study water and plastic, and I photograph the places I study.",
+    "MSc in Urban Environmental Management from Wageningen University & Research. I study water and plastic, and I photograph the places I study.",
   location: 'Wageningen, Netherlands',
   email: {
     personal: 'syydaniel@gmail.com',
