@@ -10,7 +10,7 @@
   <button class="gc-ribbon" id="gc-ribbon" type="button" aria-label="Celebrate this graduation">
     <span class="gc-text" data-i18n="hero.gradbanner">Celebrating my MSc graduation!</span>
     <span class="gc-like">
-      <svg class="gc-heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.2C.6 9 1.7 5.6 4.8 5c2-.4 3.6.7 4.4 2 .8-1.3 2.4-2.4 4.4-2 3.1.6 4.2 4 2.8 6.8C19.5 16.4 12 21 12 21z"/></svg>
+      <svg class="gc-heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
       <span class="gc-num" id="gc-num">0</span>
     </span>
   </button>
@@ -64,7 +64,7 @@
 </style>
 
 <script>
-  const HEART = 'M12 21s-7.5-4.6-10-9.2C.6 9 1.7 5.6 4.8 5c2-.4 3.6.7 4.4 2 .8-1.3 2.4-2.4 4.4-2 3.1.6 4.2 4 2.8 6.8C19.5 16.4 12 21 12 21z';
+  const HEART = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
   const svg = (cls) => `<svg class="${cls || ''}" viewBox="0 0 24 24"><path d="${HEART}"/></svg>`;
 
   const root = document.getElementById('gc-root');
@@ -75,11 +75,34 @@
 
   if (root && ribbon && numEl && fx && toast) {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const KEY = 'gc_grad_likes';
-    let likes = parseInt(localStorage.getItem(KEY) || '0', 10);
-    if (!Number.isFinite(likes) || likes < 0) likes = 0;
+    // Shared cross-visitor counter via the Abacus free counter API (no auth,
+    // CORS-enabled), cached in localStorage for instant paint + offline fallback.
+    const API = 'https://abacus.jasoncameron.dev';
+    const NS = 'syydaniel-portfolio';
+    const COUNTER = 'grad-likes';
+    const CACHE = 'gc_grad_likes_v2';
     const fmt = (n) => n.toLocaleString();
+    let likes = parseInt(localStorage.getItem(CACHE) || '0', 10);
+    if (!Number.isFinite(likes) || likes < 0) likes = 0;
     numEl.textContent = fmt(likes);
+
+    const parseVal = (d) => {
+      if (!d) return null;
+      const v = typeof d.value === 'number' ? d.value : Number(d.value);
+      return Number.isFinite(v) ? v : null;
+    };
+    const applyServer = (v) => {
+      if (v == null) return;
+      try { localStorage.setItem(CACHE, String(v)); } catch (e) {}
+      if (v > likes) { likes = v; numEl.textContent = fmt(likes); }
+    };
+    const syncGet = () => fetch(`${API}/get/${NS}/${COUNTER}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null)).then((d) => applyServer(parseVal(d))).catch(() => {});
+    const sendHit = () => fetch(`${API}/hit/${NS}/${COUNTER}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null)).then((d) => applyServer(parseVal(d))).catch(() => {});
+    syncGet();
+    setInterval(() => { if (!document.hidden) syncGet(); }, 30000);
+    window.addEventListener('focus', syncGet);
 
     // ---------- free drift, kept below the nav ----------
     let raf = 0;
@@ -151,7 +174,7 @@
 
     const like = (ev) => {
       likes++;
-      try { localStorage.setItem(KEY, String(likes)); } catch (e) {}
+      try { localStorage.setItem(CACHE, String(likes)); } catch (e) {}
       numEl.textContent = fmt(likes);
       numEl.classList.remove('gc-pop'); void numEl.offsetWidth; numEl.classList.add('gc-pop');
       const r = ribbon.getBoundingClientRect();
@@ -159,6 +182,7 @@
       const y = (ev && ev.clientY) ? ev.clientY : r.top + r.height / 2;
       if (!reduce) { floatPlus(x, y - 12); burst(x, y); }
       showToast();
+      sendHit();
     };
     ribbon.addEventListener('click', like);
   }
