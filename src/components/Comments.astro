@@ -12,7 +12,7 @@ import { giscus } from '../data/giscus';
       <script define:vars={{ cfg: giscus }}>
         (function () {
           const lang = (window.__getLang && window.__getLang()) || localStorage.getItem('site-lang') || 'en';
-          const GLANG = { en: 'en', zh: 'zh-CN', 'zh-Hant': 'zh-TW', nl: 'nl', de: 'de', fi: 'fi', ja: 'ja', ko: 'ko', fr: 'fr', mars: 'zh-CN', cat: 'zh-CN' };
+          const GLANG = { en: 'en', zh: 'zh-CN', 'zh-Hant': 'zh-TW', nl: 'nl', de: 'de', fi: 'fi', ja: 'ja', ko: 'ko', fr: 'fr', mars: 'zh-CN', cat: 'en', klingon: 'en' };
           const s = document.createElement('script');
           s.src = 'https://giscus.app/client.js';
           s.setAttribute('data-repo', cfg.repo);

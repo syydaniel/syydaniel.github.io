@@ -317,6 +317,32 @@ body {
 .prose-post img { border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); }
 .prose-post > :first-child { margin-top: 0; }
 
+/* ---------- Per-language display fonts (constructed languages) ---------- */
+/* Hand-built cat-glyph font: every letter is a little cat drawing. */
+@font-face {
+  font-family: 'NyaGlyph';
+  src: url('/fonts/nyaglyph.woff?v=2') format('woff');
+  font-display: swap;
+}
+html[data-lang='cat'] body,
+html[data-lang='cat'] .font-display,
+html[data-lang='cat'] .section-title,
+html[data-lang='cat'] .font-mono,
+html[data-lang='cat'] .btn {
+  font-family: 'NyaGlyph', 'Baloo 2', 'Inter', system-ui, sans-serif !important;
+  font-variation-settings: normal !important;
+  letter-spacing: 0.08em;
+}
+html[data-lang='klingon'] body,
+html[data-lang='klingon'] .font-display,
+html[data-lang='klingon'] .section-title,
+html[data-lang='klingon'] .font-mono,
+html[data-lang='klingon'] .btn {
+  font-family: 'Orbitron', 'Inter', system-ui, sans-serif !important;
+  font-variation-settings: normal !important;
+  letter-spacing: 0.01em;
+}
+
 /* ---------- Prefers reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
