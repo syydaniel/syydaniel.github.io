@@ -1,7 +1,7 @@
 // Real content languages (every dict entry + journey Loc carries these).
 export type Lang = 'en' | 'zh' | 'zh-Hant' | 'nl' | 'de' | 'fi' | 'ja' | 'ko' | 'fr';
 // Selectable UI languages = real languages plus playful, derived ones.
-export type UILang = Lang | 'mars' | 'cat' | 'klingon' | 'nyaring';
+export type UILang = Lang | 'cat' | 'klingon';
 
 export const LANG_CODES: Lang[] = ['en', 'zh', 'zh-Hant', 'nl', 'de', 'fi', 'ja', 'ko', 'fr'];
 
@@ -16,10 +16,8 @@ export const LANGS: { code: UILang; label: string; short: string }[] = [
   { code: 'de', label: 'Deutsch', short: 'DE' },
   { code: 'nl', label: 'Nederlands', short: 'NL' },
   { code: 'fi', label: 'Suomi', short: 'FI' },
-  { code: 'mars', label: '火星文', short: '火' },
-  { code: 'cat', label: '猫猫语 (Nya)', short: '喵' },
-  { code: 'klingon', label: 'tlhIngan Hol', short: 'tlh' },
-  { code: 'nyaring', label: '猫语 ◌ (圆环)', short: '◌' }
+  { code: 'cat', label: '猫语 (Nya)', short: '喵' },
+  { code: 'klingon', label: 'tlhIngan Hol', short: 'tlh' }
 ];
 
 export const dict: Record<string, Record<Lang, string>> = {

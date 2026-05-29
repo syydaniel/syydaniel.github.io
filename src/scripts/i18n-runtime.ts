@@ -1,9 +1,9 @@
 import { dict, type Lang, type UILang } from '../data/i18n';
-import { translate as nyaTranslate } from './nyalang';
+import { translate as nyaTranslate, mergeLexicon } from './nyalang';
 import { renderText } from './nya-logogram';
 
 const STORAGE_KEY = 'site-lang';
-const SUPPORTED: UILang[] = ['en', 'zh', 'zh-Hant', 'nl', 'de', 'fi', 'ja', 'ko', 'fr', 'mars', 'cat', 'klingon', 'nyaring'];
+const SUPPORTED: UILang[] = ['en', 'zh', 'zh-Hant', 'nl', 'de', 'fi', 'ja', 'ko', 'fr', 'cat', 'klingon'];
 const YEAR = String(new Date().getFullYear());
 
 // 猫语 ◌ (Nya rings) mode: render a text element as Arrival-style sentence-rings
@@ -15,6 +15,12 @@ function ringHTML(text: string, el: HTMLElement): string {
   return renderText(text, { size })
     .map((svg) => `<span class="nya-ring" title="${String(text).replace(/"/g, '')}" style="display:inline-block;vertical-align:middle;margin:2px 5px">${svg}</span>`)
     .join('');
+}
+// In 猫语 mode, headings + eyebrows become rings; everything else is cat-font
+// text. Matches the element itself OR a heading ancestor, because some titles
+// carry data-i18n on child spans (for gradient styling) rather than the heading.
+function isRingEl(el: HTMLElement): boolean {
+  return !!el.closest('.section-title, .section-eyebrow, h1, h2, h3');
 }
 
 // Maps each UI language to the value for <html lang="...">. Fun languages are
@@ -29,10 +35,8 @@ const HTML_LANG: Record<UILang, string> = {
   ja: 'ja',
   ko: 'ko',
   fr: 'fr',
-  mars: 'zh-CN',
   cat: 'art-x-cat',
-  klingon: 'tlh',
-  nyaring: 'art-x-nya'
+  klingon: 'tlh'
 };
 
 // Playful display fonts for the constructed languages, loaded on demand so
@@ -51,26 +55,9 @@ function ensureFont(lang: UILang) {
   document.head.appendChild(link);
 }
 
-// ---------- Fun languages (derived from the Chinese text, so always "有参考") ----------
+// ---------- Constructed cat language + Klingon ----------
 
-// 火星文: swap common Han characters for look-alike / variant forms.
-const MARS_MAP: Record<string, string> = {
-  我: '莪', 的: '菂', 是: '媞', 你: '沵', 好: '恏', 不: '卜', 们: '們', 这: '這', 个: '個', 么: '庅',
-  什: '甚', 很: '哏', 在: '洅', 有: '冇', 和: '龢', 了: '孒', 爱: '愛', 也: '竾', 都: '嘟', 会: '會',
-  来: '唻', 去: '厾', 想: '缃', 说: '説', 看: '瞰', 时: '溡', 间: '閒', 水: '氺', 与: '與', 为: '潙',
-  全: '荃', 球: '毬', 变: '變', 化: '囮', 研: '妍', 究: '糾', 摄: '攝', 影: '暎', 学: '學', 硕: '碩',
-  士: '仕', 毕: '畢', 业: '業', 师: '師', 庆: '慶', 历: '歷', 页: '頁', 联: '聯', 记: '記', 简: '簡',
-  可: '岢', 以: '苡', 到: '菿', 地: '哋', 用: '甪', 镜: '鏡', 头: '頭',
-  关: '関', 于: '扵', 系: '係', 笔: '筆', 自: '冄', 己: '巳', 绍: '紹'
-};
-function toMartian(s: string): string {
-  if (!s) return s;
-  let out = '';
-  for (const ch of s) out += MARS_MAP[ch] ?? ch;
-  return out;
-}
-
-// Constructed languages: deterministic, word-by-word ciphers over the English
+// Deterministic, word-by-word ciphers over the English
 // text. Each word always maps to the same invented word and structure/numbers
 // are preserved, so the result reads like a real invented tongue, not noise.
 function hashWord(w: string): number {
@@ -104,16 +91,31 @@ function toCatLang(s: string): string {
   if (!s) return s;
   return nyaTranslate(s) + ' 🐾';
 }
-// tlhIngan Hol style: invented words from Klingon-flavoured syllables.
+// tlhIngan Hol: a small set of well-known Klingon words for common terms. The
+// full Klingon lexicon is copyrighted, so this is deliberately limited to widely
+// published words; anything else gets a Klingon-styled phonetic fallback.
+const KLINGON_LEX: Record<string, string> = {
+  hello: 'nuqneH', hi: 'nuqneH', i: 'jIH', me: 'jIH', you: 'SoH', we: 'maH',
+  yes: 'HISlaH', no: "ghobe'", and: "'ej", name: 'pong', language: 'Hol',
+  klingon: 'tlhIngan', home: 'juH', world: "qo'", day: 'jaj', water: 'bIQ',
+  fire: 'qul', cat: "vIghro'", enemy: 'jagh', friend: 'jup', honor: 'batlh',
+  good: 'QaQ', big: 'tIn', small: 'mach', see: 'legh', know: 'Sov',
+  speak: 'jatlh', talk: 'jatlh', say: 'jatlh', success: "Qapla'", today: 'DaHjaj',
+  one: "wa'", two: "cha'", three: 'wej', four: 'loS', five: "vagh"
+};
 const KLINGON_POOL = ['tlhI', 'ngan', 'Qap', 'laʼ', 'HoS', 'batlh', 'veS', 'Daq', 'ghom', 'jagh', 'Suv', 'qey', 'wIj', 'maH', 'tlhuH', 'vetlh', 'yIn', 'bIQ', 'Qel', 'tagh', 'woʼ', 'cha'];
 function toKlingon(s: string): string {
   if (!s) return s;
-  return conlang(s, KLINGON_POOL);
+  return s.replace(/[A-Za-z]+/g, (w) => {
+    const k = KLINGON_LEX[w.toLowerCase()];
+    if (k !== undefined) return k;
+    const cw = buildWord(w, KLINGON_POOL);
+    return /[A-Z]/.test(w[0]) ? cw.charAt(0).toUpperCase() + cw.slice(1) : cw;
+  });
 }
 
 // Resolve an entry (dict row or inline JSON map) to text for the chosen UI lang.
 function resolve(entry: Record<string, string>, lang: UILang): string {
-  if (lang === 'mars') return toMartian((entry['zh'] ?? entry.en ?? '').replace(/\{year\}/g, YEAR));
   if (lang === 'cat') return toCatLang((entry.en ?? entry['zh'] ?? '').replace(/\{year\}/g, YEAR));
   if (lang === 'klingon') return toKlingon((entry.en ?? entry['zh'] ?? '').replace(/\{year\}/g, YEAR));
   return entry[lang] ?? entry.en ?? '';
@@ -136,10 +138,29 @@ function detectLang(): UILang {
   return 'en';
 }
 
+// The full 3000-word Nya dictionary lives in /nya-lexicon.json and is fetched
+// only the first time 猫语 mode is used, then merged into the core lexicon and
+// re-rendered. Costs nothing for any other language.
+let nyaLexState = 0;
+function ensureNyaLexicon() {
+  if (nyaLexState) return;
+  nyaLexState = 1;
+  fetch('/nya-lexicon.json', { cache: 'force-cache' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((m) => {
+      if (m) {
+        mergeLexicon(m);
+        if (document.documentElement.dataset.lang === 'cat') apply('cat');
+      }
+    })
+    .catch(() => {});
+}
+
 function apply(lang: UILang) {
   document.documentElement.lang = HTML_LANG[lang] ?? 'en';
   document.documentElement.dataset.lang = lang;
   ensureFont(lang);
+  if (lang === 'cat') ensureNyaLexicon();
 
   // text nodes
   document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
@@ -147,7 +168,7 @@ function apply(lang: UILang) {
     const entry = dict[key];
     if (!entry) return;
     // 猫语 ◌ (Nya rings): the whole site becomes Arrival-style sentence-rings.
-    if (lang === 'nyaring') { el.innerHTML = ringHTML(entry.en, el); return; }
+    if (lang === 'cat' && isRingEl(el)) { el.innerHTML = ringHTML(entry.en, el); return; }
     const value = resolve(entry, lang);
     el.textContent = value.replace(/\{year\}/g, YEAR);
   });
@@ -168,7 +189,7 @@ function apply(lang: UILang) {
   document.querySelectorAll<HTMLElement>('[data-i18n-self]').forEach((el) => {
     try {
       const map = JSON.parse(el.dataset.i18nSelf!);
-      if (lang === 'nyaring') { el.innerHTML = ringHTML(map.en || '', el); return; }
+      if (lang === 'cat' && isRingEl(el)) { el.innerHTML = ringHTML(map.en || '', el); return; }
       const value = resolve(map, lang);
       if (typeof value === 'string') el.textContent = value;
     } catch {}

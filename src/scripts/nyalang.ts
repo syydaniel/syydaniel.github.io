@@ -113,4 +113,9 @@ export function translate(text) {
   return out;
 }
 
-export default { VERSION, LEXICON, translate, word, fallbackWord };
+// Merge an extra dictionary (e.g. the generated 3000-word lexicon) into the core.
+export function mergeLexicon(extra) {
+  if (extra) for (const k in extra) if (LEXICON[k] === undefined) LEXICON[k] = extra[k];
+}
+
+export default { VERSION, LEXICON, translate, word, fallbackWord, mergeLexicon };
