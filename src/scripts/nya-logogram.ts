@@ -273,4 +273,12 @@ export function renderText(text, opts = {}) {
   return (sents.length ? sents : [String(text)]).map((s) => renderNested(s, opts));
 }
 
-export default { RADICALS: RADICAL_GLOSSES, CONCEPTS, renderGlyph, glyphFor, glyphsForPhrase, renderSentence, renderNested, renderText };
+// English word -> its semantic radical ids (the dictionary lookup, no SVG).
+export function radicalsFor(word) {
+  const raw = String(word).toLowerCase().replace(/[^a-z]/g, '');
+  let key = CONCEPTS[raw] ? raw : LEMMA[raw];
+  if (!key && raw.endsWith('s') && CONCEPTS[raw.slice(0, -1)]) key = raw.slice(0, -1);
+  return key ? CONCEPTS[key] : [];
+}
+
+export default { RADICALS: RADICAL_GLOSSES, CONCEPTS, radicalsFor, renderGlyph, glyphFor, glyphsForPhrase, renderSentence, renderNested, renderText };

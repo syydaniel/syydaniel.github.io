@@ -1,27 +1,22 @@
 import { dict, type Lang, type UILang } from '../data/i18n';
 import { translate as nyaTranslate, mergeLexicon } from './nyalang';
-import { renderText } from './nya-logogram';
+import { renderCatText } from './nya-script';
 import { toKlingon } from './klingon';
 
 const STORAGE_KEY = 'site-lang';
 const SUPPORTED: UILang[] = ['en', 'zh', 'zh-Hant', 'nl', 'de', 'fi', 'ja', 'ko', 'fr', 'cat', 'klingon'];
 const YEAR = String(new Date().getFullYear());
 
-// 猫语 ◌ (Nya rings) mode: render a text element as Arrival-style sentence-rings
-// (one ring per sentence, nested if it has clauses). Sized by the element's role.
-function ringHTML(text: string, el: HTMLElement): string {
-  const big = el.classList.contains('section-title') || el.tagName === 'H1' || el.tagName === 'H3';
-  const eyebrow = el.classList.contains('section-eyebrow');
-  const size = big ? 96 : eyebrow ? 44 : 58;
-  return renderText(text, { size })
-    .map((svg) => `<span class="nya-ring" title="${String(text).replace(/"/g, '')}" style="display:inline-block;vertical-align:middle;margin:2px 5px">${svg}</span>`)
-    .join('');
+// 猫语 (Nya): the unified cat-sigil script. Every element's text becomes a row of
+// cat-sigils (one cat per word, its anatomy encoding sound + meaning), sized by
+// the element's role. One system across the whole site, headings to body.
+function catSize(el: HTMLElement): number {
+  if (el.classList.contains('section-eyebrow')) return 22;
+  if (el.classList.contains('section-title') || el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3') return 40;
+  return 25;
 }
-// In 猫语 mode, headings + eyebrows become rings; everything else is cat-font
-// text. Matches the element itself OR a heading ancestor, because some titles
-// carry data-i18n on child spans (for gradient styling) rather than the heading.
-function isRingEl(el: HTMLElement): boolean {
-  return !!el.closest('.section-title, .section-eyebrow, h1, h2, h3');
+function catHTML(text: string, el: HTMLElement): string {
+  return renderCatText(text, { size: catSize(el) });
 }
 
 // Maps each UI language to the value for <html lang="...">. Fun languages are
@@ -121,8 +116,8 @@ function apply(lang: UILang) {
     const key = el.dataset.i18n!;
     const entry = dict[key];
     if (!entry) return;
-    // 猫语 ◌ (Nya rings): the whole site becomes Arrival-style sentence-rings.
-    if (lang === 'cat' && isRingEl(el)) { el.innerHTML = ringHTML(entry.en, el); return; }
+    // 猫语: every word becomes a cat-sigil (the unified Nya script).
+    if (lang === 'cat') { el.innerHTML = catHTML(entry.en, el); return; }
     const value = resolve(entry, lang);
     el.textContent = value.replace(/\{year\}/g, YEAR);
   });
@@ -143,7 +138,7 @@ function apply(lang: UILang) {
   document.querySelectorAll<HTMLElement>('[data-i18n-self]').forEach((el) => {
     try {
       const map = JSON.parse(el.dataset.i18nSelf!);
-      if (lang === 'cat' && isRingEl(el)) { el.innerHTML = ringHTML(map.en || '', el); return; }
+      if (lang === 'cat') { el.innerHTML = catHTML(map.en || '', el); return; }
       const value = resolve(map, lang);
       if (typeof value === 'string') el.textContent = value;
     } catch {}
