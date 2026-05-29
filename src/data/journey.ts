@@ -29,7 +29,7 @@ export const journey: JourneyItem[] = [
     end: '2026-05',
     ongoing: false,
     summary:
-      'Specialization: Water System and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale. Graduated end of May 2026.',
+      'Specialization: Water Systems and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale. Graduated end of May 2026.',
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Water Systems', 'Global Change', 'Microplastics', 'WIMEK Honours'],
     status: 'complete'
@@ -37,7 +37,7 @@ export const journey: JourneyItem[] = [
   {
     id: 'thesis-marina',
     kind: 'project',
-    title: 'MSc Thesis — Hybrid Framework for Microplastic Retention',
+    title: 'MSc Thesis: Towards Developing a Hybrid Framework to Estimate Microplastic River Retention in Sub-basins Worldwide',
     org: 'Wageningen University & Research',
     location: 'Wageningen, Netherlands',
     coords: [5.6645, 51.9692],
@@ -45,15 +45,15 @@ export const journey: JourneyItem[] = [
     end: '2026-05',
     ongoing: false,
     summary:
-      'Developed a hybrid framework for estimating microplastic retention rates in global river systems, graded 9.0/10. Hosted by the Earth Systems and Global Change chair group, building on the MARINA-Plastic modelling framework.',
+      'Developed a hybrid framework to estimate spatially explicit microplastic river retention at the sub-basin scale worldwide, combining large-language-model (LLM) data extraction with machine learning (LightGBM) and benchmarking against the MARINA-Multi model. Graded 9.0/10, in the Water Systems and Global Change Group.',
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
-    tags: ['Machine Learning', 'MARINA-Plastic', 'Microplastics', 'Water Systems'],
+    tags: ['Machine Learning', 'LLM', 'MARINA-Multi', 'Microplastics', 'River Retention'],
     status: 'complete'
   },
   {
     id: 'ta-uef',
     kind: 'experience',
-    title: 'Teaching Assistant — AI4Science Summer School',
+    title: 'Teaching Assistant, AI4Science Summer School',
     org: 'University of Eastern Finland',
     location: 'Joensuu, Finland',
     coords: [29.7636, 62.6010],
@@ -77,7 +77,7 @@ export const journey: JourneyItem[] = [
       'Boreal-forest fieldwork in Lapland focused on dissolved organic carbon (DOC) in subarctic catchments, plus lab work and GIS watershed analysis.',
     supervisor: 'Prof. Frank Berninger',
     bullets: [
-      'Field sampling in Lapland — water samples for DOC measurement',
+      'Field sampling in Lapland: water samples for DOC measurement',
       'Lab preparation and instrument work for DOC analysis',
       'Manuscript in preparation: "Hydraulic Shunting and the Mobilization of Terrestrial Dissolved Organic Carbon in Subarctic Boreal Catchments"'
     ],
@@ -101,13 +101,13 @@ export const journey: JourneyItem[] = [
     id: 'ra-ubc-tree',
     kind: 'experience',
     title: 'Research Assistant (Volunteer)',
-    org: 'UBC — Faculty of Forestry',
+    org: 'UBC, Faculty of Forestry',
     location: 'Vancouver, Canada',
     coords: [-123.2460, 49.2606],
     start: '2024-02',
     end: '2024-04',
     summary:
-      '130,000+ tree inventory analysis for the City of Surrey — mortality, species, life-span patterns.',
+      '130,000+ tree inventory analysis for the City of Surrey: mortality, species, life-span patterns.',
     supervisor: 'Dr. Andrew Adams',
     tags: ['Tree Inventory', 'Data Analysis', 'GIS'],
     status: 'complete'
@@ -131,13 +131,13 @@ export const journey: JourneyItem[] = [
     id: 'ra-ubc-pollinator',
     kind: 'experience',
     title: 'Research Assistant (Full-time)',
-    org: 'UBC — Pollinators and Climate Change Lab',
+    org: 'UBC, Pollinators and Climate Change Lab',
     location: 'Vancouver, Canada',
     coords: [-123.2460, 49.2606],
     start: '2023-05',
     end: '2023-08',
     summary:
-      'Field survey of insect and bumble bee — plant interactions across 18 urban parks in Vancouver, with the Faculty of Land and Food Systems.',
+      'Field survey of insect and bumble-bee interactions with plants across 18 urban parks in Vancouver, with the Faculty of Land and Food Systems.',
     supervisor: 'Prof. Risa Sargant & Dr. Jens Ulrich',
     tags: ['Pollinators', 'Bumble Bees', 'Urban Ecology', 'Climate'],
     status: 'complete'
@@ -168,8 +168,8 @@ export const journey: JourneyItem[] = [
       'Two consecutive projects in the State Key Laboratory of Subtropical Silviculture, on phosphorus-solubilizing microorganism (PSM) ecology in moso bamboo (Phyllostachys edulis) systems.',
     supervisor: 'Prof. Yeqing Ying & Prof. Wenhui Shi',
     bullets: [
-      '2019-10 → 2020-11 — PSM × Phyllostachys edulis: field work and data analysis',
-      '2020-10 → 2021-08 — PSM strain interactions: team leader, proposal writing, leading the team to completion'
+      '2019-10 → 2020-11, PSM × Phyllostachys edulis: field work and data analysis',
+      '2020-10 → 2021-08, PSM strain interactions: team leader, proposal writing, leading the team to completion'
     ],
     tags: ['Microbiology', 'Plant-Microbe', 'Forestry', 'Team Lead'],
     status: 'complete'

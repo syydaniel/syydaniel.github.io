@@ -1,12 +1,13 @@
 ---
 import LangSwitcher from './LangSwitcher.astro';
 
-const links = [
-  { href: '#hero', label: 'Home', i18n: 'nav.home' },
-  { href: '#about', label: 'About', i18n: 'nav.about' },
-  { href: '#journey', label: 'Journey', i18n: 'nav.journey' },
-  { href: '#photography', label: 'Photography', i18n: 'nav.photography' },
-  { href: '#contact', label: 'Contact', i18n: 'nav.contact' }
+const links: { href: string; target?: string; label: string; i18n: string }[] = [
+  { href: '/#hero', target: '#hero', label: 'Home', i18n: 'nav.home' },
+  { href: '/#about', target: '#about', label: 'About', i18n: 'nav.about' },
+  { href: '/#journey', target: '#journey', label: 'Journey', i18n: 'nav.journey' },
+  { href: '/#photography', target: '#photography', label: 'Photography', i18n: 'nav.photography' },
+  { href: '/blog', label: 'Journal', i18n: 'nav.blog' },
+  { href: '/#contact', target: '#contact', label: 'Contact', i18n: 'nav.contact' }
 ];
 ---
 
@@ -16,7 +17,7 @@ const links = [
 >
   <div class="mx-auto max-w-6xl px-6 mt-4">
     <nav class="glass rounded-full px-5 py-3 flex items-center justify-between gap-4">
-      <a href="#hero" class="flex items-center gap-2 group">
+      <a href="/" class="flex items-center gap-2 group">
         <span class="relative flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-aqua-400 to-sol-400 text-ink-950 font-display text-sm font-bold">
           Y
           <span class="absolute inset-0 rounded-full ring-2 ring-aqua-400/40 group-hover:ring-aqua-400 transition-all"></span>
@@ -31,7 +32,7 @@ const links = [
               <a
                 href={link.href}
                 class="nav-link px-3.5 py-1.5 rounded-full text-sm text-ink-300 hover:text-ink-100 transition-colors"
-                data-target={link.href}
+                data-target={link.target}
                 data-i18n={link.i18n}
               >
                 {link.label}
@@ -123,8 +124,20 @@ const links = [
 
   // Active section highlighting
   const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
+
+  // On blog pages there are no tracked sections, so highlight the Journal link.
+  if (location.pathname.startsWith('/blog')) {
+    navLinks.forEach((a) => {
+      const on = a.getAttribute('href') === '/blog';
+      a.classList.toggle('text-ink-100', on);
+      a.classList.toggle('bg-white/5', on);
+    });
+  }
+
   const sections = Array.from(navLinks)
-    .map((a) => document.querySelector(a.dataset.target ?? ''))
+    .map((a) => a.dataset.target)
+    .filter((t): t is string => !!t)
+    .map((t) => document.querySelector(t))
     .filter((el): el is HTMLElement => el instanceof HTMLElement);
 
   const activeObserver = new IntersectionObserver(

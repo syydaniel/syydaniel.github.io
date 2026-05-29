@@ -67,7 +67,7 @@ function fmt(s: string) {
                         {item.ongoing && <span class="chip" data-i18n="journey.ongoing">Ongoing</span>}
                       </div>
                       <h3 class="font-display text-xl md:text-2xl text-ink-100 mt-3 leading-snug">{item.title}</h3>
-                      <p class="text-ink-300 text-sm mt-1">{item.org} — {item.location}</p>
+                      <p class="text-ink-300 text-sm mt-1">{item.org} · {item.location}</p>
                     </div>
                     <span class="font-mono text-xs text-ink-400 shrink-0">
                       {fmt(item.start)} → {item.ongoing ? 'present' : fmt(item.end)}
@@ -132,9 +132,6 @@ function fmt(s: string) {
 </section>
 
 <script>
-  import 'maplibre-gl/dist/maplibre-gl.css';
-  import maplibregl from 'maplibre-gl';
-
   // Filter chips
   const filterBtns = document.querySelectorAll<HTMLButtonElement>('.journey-filter');
   const items = document.querySelectorAll<HTMLElement>('.journey-item');
@@ -150,51 +147,70 @@ function fmt(s: string) {
     });
   });
 
-  // Map
+  // Map: load MapLibre (~800 KB) lazily, only when it nears the viewport.
   const el = document.getElementById('journey-map');
   if (el) {
-    const map = new maplibregl.Map({
-      container: el,
-      style: {
-        version: 8,
-        sources: {
-          basemap: {
-            type: 'raster',
-            tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OSM'
-          }
-        },
-        layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
-      },
-      center: [20, 40],
-      zoom: 1,
-      attributionControl: true,
-      dragRotate: false
-    });
+    let started = false;
+    const initMap = async () => {
+      if (started) return;
+      started = true;
+      await import('maplibre-gl/dist/maplibre-gl.css');
+      const maplibregl = (await import('maplibre-gl')).default;
 
-    map.on('load', () => {
-      document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
-        try {
-          const coords = JSON.parse(card.dataset.coords || '[]');
-          if (!Array.isArray(coords) || coords.length !== 2) return;
-          const pin = document.createElement('div');
-          pin.className = 'research-pin';
-          new maplibregl.Marker({ element: pin }).setLngLat(coords as [number, number]).addTo(map);
-        } catch {}
+      const map = new maplibregl.Map({
+        container: el,
+        style: {
+          version: 8,
+          sources: {
+            basemap: {
+              type: 'raster',
+              tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OSM'
+            }
+          },
+          layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
+        },
+        center: [20, 40],
+        zoom: 1,
+        attributionControl: true,
+        dragRotate: false
       });
 
-      document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
-        card.addEventListener('mouseenter', () => {
+      map.on('load', () => {
+        document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
           try {
             const coords = JSON.parse(card.dataset.coords || '[]');
-            if (Array.isArray(coords) && coords.length === 2) {
-              map.flyTo({ center: coords as [number, number], zoom: 4, speed: 1.4, curve: 1.4 });
-            }
+            if (!Array.isArray(coords) || coords.length !== 2) return;
+            const pin = document.createElement('div');
+            pin.className = 'research-pin';
+            new maplibregl.Marker({ element: pin }).setLngLat(coords as [number, number]).addTo(map);
           } catch {}
         });
+
+        document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
+          card.addEventListener('mouseenter', () => {
+            try {
+              const coords = JSON.parse(card.dataset.coords || '[]');
+              if (Array.isArray(coords) && coords.length === 2) {
+                map.flyTo({ center: coords as [number, number], zoom: 4, speed: 1.4, curve: 1.4 });
+              }
+            } catch {}
+          });
+        });
       });
-    });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          initMap();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    io.observe(el);
   }
 </script>
 

@@ -1,19 +1,76 @@
 ---
-// Small pill toggle: EN / 中文. Runs purely client-side using the
-// data-i18n attribute pattern defined in base i18n runtime.
+// Language dropdown: EN / 简 / 繁 / NL / DE. Runs client-side via the
+// data-lang + .lang-opt pattern handled by the i18n runtime.
+import { LANGS } from '../data/i18n';
 ---
 
-<div
-  id="lang-switcher"
-  class="glass-soft rounded-full p-0.5 inline-flex text-[11px] font-mono"
-  role="group"
-  aria-label="Language"
->
-  <button class="lang-opt active px-3 py-1.5 rounded-full transition-colors" data-lang="en">EN</button>
-  <button class="lang-opt px-3 py-1.5 rounded-full transition-colors" data-lang="zh">中</button>
+<div id="lang-switcher" class="relative" role="group" aria-label="Language">
+  <button
+    id="lang-btn"
+    type="button"
+    class="glass-soft rounded-full pl-2.5 pr-2 py-1.5 inline-flex items-center gap-1 text-[11px] font-mono text-ink-200 hover:text-ink-100 transition-colors"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+    <span id="lang-current">EN</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+
+  <div id="lang-menu" class="hidden absolute right-0 mt-2 glass rounded-xl p-1 min-w-[150px] z-[60] shadow-xl">
+    {
+      LANGS.map((l) => (
+        <button
+          class="lang-opt w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-between gap-4"
+          data-lang={l.code}
+        >
+          <span>{l.label}</span>
+          <span class="text-[10px] font-mono text-ink-500">{l.short}</span>
+        </button>
+      ))
+    }
+  </div>
 </div>
 
 <style>
-  .lang-opt { color: #6b7190; }
-  .lang-opt.active { background: rgba(56,228,210,0.15); color: #38e4d2; }
+  .lang-opt { color: #9aa0bd; }
+  .lang-opt:hover { background: rgba(255, 255, 255, 0.05); color: #eef0fa; }
+  .lang-opt.active { background: rgba(56, 228, 210, 0.15); color: #38e4d2; }
 </style>
+
+<script>
+  const btn = document.getElementById('lang-btn');
+  const menu = document.getElementById('lang-menu');
+  const current = document.getElementById('lang-current');
+  const SHORT: Record<string, string> = { en: 'EN', zh: '简', 'zh-Hant': '繁', nl: 'NL', de: 'DE' };
+
+  function refresh() {
+    const get = (window as any).__getLang;
+    const l = (get && get()) || localStorage.getItem('site-lang') || 'en';
+    if (current) current.textContent = SHORT[l] || 'EN';
+  }
+  refresh();
+
+  window.addEventListener('lang:change', () => {
+    refresh();
+    menu?.classList.add('hidden');
+    btn?.setAttribute('aria-expanded', 'false');
+  });
+
+  btn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const nowHidden = menu?.classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', String(nowHidden === false));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menu || menu.classList.contains('hidden')) return;
+    const target = e.target as Node;
+    if (!menu.contains(target) && target !== btn) {
+      menu.classList.add('hidden');
+      btn?.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>

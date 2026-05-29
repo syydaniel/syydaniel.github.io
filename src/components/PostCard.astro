@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  minutes: number;
+}
+const { post, minutes } = Astro.props;
+const { data } = post;
+const href = `/blog/${data.slug}`;
+const dateStr = data.pubDate.toISOString().slice(0, 10);
+const langBadge: Record<string, string> = { en: 'EN', zh: '简', 'zh-Hant': '繁', nl: 'NL', de: 'DE' };
+---
+
+<article
+  class="post-card group glass rounded-2xl overflow-hidden hover:border-aqua-400/30 transition-colors"
+  data-lang={data.lang}
+  data-key={data.translationKey ?? ''}
+>
+  <a href={href} class="block">
+    {data.cover && (
+      <div class="aspect-[16/9] overflow-hidden bg-ink-800">
+        <img
+          src={data.cover}
+          alt={data.title}
+          loading="lazy"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        />
+      </div>
+    )}
+    <div class="p-5 md:p-6">
+      <div class="flex items-center gap-3 text-[11px] text-ink-400 font-mono">
+        <time datetime={dateStr}>{dateStr}</time>
+        <span>·</span>
+        <span><span>{minutes}</span> <span data-i18n="blog.minread">min read</span></span>
+        <span class="ml-auto uppercase tracking-wider text-ink-500">{langBadge[data.lang] ?? data.lang}</span>
+      </div>
+      <h2 class="font-display text-xl md:text-2xl text-ink-100 mt-3 leading-snug group-hover:text-aqua-200 transition-colors">
+        {data.title}
+      </h2>
+      <p class="text-ink-300 text-sm mt-2 line-clamp-3">{data.description}</p>
+      {data.tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          {data.tags.map((t) => (
+            <span class="px-2.5 py-1 rounded-full bg-white/5 border border-white/5 text-[11px] text-ink-300">{t}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  </a>
+</article>

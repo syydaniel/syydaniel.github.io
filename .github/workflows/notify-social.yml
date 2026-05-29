@@ -1,0 +1,33 @@
+name: Notify (social)
+
+# Announces new journal posts to Bluesky. Inert until you add the
+# BLUESKY_HANDLE and BLUESKY_APP_PASSWORD repo secrets (see scripts/notify-bluesky.mjs).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/content/blog/**'
+  workflow_dispatch:
+
+jobs:
+  bluesky:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # need the previous commit to detect newly added posts
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Announce new posts to Bluesky
+        continue-on-error: true # a notification hiccup must never block anything
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: node scripts/notify-bluesky.mjs

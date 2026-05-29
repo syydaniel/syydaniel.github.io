@@ -71,7 +71,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
         <div class="border-t border-white/5 p-5 bg-ink-900/40">
           <div class="flex items-center justify-between mb-3">
             <span class="text-[10px] uppercase tracking-[0.25em] text-ink-400" data-i18n="photo.time_range">Time range</span>
-            <span class="text-xs font-mono text-aqua-400" id="scrubber-label">{yearMin} — {yearMax}</span>
+            <span class="text-xs font-mono text-aqua-400" id="scrubber-label">{yearMin} to {yearMax}</span>
           </div>
           <div class="relative h-10" id="scrubber-track">
             <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-white/10 rounded-full"></div>
@@ -139,8 +139,9 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
 </script>
 
 <script>
-  import 'maplibre-gl/dist/maplibre-gl.css';
-  import maplibregl from 'maplibre-gl';
+  // MapLibre is heavy (~800 KB). Load it lazily, only when the map nears view.
+  let maplibregl: any = null;
+  let map: any = null;
 
   type Photo = {
     id: string;
@@ -166,31 +167,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
 
   // ---------- MAP ----------
   const mapEl = document.getElementById('photo-map');
-  if (!mapEl) throw new Error('no map el');
-
-  const map = new maplibregl.Map({
-    container: mapEl,
-    style: {
-      version: 8,
-      sources: {
-        basemap: {
-          type: 'raster',
-          tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
-          tileSize: 256,
-          attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OpenStreetMap contributors'
-        }
-      },
-      layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
-    },
-    center: [20, 30],
-    zoom: 1.3,
-    attributionControl: true,
-    dragRotate: false
-  });
-
-  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-
-  let markers: maplibregl.Marker[] = [];
+  let markers: any[] = [];
 
   function photoYear(p: Photo) {
     const y = new Date(p.takenAt).getFullYear();
@@ -223,7 +200,17 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     return [...groups.values()];
   }
 
+  function updateCount() {
+    const countEl = document.getElementById('photo-count');
+    if (countEl) {
+      const shown = visiblePhotos().length;
+      countEl.textContent = `${shown} frame${shown === 1 ? '' : 's'} visible`;
+    }
+  }
+
   function renderMarkers() {
+    updateCount();
+    if (!map || !maplibregl) return;
     markers.forEach((m) => m.remove());
     markers = [];
     const groups = groupByLocation(visiblePhotos());
@@ -241,23 +228,61 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(g.coords).addTo(map);
       markers.push(marker);
     }
-    const countEl = document.getElementById('photo-count');
-    if (countEl) {
-      const shown = visiblePhotos().length;
-      countEl.textContent = `${shown} frame${shown === 1 ? '' : 's'} visible`;
-    }
   }
 
-  map.on('load', () => {
-    renderMarkers();
-    // fit bounds to initial photos
-    const pts = visiblePhotos();
-    if (pts.length) {
-      const bounds = new maplibregl.LngLatBounds();
-      pts.forEach((p) => bounds.extend(p.location.coords));
-      map.fitBounds(bounds, { padding: 80, maxZoom: 4, duration: 1400 });
-    }
-  });
+  let mapStarted = false;
+  async function initMap() {
+    if (mapStarted || !mapEl) return;
+    mapStarted = true;
+    await import('maplibre-gl/dist/maplibre-gl.css');
+    maplibregl = (await import('maplibre-gl')).default;
+
+    map = new maplibregl.Map({
+      container: mapEl,
+      style: {
+        version: 8,
+        sources: {
+          basemap: {
+            type: 'raster',
+            tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OpenStreetMap contributors'
+          }
+        },
+        layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
+      },
+      center: [20, 30],
+      zoom: 1.3,
+      attributionControl: true,
+      dragRotate: false
+    });
+
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+
+    map.on('load', () => {
+      renderMarkers();
+      // fit bounds to initial photos
+      const pts = visiblePhotos();
+      if (pts.length) {
+        const bounds = new maplibregl.LngLatBounds();
+        pts.forEach((p) => bounds.extend(p.location.coords));
+        map.fitBounds(bounds, { padding: 80, maxZoom: 4, duration: 1400 });
+      }
+    });
+  }
+
+  if (mapEl) {
+    const mapIO = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          mapIO.disconnect();
+          initMap();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    mapIO.observe(mapEl);
+  }
 
   // ---------- SCRUBBER ----------
   const trackEl = document.getElementById('scrubber-track') as HTMLElement;
@@ -281,7 +306,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     endThumb.style.left = `${b}%`;
     fillEl.style.left = `${a}%`;
     fillEl.style.right = `${100 - b}%`;
-    label.textContent = startYear === endYear ? String(startYear) : `${startYear} — ${endYear}`;
+    label.textContent = startYear === endYear ? String(startYear) : `${startYear} to ${endYear}`;
     renderMarkers();
     renderTimeline();
   }
@@ -336,7 +361,8 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       if (btn.dataset.view === 'map') {
         mapView.classList.remove('hidden');
         timelineView.classList.add('hidden');
-        setTimeout(() => map.resize(), 60);
+        initMap();
+        if (map) setTimeout(() => map.resize(), 60);
       } else {
         timelineView.classList.remove('hidden');
         mapView.classList.add('hidden');

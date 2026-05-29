@@ -1,0 +1,68 @@
+---
+import Base from './Base.astro';
+import PostReactions from '../components/PostReactions.astro';
+import Comments from '../components/Comments.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  minutes: number;
+  translation?: CollectionEntry<'blog'>;
+}
+const { post, minutes, translation } = Astro.props;
+const { data } = post;
+const dateStr = data.pubDate.toISOString().slice(0, 10);
+const updatedStr = data.updated ? data.updated.toISOString().slice(0, 10) : null;
+const translationHref = translation ? `/blog/${translation.data.slug}` : null;
+const translationLabel = translation ? (translation.data.lang === 'zh' ? '阅读中文版' : 'Read in English') : null;
+---
+
+<Base
+  title={`${data.title} · Yiyang Shen`}
+  description={data.description}
+  image={data.cover ?? '/og-image.jpg'}
+  type="article"
+  publishedTime={data.pubDate.toISOString()}
+  noindex={data.draft}
+>
+  <article class="mx-auto max-w-3xl px-6 pt-32 md:pt-40 pb-24">
+    <a href="/blog" class="inline-flex items-center gap-2 text-sm text-ink-400 hover:text-aqua-300 transition-colors">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span data-i18n="blog.back">All posts</span>
+    </a>
+
+    <header class="mt-8">
+      <div class="flex items-center gap-3 text-[11px] text-ink-400 font-mono">
+        <span data-i18n="blog.published">Published</span>
+        <time datetime={dateStr}>{dateStr}</time>
+        <span>·</span>
+        <span><span>{minutes}</span> <span data-i18n="blog.minread">min read</span></span>
+        {updatedStr && (
+          <span class="text-ink-500">(<span data-i18n="blog.updated">updated</span> {updatedStr})</span>
+        )}
+      </div>
+      <h1 class="font-display text-3xl md:text-5xl text-ink-100 mt-4 leading-tight">{data.title}</h1>
+      <p class="mt-4 text-ink-300 text-lg leading-relaxed">{data.description}</p>
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        {data.tags.map((t) => <span class="chip">{t}</span>)}
+        {translationHref && (
+          <a href={translationHref} class="ml-auto inline-flex items-center gap-1.5 text-sm text-aqua-300 hover:underline">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+            {translationLabel}
+          </a>
+        )}
+      </div>
+    </header>
+
+    {data.cover && (
+      <img src={data.cover} alt={data.title} class="w-full rounded-2xl mt-8 border border-white/5" />
+    )}
+
+    <div class="prose-post mt-10">
+      <slot />
+    </div>
+
+    <PostReactions slug={data.slug} />
+    <Comments />
+  </article>
+</Base>

@@ -7,6 +7,7 @@ dist/
 
 # local scratch (not published)
 _old_snapshot/
+conversation-transcript.md
 .claude/
 .DS_Store
 .vscode/
