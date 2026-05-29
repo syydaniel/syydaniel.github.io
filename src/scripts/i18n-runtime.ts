@@ -1,6 +1,7 @@
 import { dict, type Lang, type UILang } from '../data/i18n';
 import { translate as nyaTranslate, mergeLexicon } from './nyalang';
 import { renderText } from './nya-logogram';
+import { toKlingon } from './klingon';
 
 const STORAGE_KEY = 'site-lang';
 const SUPPORTED: UILang[] = ['en', 'zh', 'zh-Hant', 'nl', 'de', 'fi', 'ja', 'ko', 'fr', 'cat', 'klingon'];
@@ -57,33 +58,6 @@ function ensureFont(lang: UILang) {
 
 // ---------- Constructed cat language + Klingon ----------
 
-// Deterministic, word-by-word ciphers over the English
-// text. Each word always maps to the same invented word and structure/numbers
-// are preserved, so the result reads like a real invented tongue, not noise.
-function hashWord(w: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < w.length; i++) {
-    h ^= w.charCodeAt(i);
-    h = Math.imul(h, 16777619) >>> 0;
-  }
-  return h;
-}
-function buildWord(word: string, pool: string[]): string {
-  const n = word.length <= 2 ? 1 : word.length <= 5 ? 2 : 3;
-  let h = hashWord(word.toLowerCase());
-  let out = '';
-  for (let i = 0; i < n; i++) {
-    out += pool[h % pool.length];
-    h = (Math.floor(h / pool.length) + 0x9e3779b9 + i) >>> 0;
-  }
-  return out;
-}
-function conlang(s: string, pool: string[]): string {
-  return s.replace(/[A-Za-zÀ-ÿ]+/g, (w) => {
-    const cw = buildWord(w, pool);
-    return /[A-Z]/.test(w[0]) ? cw.charAt(0).toUpperCase() + cw.slice(1) : cw;
-  });
-}
 // 猫猫语 (Nya): a real constructed cat language with its own lexicon + grammar
 // (src/scripts/nyalang.ts, mirrored from the standalone nyalang repo). Rendered
 // in the hand-built NyaGlyph font, each letter becomes a little cat.
@@ -91,28 +65,8 @@ function toCatLang(s: string): string {
   if (!s) return s;
   return nyaTranslate(s) + ' 🐾';
 }
-// tlhIngan Hol: a small set of well-known Klingon words for common terms. The
-// full Klingon lexicon is copyrighted, so this is deliberately limited to widely
-// published words; anything else gets a Klingon-styled phonetic fallback.
-const KLINGON_LEX: Record<string, string> = {
-  hello: 'nuqneH', hi: 'nuqneH', i: 'jIH', me: 'jIH', you: 'SoH', we: 'maH',
-  yes: 'HISlaH', no: "ghobe'", and: "'ej", name: 'pong', language: 'Hol',
-  klingon: 'tlhIngan', home: 'juH', world: "qo'", day: 'jaj', water: 'bIQ',
-  fire: 'qul', cat: "vIghro'", enemy: 'jagh', friend: 'jup', honor: 'batlh',
-  good: 'QaQ', big: 'tIn', small: 'mach', see: 'legh', know: 'Sov',
-  speak: 'jatlh', talk: 'jatlh', say: 'jatlh', success: "Qapla'", today: 'DaHjaj',
-  one: "wa'", two: "cha'", three: 'wej', four: 'loS', five: "vagh"
-};
-const KLINGON_POOL = ['tlhI', 'ngan', 'Qap', 'laʼ', 'HoS', 'batlh', 'veS', 'Daq', 'ghom', 'jagh', 'Suv', 'qey', 'wIj', 'maH', 'tlhuH', 'vetlh', 'yIn', 'bIQ', 'Qel', 'tagh', 'woʼ', 'cha'];
-function toKlingon(s: string): string {
-  if (!s) return s;
-  return s.replace(/[A-Za-z]+/g, (w) => {
-    const k = KLINGON_LEX[w.toLowerCase()];
-    if (k !== undefined) return k;
-    const cw = buildWord(w, KLINGON_POOL);
-    return /[A-Z]/.test(w[0]) ? cw.charAt(0).toUpperCase() + cw.slice(1) : cw;
-  });
-}
+// tlhIngan Hol: a real Klingon grammar engine (src/scripts/klingon.ts) with OVS
+// word order, verb prefixes and noun suffixes over a curated common-word lexicon.
 
 // Resolve an entry (dict row or inline JSON map) to text for the chosen UI lang.
 function resolve(entry: Record<string, string>, lang: UILang): string {
