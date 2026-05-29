@@ -263,7 +263,8 @@ import Globe from './Globe.astro';
     }
   }
 
-  // Name morph (cycles between Yiyang Shen / Daniel / 沈亦旸)
+  // Name morph (cycles Yiyang Shen / Daniel / 沈亦旸). In 猫语 mode the Latin
+  // forms render as cat-sigils; the Chinese form stays as characters.
   const nameEl = document.getElementById('hero-name');
   if (nameEl) {
     const raw = nameEl.dataset.names;
@@ -271,6 +272,18 @@ import Globe from './Globe.astro';
       try {
         const names = JSON.parse(raw) as string[];
         let idx = 0;
+        let current = names[0];
+        const w = window as any;
+        const setName = (txt: string) => {
+          current = txt;
+          if (document.documentElement.dataset.lang === 'cat' && w.__nyaCat && /[A-Za-z]/.test(txt)) {
+            nameEl.innerHTML = w.__nyaCat(txt, 60);
+          } else {
+            nameEl.textContent = txt;
+          }
+        };
+        setName(names[0]);
+        window.addEventListener('lang:change', () => setName(current));
         setInterval(() => {
           idx = (idx + 1) % names.length;
           nameEl.animate(
@@ -280,7 +293,7 @@ import Globe from './Globe.astro';
             ],
             { duration: 380, easing: 'cubic-bezier(0.7,0,0.2,1)', fill: 'forwards' }
           ).onfinish = () => {
-            nameEl.textContent = names[idx];
+            setName(names[idx]);
             nameEl.animate(
               [
                 { opacity: 0, transform: 'translateY(12px) skewY(6deg)' },

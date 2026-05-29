@@ -171,3 +171,14 @@ document.addEventListener('click', (e) => {
   apply(l);
   window.dispatchEvent(new CustomEvent('lang:change', { detail: { lang: l } }));
 };
+// Helpers for JS-driven text (hero name morph, photo count, arcade messages):
+// __t(key) returns the translated string for the current language; __nyaCat
+// returns the cat-sigil HTML so dynamic strings can also render in 猫语 mode.
+(window as any).__t = (key: string): string => {
+  const e = dict[key];
+  const l = ((window as any).__getLang() as UILang) || 'en';
+  return e ? (e[l as Lang] ?? e.en ?? '') : '';
+};
+(window as any).__nyaCat = (text: string, size?: number): string => renderCatText(text, { size: size || 26 });
+// Re-translate the page after dynamically injected DOM (e.g. the photo timeline).
+(window as any).__applyI18n = () => apply(((window as any).__getLang() as UILang) || 'en');

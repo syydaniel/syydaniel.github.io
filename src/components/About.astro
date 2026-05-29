@@ -2,14 +2,14 @@
 import { profile } from '../data/profile';
 
 const skills = [
-  { label: 'Water Quality', icon: '💧' },
-  { label: 'Microplastics', icon: '🧬' },
-  { label: 'Scenario Analysis', icon: '📈' },
-  { label: 'Climate Change', icon: '🌍' },
-  { label: 'Machine Learning', icon: '🤖' },
-  { label: 'GIS Analysis', icon: '🗺️' },
-  { label: 'Boreal Ecology', icon: '🌲' },
-  { label: 'Urban Forestry', icon: '🏙️' }
+  { label: 'Water Quality', icon: '💧', key: 'about.skill.water' },
+  { label: 'Microplastics', icon: '🧬', key: 'about.skill.microplastics' },
+  { label: 'Scenario Analysis', icon: '📈', key: 'about.skill.scenario' },
+  { label: 'Climate Change', icon: '🌍', key: 'about.skill.climate' },
+  { label: 'Machine Learning', icon: '🤖', key: 'about.skill.ml' },
+  { label: 'GIS Analysis', icon: '🗺️', key: 'about.skill.gis' },
+  { label: 'Boreal Ecology', icon: '🌲', key: 'about.skill.boreal' },
+  { label: 'Urban Forestry', icon: '🏙️', key: 'about.skill.urban' }
 ];
 ---
 
@@ -46,7 +46,7 @@ const skills = [
             skills.map((s) => (
               <div class="glass-soft rounded-xl p-3 text-center hover:border-aqua-400/40 transition-colors group">
                 <div class="text-2xl group-hover:scale-110 transition-transform">{s.icon}</div>
-                <div class="mt-1.5 text-[11px] uppercase tracking-[0.15em] text-ink-300">{s.label}</div>
+                <div class="mt-1.5 text-[11px] uppercase tracking-[0.15em] text-ink-300" data-i18n={s.key}>{s.label}</div>
               </div>
             ))
           }

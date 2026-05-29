@@ -314,6 +314,194 @@ export const dict: Record<string, Record<Lang, string>> = {
     ja: '© {year} 沈亦旸 · Astro で構築',
     ko: '© {year} 沈亦旸 · Astro로 제작',
     fr: '© {year} Yiyang Shen · Conçu avec Astro'
+  },
+
+  // brand / globe / about skills / location / photo / arcade
+  'brand.name': {
+    en: "Yiyang Shen", zh: "沈亦旸", "zh-Hant": "沈亦旸", nl: "Yiyang Shen", de: "Yiyang Shen",
+    fi: "Yiyang Shen", ja: "沈亦旸", ko: "Yiyang Shen", fr: "Yiyang Shen"
+  },
+  'globe.hint': {
+    en: "Drag to rotate", zh: "拖动旋转", "zh-Hant": "拖曳旋轉", nl: "Sleep om te draaien", de: "Zum Drehen ziehen",
+    fi: "Pyöritä raahaamalla", ja: "ドラッグで回転", ko: "드래그하여 회전", fr: "Glisser pour pivoter"
+  },
+  'about.skill.water': {
+    en: "Water Quality", zh: "水质", "zh-Hant": "水質", nl: "Waterkwaliteit", de: "Wasserqualität",
+    fi: "Veden laatu", ja: "水質", ko: "수질", fr: "Qualité de l'eau"
+  },
+  'about.skill.microplastics': {
+    en: "Microplastics", zh: "微塑料", "zh-Hant": "微塑膠", nl: "Microplastics", de: "Mikroplastik",
+    fi: "Mikromuovit", ja: "マイクロプラスチック", ko: "미세플라스틱", fr: "Microplastiques"
+  },
+  'about.skill.scenario': {
+    en: "Scenario Analysis", zh: "情景分析", "zh-Hant": "情境分析", nl: "Scenarioanalyse", de: "Szenarioanalyse",
+    fi: "Skenaarioanalyysi", ja: "シナリオ分析", ko: "시나리오 분석", fr: "Analyse de scénarios"
+  },
+  'about.skill.climate': {
+    en: "Climate Change", zh: "气候变化", "zh-Hant": "氣候變遷", nl: "Klimaatverandering", de: "Klimawandel",
+    fi: "Ilmastonmuutos", ja: "気候変動", ko: "기후 변화", fr: "Changement climatique"
+  },
+  'about.skill.ml': {
+    en: "Machine Learning", zh: "机器学习", "zh-Hant": "機器學習", nl: "Machine learning", de: "Maschinelles Lernen",
+    fi: "Koneoppiminen", ja: "機械学習", ko: "기계학습", fr: "Apprentissage automatique"
+  },
+  'about.skill.gis': {
+    en: "GIS Analysis", zh: "GIS 分析", "zh-Hant": "GIS 分析", nl: "GIS-analyse", de: "GIS-Analyse",
+    fi: "GIS-analyysi", ja: "GIS分析", ko: "GIS 분석", fr: "Analyse SIG"
+  },
+  'about.skill.boreal': {
+    en: "Boreal Ecology", zh: "北方森林生态", "zh-Hant": "北方森林生態", nl: "Boreale ecologie", de: "Boreale Ökologie",
+    fi: "Boreaalinen ekologia", ja: "北方林生態学", ko: "북방 생태학", fr: "Écologie boréale"
+  },
+  'about.skill.urban': {
+    en: "Urban Forestry", zh: "城市林业", "zh-Hant": "城市林業", nl: "Stedelijke bosbouw", de: "Stadtforstwirtschaft",
+    fi: "Kaupunkimetsätalous", ja: "都市林業", ko: "도시 임업", fr: "Foresterie urbaine"
+  },
+  'footer.location': {
+    en: "Wageningen, Netherlands", zh: "荷兰，瓦赫宁恩", "zh-Hant": "荷蘭，瓦赫寧恩", nl: "Wageningen, Nederland", de: "Wageningen, Niederlande",
+    fi: "Wageningen, Alankomaat", ja: "オランダ・ワーヘニンゲン", ko: "네덜란드 바헤닝언", fr: "Wageningen, Pays-Bas"
+  },
+  'photo.frames_visible': {
+    en: "frames visible", zh: "张可见", "zh-Hant": "張可見", nl: "frames zichtbaar", de: "Aufnahmen sichtbar",
+    fi: "kuvaa näkyvissä", ja: "枚表示中", ko: "장 표시 중", fr: "images visibles"
+  },
+  'photo.frames': {
+    en: "frames", zh: "张", "zh-Hant": "張", nl: "frames", de: "Aufnahmen",
+    fi: "kuvaa", ja: "枚", ko: "장", fr: "images"
+  },
+  'photo.empty': {
+    en: "No photos in this time range.", zh: "此时间范围内没有照片。", "zh-Hant": "此時間範圍內沒有照片。", nl: "Geen foto's in dit tijdsbestek.", de: "Keine Fotos in diesem Zeitraum.",
+    fi: "Ei kuvia tällä aikavälillä.", ja: "この期間の写真はありません。", ko: "이 기간에는 사진이 없습니다.", fr: "Aucune photo dans cette période."
+  },
+  'arcade.eyebrow': {
+    en: "Secret arcade", zh: "隐藏街机", "zh-Hant": "隱藏街機", nl: "Geheime arcade", de: "Geheime Spielhalle",
+    fi: "Salainen pelihalli", ja: "隠しアーケード", ko: "비밀 아케이드", fr: "Salle d'arcade secrète"
+  },
+  'arcade.title': {
+    en: "Coffee break 🕹️", zh: "休息一下 🕹️", "zh-Hant": "休息一下 🕹️", nl: "Koffiepauze 🕹️", de: "Kaffeepause 🕹️",
+    fi: "Kahvitauko 🕹️", ja: "コーヒーブレイク 🕹️", ko: "커피 브레이크 🕹️", fr: "Pause café 🕹️"
+  },
+  'arcade.tab.snake': {
+    en: "Snake", zh: "贪吃蛇", "zh-Hant": "貪食蛇", nl: "Snake", de: "Snake",
+    fi: "Mato", ja: "スネーク", ko: "스네이크", fr: "Snake"
+  },
+  'arcade.tab.about': {
+    en: "About", zh: "关于", "zh-Hant": "關於", nl: "Over", de: "Über",
+    fi: "Tietoa", ja: "概要", ko: "소개", fr: "À propos"
+  },
+  'arcade.snake.help': {
+    en: "Guide the 💧 water drop. Eat 🧬 microplastic particles. Don't crash into yourself.",
+    zh: "操控 💧 水滴，吃掉 🧬 微塑料颗粒，别撞到自己。",
+    "zh-Hant": "操控 💧 水滴，吃掉 🧬 微塑膠顆粒，別撞到自己。",
+    nl: "Bestuur de 💧 waterdruppel. Eet 🧬 microplasticdeeltjes. Bots niet tegen jezelf.",
+    de: "Steuere den 💧 Wassertropfen. Iss 🧬 Mikroplastikpartikel. Stoße nicht mit dir selbst zusammen.",
+    fi: "Ohjaa 💧 vesipisaraa. Syö 🧬 mikromuovihiukkasia. Älä törmää itseesi.",
+    ja: "💧 水滴を操作して 🧬 マイクロプラスチック粒子を食べよう。自分にぶつからないように。",
+    ko: "💧 물방울을 조종해 🧬 미세플라스틱 입자를 먹으세요. 몸에 부딪히지 마세요.",
+    fr: "Dirige la 💧 goutte d'eau. Mange les 🧬 particules de microplastique. Ne te percute pas."
+  },
+  'arcade.snake.keys': {
+    en: "Arrow keys · WASD · tap-direction on mobile",
+    zh: "方向键 · WASD · 手机点按方向",
+    "zh-Hant": "方向鍵 · WASD · 手機點按方向",
+    nl: "Pijltjestoetsen · WASD · tik-richting op mobiel",
+    de: "Pfeiltasten · WASD · Tipp-Richtung am Handy",
+    fi: "Nuolinäppäimet · WASD · suuntanäpäytys mobiilissa",
+    ja: "矢印キー · WASD · モバイルはタップ方向",
+    ko: "방향키 · WASD · 모바일은 탭 방향",
+    fr: "Touches fléchées · WASD · direction tactile sur mobile"
+  },
+  'arcade.score_best': {
+    en: "Score · best", zh: "得分 · 最高", "zh-Hant": "得分 · 最高", nl: "Score · beste", de: "Punkte · Bestwert",
+    fi: "Pisteet · paras", ja: "スコア · 最高", ko: "점수 · 최고", fr: "Score · record"
+  },
+  'arcade.ready': {
+    en: "Ready?", zh: "准备好了吗？", "zh-Hant": "準備好了嗎？", nl: "Klaar?", de: "Bereit?",
+    fi: "Valmiina?", ja: "準備はいい？", ko: "준비됐나요?", fr: "Prêt ?"
+  },
+  'arcade.start': {
+    en: "Start game", zh: "开始游戏", "zh-Hant": "開始遊戲", nl: "Start spel", de: "Spiel starten",
+    fi: "Aloita peli", ja: "ゲーム開始", ko: "게임 시작", fr: "Démarrer"
+  },
+  'arcade.n2048.help': {
+    en: "Combine tiles to reach 2048. Arrow keys or swipe.",
+    zh: "合并方块，凑到 2048。方向键或滑动。",
+    "zh-Hant": "合併方塊，湊到 2048。方向鍵或滑動。",
+    nl: "Combineer tegels tot 2048. Pijltjestoetsen of veeg.",
+    de: "Kacheln zu 2048 kombinieren. Pfeiltasten oder wischen.",
+    fi: "Yhdistä laatat 2048:aan. Nuolinäppäimet tai pyyhkäisy.",
+    ja: "タイルを合わせて 2048 を目指そう。矢印キーまたはスワイプ。",
+    ko: "타일을 합쳐 2048을 만드세요. 방향키 또는 스와이프.",
+    fr: "Combine les tuiles jusqu'à 2048. Touches fléchées ou glissement."
+  },
+  'arcade.luck': {
+    en: "Good luck.", zh: "祝你好运。", "zh-Hant": "祝你好運。", nl: "Succes.", de: "Viel Glück.",
+    fi: "Onnea.", ja: "頑張って。", ko: "행운을 빌어요.", fr: "Bonne chance."
+  },
+  'arcade.score': {
+    en: "Score", zh: "得分", "zh-Hant": "得分", nl: "Score", de: "Punkte",
+    fi: "Pisteet", ja: "スコア", ko: "점수", fr: "Score"
+  },
+  'arcade.best': {
+    en: "Best", zh: "最高", "zh-Hant": "最高", nl: "Beste", de: "Bestwert",
+    fi: "Paras", ja: "最高", ko: "최고", fr: "Record"
+  },
+  'arcade.new': {
+    en: "New", zh: "新游戏", "zh-Hant": "新遊戲", nl: "Nieuw", de: "Neu",
+    fi: "Uusi", ja: "新規", ko: "새 게임", fr: "Nouveau"
+  },
+  'arcade.again': {
+    en: "Play again", zh: "再玩一次", "zh-Hant": "再玩一次", nl: "Opnieuw spelen", de: "Nochmal spielen",
+    fi: "Pelaa uudelleen", ja: "もう一度", ko: "다시 하기", fr: "Rejouer"
+  },
+  'arcade.gameover': {
+    en: "Game over", zh: "游戏结束", "zh-Hant": "遊戲結束", nl: "Game over", de: "Game over",
+    fi: "Peli ohi", ja: "ゲームオーバー", ko: "게임 오버", fr: "Partie terminée"
+  },
+  'arcade.tryagain': {
+    en: "Try again", zh: "再试一次", "zh-Hant": "再試一次", nl: "Probeer opnieuw", de: "Erneut versuchen",
+    fi: "Yritä uudelleen", ja: "もう一度", ko: "다시 시도", fr: "Réessayer"
+  },
+  'arcade.win': {
+    en: "You win! 🎉", zh: "你赢了！🎉", "zh-Hant": "你贏了！🎉", nl: "Gewonnen! 🎉", de: "Gewonnen! 🎉",
+    fi: "Voitit! 🎉", ja: "勝利！🎉", ko: "승리! 🎉", fr: "Gagné ! 🎉"
+  },
+  'arcade.nomoves': {
+    en: "No more moves", zh: "无法移动了", "zh-Hant": "無法移動了", nl: "Geen zetten meer", de: "Keine Züge mehr",
+    fi: "Ei siirtoja jäljellä", ja: "動かせません", ko: "더 이상 이동 불가", fr: "Plus de coups possibles"
+  },
+  'arcade.about.p1': {
+    en: "Hey 👋 you found the secret arcade! A few more easter eggs hide on this site. Try clicking the Y logo at the top 5 times, or pressing ↑ ↑ ↓ ↓ ← → ← → B A on any page.",
+    zh: "嘿 👋 你找到了隐藏街机！站里还藏着几个彩蛋。试试连点顶部的 Y 标志 5 次，或在任意页面按 ↑ ↑ ↓ ↓ ← → ← → B A。",
+    "zh-Hant": "嘿 👋 你找到了隱藏街機！站裡還藏著幾個彩蛋。試試連點頂部的 Y 標誌 5 次，或在任意頁面按 ↑ ↑ ↓ ↓ ← → ← → B A。",
+    nl: "Hé 👋 je hebt de geheime arcade gevonden! Er verstoppen zich nog een paar easter eggs op deze site. Klik bovenaan 5 keer op het Y-logo, of druk op ↑ ↑ ↓ ↓ ← → ← → B A op elke pagina.",
+    de: "Hey 👋 du hast die geheime Spielhalle gefunden! Auf dieser Seite verstecken sich noch ein paar Easter Eggs. Klicke oben 5-mal auf das Y-Logo oder drücke ↑ ↑ ↓ ↓ ← → ← → B A auf jeder Seite.",
+    fi: "Hei 👋 löysit salaisen pelihallin! Sivustolla piileskelee vielä muutama munaus. Klikkaa ylhäällä olevaa Y-logoa 5 kertaa tai paina ↑ ↑ ↓ ↓ ← → ← → B A millä tahansa sivulla.",
+    ja: "やあ 👋 隠しアーケードを見つけたね！このサイトにはまだいくつかイースターエッグが隠れています。上部の Y ロゴを5回クリックするか、どのページでも ↑ ↑ ↓ ↓ ← → ← → B A を押してみて。",
+    ko: "안녕 👋 비밀 아케이드를 찾았네요! 이 사이트에는 이스터에그가 몇 개 더 숨어 있어요. 상단의 Y 로고를 5번 클릭하거나, 아무 페이지에서 ↑ ↑ ↓ ↓ ← → ← → B A 를 눌러 보세요.",
+    fr: "Hé 👋 tu as trouvé la salle d'arcade secrète ! Quelques autres easter eggs se cachent sur ce site. Clique 5 fois sur le logo Y en haut, ou tape ↑ ↑ ↓ ↓ ← → ← → B A sur n'importe quelle page."
+  },
+  'arcade.about.p2': {
+    en: "Both games here are vanilla JS, no libraries. High scores are stored locally in your browser.",
+    zh: "这里的两个游戏都是纯 JavaScript，没有任何库。最高分保存在你本地的浏览器里。",
+    "zh-Hant": "這裡的兩個遊戲都是純 JavaScript，沒有任何函式庫。最高分保存在你本地的瀏覽器裡。",
+    nl: "Beide spellen hier zijn pure JavaScript, geen libraries. Highscores worden lokaal in je browser opgeslagen.",
+    de: "Beide Spiele hier sind reines JavaScript, ohne Bibliotheken. Highscores werden lokal in deinem Browser gespeichert.",
+    fi: "Molemmat pelit ovat puhdasta JavaScriptiä, ei kirjastoja. Ennätykset tallentuvat paikallisesti selaimeesi.",
+    ja: "ここの2つのゲームはどちらもライブラリなしの素の JavaScript です。ハイスコアはブラウザにローカル保存されます。",
+    ko: "여기 두 게임 모두 라이브러리 없는 순수 JavaScript입니다. 최고 점수는 브라우저에 로컬로 저장됩니다.",
+    fr: "Les deux jeux ici sont en JavaScript pur, sans bibliothèques. Les meilleurs scores sont stockés localement dans ton navigateur."
+  },
+  'arcade.about.p3': {
+    en: "Easter eggs added because Daniel believes personal sites should be fun.",
+    zh: "加这些彩蛋，是因为 Daniel 觉得个人网站就该好玩。",
+    "zh-Hant": "加這些彩蛋，是因為 Daniel 覺得個人網站就該好玩。",
+    nl: "Easter eggs toegevoegd omdat Daniel vindt dat persoonlijke sites leuk moeten zijn.",
+    de: "Easter Eggs hinzugefügt, weil Daniel findet, dass persönliche Seiten Spaß machen sollten.",
+    fi: "Munaukset lisätty, koska Daniel uskoo, että henkilökohtaisten sivustojen pitäisi olla hauskoja.",
+    ja: "イースターエッグを入れたのは、個人サイトは楽しくあるべきだと Daniel が思っているから。",
+    ko: "개인 사이트는 재미있어야 한다고 Daniel이 믿기에 이스터에그를 넣었어요.",
+    fr: "Easter eggs ajoutés parce que Daniel pense que les sites personnels devraient être amusants."
   }
 };
 

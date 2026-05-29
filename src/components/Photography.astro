@@ -59,7 +59,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
           Timeline
         </button>
       </div>
-      <div class="text-xs text-ink-400 font-mono" id="photo-count">{total} frames visible</div>
+      <div class="text-xs text-ink-400 font-mono"><span id="photo-count">{total}</span> <span data-i18n="photo.frames_visible">frames visible</span></div>
     </div>
 
     <!-- MAP VIEW -->
@@ -204,7 +204,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     const countEl = document.getElementById('photo-count');
     if (countEl) {
       const shown = visiblePhotos().length;
-      countEl.textContent = `${shown} frame${shown === 1 ? '' : 's'} visible`;
+      countEl.textContent = String(shown);
     }
   }
 
@@ -392,7 +392,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
         <div class="flex items-baseline gap-4 mb-4">
           <span class="font-display text-4xl md:text-5xl text-ink-100">${year}</span>
           <span class="h-px flex-1 bg-gradient-to-r from-aqua-400/40 to-transparent"></span>
-          <span class="font-mono text-xs text-ink-400">${group.length} frame${group.length === 1 ? '' : 's'}</span>
+          <span class="font-mono text-xs text-ink-400">${group.length} <span data-i18n="photo.frames">frames</span></span>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
       `;
@@ -415,8 +415,9 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     }
 
     if (!list.length) {
-      container.innerHTML = `<p class="text-ink-400 text-center py-12">No photos in this time range.</p>`;
+      container.innerHTML = `<p class="text-ink-400 text-center py-12" data-i18n="photo.empty">No photos in this time range.</p>`;
     }
+    (window as any).__applyI18n?.();
   }
 
   function escapeHtml(s: string) {

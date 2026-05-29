@@ -31,13 +31,13 @@
     <div class="p-6 border-b border-white/5">
       <div class="flex items-center justify-between">
         <div>
-          <p class="section-eyebrow !tracking-[0.3em]">Secret arcade</p>
-          <h3 class="font-display text-3xl text-ink-100 mt-1">Coffee break 🕹️</h3>
+          <p class="section-eyebrow !tracking-[0.3em]" data-i18n="arcade.eyebrow">Secret arcade</p>
+          <h3 class="font-display text-3xl text-ink-100 mt-1" data-i18n="arcade.title">Coffee break 🕹️</h3>
         </div>
         <div class="glass-soft rounded-full p-1 inline-flex gap-1">
-          <button class="arcade-tab active px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="snake">Snake</button>
+          <button class="arcade-tab active px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="snake" data-i18n="arcade.tab.snake">Snake</button>
           <button class="arcade-tab px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="n2048">2048</button>
-          <button class="arcade-tab px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="about">About</button>
+          <button class="arcade-tab px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em]" data-game="about" data-i18n="arcade.tab.about">About</button>
         </div>
       </div>
     </div>
@@ -46,21 +46,21 @@
     <div id="game-snake" class="arcade-game p-6">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <p class="text-sm text-ink-300">
+          <p class="text-sm text-ink-300" data-i18n="arcade.snake.help">
             Guide the 💧 water drop. Eat 🧬 microplastic particles. Don't crash into yourself.
           </p>
-          <p class="text-xs text-ink-400 mt-1 font-mono">Arrow keys · WASD · tap-direction on mobile</p>
+          <p class="text-xs text-ink-400 mt-1 font-mono" data-i18n="arcade.snake.keys">Arrow keys · WASD · tap-direction on mobile</p>
         </div>
         <div class="text-right">
           <div class="font-display text-2xl text-ink-100"><span id="snake-score">0</span></div>
-          <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400">Score · best <span id="snake-best">0</span></div>
+          <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400"><span data-i18n="arcade.score_best">Score · best</span> <span id="snake-best">0</span></div>
         </div>
       </div>
       <div class="bg-ink-900 rounded-2xl overflow-hidden border border-white/5 aspect-square max-w-md mx-auto relative">
         <canvas id="snake-canvas" class="w-full h-full"></canvas>
         <div id="snake-overlay" class="absolute inset-0 bg-ink-950/70 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
-          <p class="font-display text-2xl text-ink-100">Ready?</p>
-          <button id="snake-start" class="btn btn-primary">Start game</button>
+          <p class="font-display text-2xl text-ink-100" data-i18n="arcade.ready">Ready?</p>
+          <button id="snake-start" class="btn btn-primary" data-i18n="arcade.start">Start game</button>
         </div>
       </div>
     </div>
@@ -69,41 +69,41 @@
     <div id="game-n2048" class="arcade-game hidden p-6">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <p class="text-sm text-ink-300">Combine tiles to reach 2048. Arrow keys or swipe.</p>
-          <p class="text-xs text-ink-400 mt-1 font-mono">Good luck.</p>
+          <p class="text-sm text-ink-300" data-i18n="arcade.n2048.help">Combine tiles to reach 2048. Arrow keys or swipe.</p>
+          <p class="text-xs text-ink-400 mt-1 font-mono" data-i18n="arcade.luck">Good luck.</p>
         </div>
         <div class="flex gap-3 items-start">
           <div class="text-right">
             <div class="font-display text-2xl text-ink-100"><span id="n2048-score">0</span></div>
-            <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400">Score</div>
+            <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400" data-i18n="arcade.score">Score</div>
           </div>
           <div class="text-right">
             <div class="font-display text-2xl text-sol-400"><span id="n2048-best">0</span></div>
-            <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400">Best</div>
+            <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400" data-i18n="arcade.best">Best</div>
           </div>
-          <button id="n2048-restart" class="ml-3 px-3 py-1.5 rounded-full text-xs bg-white/5 hover:bg-white/10 transition-colors text-ink-200">New</button>
+          <button id="n2048-restart" class="ml-3 px-3 py-1.5 rounded-full text-xs bg-white/5 hover:bg-white/10 transition-colors text-ink-200" data-i18n="arcade.new">New</button>
         </div>
       </div>
       <div class="bg-ink-900 rounded-2xl border border-white/5 p-3 max-w-md mx-auto relative">
         <div id="n2048-board" class="grid grid-cols-4 gap-2 aspect-square"></div>
         <div id="n2048-overlay" class="hidden absolute inset-0 rounded-2xl bg-ink-950/80 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
-          <p id="n2048-msg" class="font-display text-3xl text-ink-100">You win!</p>
-          <button id="n2048-again" class="btn btn-primary">Play again</button>
+          <p id="n2048-msg" class="font-display text-3xl text-ink-100" data-i18n="arcade.win">You win!</p>
+          <button id="n2048-again" class="btn btn-primary" data-i18n="arcade.again">Play again</button>
         </div>
       </div>
     </div>
 
     <!-- About -->
     <div id="game-about" class="arcade-game hidden p-6 text-sm text-ink-300 space-y-3">
-      <p>
+      <p data-i18n="arcade.about.p1">
         Hey 👋 you found the secret arcade! There are a few more easter eggs hiding on this site.
         Try clicking the <span class="text-aqua-400">Y</span> logo at the top 5 times, or pressing
         <code class="text-aqua-400 font-mono">↑ ↑ ↓ ↓ ← → ← → B A</code> on any page.
       </p>
-      <p>
+      <p data-i18n="arcade.about.p2">
         Both games here are vanilla JS, no libraries. High scores are stored locally in your browser.
       </p>
-      <p class="text-ink-400 text-xs">
+      <p class="text-ink-400 text-xs" data-i18n="arcade.about.p3">
         Easter eggs added because Daniel believes personal sites should be <em>fun</em>.
       </p>
     </div>
@@ -290,10 +290,11 @@
       localStorage.setItem('snake-best', String(snakeBest));
       bestEl.textContent = String(snakeBest);
     }
+    const tt = (window as any).__t || (() => '');
     snakeOverlay.innerHTML = `
-      <p class="font-display text-3xl text-ink-100">Game over</p>
-      <p class="text-ink-300">Score: <span class="text-aqua-400">${snakeScore}</span></p>
-      <button id="snake-again" class="btn btn-primary">Try again</button>
+      <p class="font-display text-3xl text-ink-100">${tt('arcade.gameover') || 'Game over'}</p>
+      <p class="text-ink-300">${tt('arcade.score') || 'Score'}: <span class="text-aqua-400">${snakeScore}</span></p>
+      <button id="snake-again" class="btn btn-primary">${tt('arcade.tryagain') || 'Try again'}</button>
     `;
     snakeOverlay.classList.remove('hidden');
     document.getElementById('snake-again')?.addEventListener('click', startSnake);
@@ -437,7 +438,7 @@
           compact.splice(k + 1, 1);
           if (compact[k] === 2048 && !won) {
             won = true;
-            n2048Msg.textContent = 'You win! 🎉';
+            n2048Msg.textContent = ((window as any).__t?.('arcade.win')) || 'You win! 🎉';
             n2048Overlay.classList.remove('hidden');
           }
         }
@@ -456,7 +457,7 @@
       spawn();
       render();
       if (!hasMoves()) {
-        n2048Msg.textContent = 'No more moves';
+        n2048Msg.textContent = ((window as any).__t?.('arcade.nomoves')) || 'No more moves';
         n2048Overlay.classList.remove('hidden');
       }
     }
