@@ -41,7 +41,7 @@ Posts live in `src/content/blog` as Markdown. Front matter schema is in
 title: "Post title"
 description: "One sentence shown in lists, RSS, and link previews."
 pubDate: 2026-05-29
-lang: en            # 'en', 'zh', 'zh-Hant', 'nl', or 'de'
+lang: en            # en, zh, zh-Hant, ja, ko, fr, de, nl, fi (real post languages)
 slug: my-post       # the URL becomes /blog/my-post (keep it unique)
 tags: ["water"]
 cover: /photos/wildlife/DSC_0057.jpg   # optional, used as the card + share image

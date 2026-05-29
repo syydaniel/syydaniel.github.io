@@ -9,7 +9,7 @@ const { post, minutes } = Astro.props;
 const { data } = post;
 const href = `/blog/${data.slug}`;
 const dateStr = data.pubDate.toISOString().slice(0, 10);
-const langBadge: Record<string, string> = { en: 'EN', zh: '简', 'zh-Hant': '繁', nl: 'NL', de: 'DE' };
+const langBadge: Record<string, string> = { en: 'EN', zh: '简', 'zh-Hant': '繁', nl: 'NL', de: 'DE', fi: 'FI', ja: '日', ko: '한', fr: 'FR' };
 ---
 
 <article

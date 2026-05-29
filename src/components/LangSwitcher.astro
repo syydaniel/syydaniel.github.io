@@ -19,7 +19,7 @@ import { LANGS } from '../data/i18n';
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
   </button>
 
-  <div id="lang-menu" class="hidden absolute right-0 mt-2 glass rounded-xl p-1 min-w-[150px] z-[60] shadow-xl">
+  <div id="lang-menu" class="hidden absolute right-0 mt-2 glass rounded-xl p-1 min-w-[150px] max-h-[70vh] overflow-y-auto z-[60] shadow-xl">
     {
       LANGS.map((l) => (
         <button
@@ -44,7 +44,7 @@ import { LANGS } from '../data/i18n';
   const btn = document.getElementById('lang-btn');
   const menu = document.getElementById('lang-menu');
   const current = document.getElementById('lang-current');
-  const SHORT: Record<string, string> = { en: 'EN', zh: '简', 'zh-Hant': '繁', nl: 'NL', de: 'DE' };
+  const SHORT: Record<string, string> = { en: 'EN', zh: '简', 'zh-Hant': '繁', nl: 'NL', de: 'DE', fi: 'FI', ja: '日', ko: '한', fr: 'FR', mars: '火', cat: '喵' };
 
   function refresh() {
     const get = (window as any).__getLang;

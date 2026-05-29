@@ -1,14 +1,44 @@
 ---
-import { journey, researchCities } from '../data/journey';
+import { journey, researchCities, tagT } from '../data/journey';
+import type { Loc } from '../data/journey';
+import { LANG_CODES, type Lang } from '../data/i18n';
 
 const sorted = [...journey].sort((a, b) => (a.start < b.start ? 1 : -1));
 
-function fmt(s: string) {
-  if (!s) return '';
+// Localized month labels for date ranges.
+// Month abbreviations for languages that use them (CJK + Korean handled separately).
+const MONTHS: Record<string, string[]> = {
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  nl: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
+  de: ['Jan', 'Feb', 'März', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+  fi: ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'],
+  fr: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
+};
+const PRESENT: Record<Lang, string> = { en: 'present', zh: '至今', 'zh-Hant': '至今', nl: 'heden', de: 'heute', fi: 'nyt', ja: '現在', ko: '현재', fr: "aujourd'hui" };
+
+function fmtMonth(s: string, lang: Lang): string {
   const [y, m] = s.split('-');
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${months[parseInt(m, 10) - 1]} ${y}`;
+  const mi = parseInt(m, 10) - 1;
+  if (lang === 'zh' || lang === 'zh-Hant') return `${y} 年 ${mi + 1} 月`;
+  if (lang === 'ja') return `${y}年${mi + 1}月`;
+  if (lang === 'ko') return `${y}년 ${mi + 1}월`;
+  const arr = MONTHS[lang];
+  return `${(arr && arr[mi]) || ''} ${y}`;
 }
+function dateLoc(item: { start: string; end: string; ongoing?: boolean }): Loc {
+  const out = {} as Loc;
+  for (const code of LANG_CODES) {
+    const start = fmtMonth(item.start, code);
+    const end = item.ongoing ? PRESENT[code] : fmtMonth(item.end, code);
+    out[code] = `${start} → ${end}`;
+  }
+  return out;
+}
+
+// Spread data-i18n-self only for multilingual values; show English as fallback.
+const selfAttr = (v: string | Loc) => (typeof v === 'string' ? {} : { 'data-i18n-self': JSON.stringify(v) });
+const txt = (v: string | Loc) => (typeof v === 'string' ? v : v.en);
+const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
 ---
 
 <section id="journey" class="relative py-28 md:py-40 scroll-mt-20">
@@ -66,11 +96,11 @@ function fmt(s: string) {
                         </span>
                         {item.ongoing && <span class="chip" data-i18n="journey.ongoing">Ongoing</span>}
                       </div>
-                      <h3 class="font-display text-xl md:text-2xl text-ink-100 mt-3 leading-snug">{item.title}</h3>
-                      <p class="text-ink-300 text-sm mt-1">{item.org} · {item.location}</p>
+                      <h3 class="font-display text-xl md:text-2xl text-ink-100 mt-3 leading-snug" {...selfAttr(item.title)}>{txt(item.title)}</h3>
+                      <p class="text-ink-300 text-sm mt-1"><span {...selfAttr(item.org)}>{txt(item.org)}</span> · <span {...selfAttr(item.location)}>{txt(item.location)}</span></p>
                     </div>
-                    <span class="font-mono text-xs text-ink-400 shrink-0">
-                      {fmt(item.start)} → {item.ongoing ? 'present' : fmt(item.end)}
+                    <span class="font-mono text-xs text-ink-400 shrink-0" data-i18n-self={JSON.stringify(dateLoc(item))}>
+                      {dateLoc(item).en}
                     </span>
                   </div>
                   {item.supervisor && (
@@ -78,18 +108,19 @@ function fmt(s: string) {
                       <span data-i18n="journey.supervisor">Supervisor</span>: <span class="text-ink-200">{item.supervisor}</span>
                     </p>
                   )}
-                  <p class="text-ink-200 text-sm mt-3 leading-relaxed">{item.summary}</p>
+                  <p class="text-ink-200 text-sm mt-3 leading-relaxed" {...selfAttr(item.summary)}>{txt(item.summary)}</p>
                   {item.bullets && (
                     <ul class="mt-3 space-y-1 text-sm text-ink-300 list-disc pl-4 marker:text-aqua-400">
                       {item.bullets.map((b) => (
-                        <li>{b}</li>
+                        <li {...selfAttr(b)}>{txt(b)}</li>
                       ))}
                     </ul>
                   )}
                   <div class="mt-4 flex flex-wrap gap-1.5">
-                    {item.tags.map((t) => (
-                      <span class="px-2.5 py-1 rounded-full bg-white/5 border border-white/5 text-[11px] text-ink-300">{t}</span>
-                    ))}
+                    {item.tags.map((t) => {
+                      const tl = tagLoc(t);
+                      return <span class="px-2.5 py-1 rounded-full bg-white/5 border border-white/5 text-[11px] text-ink-300" {...selfAttr(tl)}>{txt(tl)}</span>;
+                    })}
                   </div>
                 </article>
               </li>
@@ -115,11 +146,8 @@ function fmt(s: string) {
                 <li class="flex items-start gap-3 text-sm" data-city={c.id}>
                   <span class="mt-1.5 w-2 h-2 rounded-full bg-aqua-400 shrink-0"></span>
                   <div>
-                    <div class="text-ink-100">
-                      {c.name}
-                      <span class="text-ink-400">, {c.country}</span>
-                    </div>
-                    <div class="text-ink-400 text-xs">{c.role}</div>
+                    <div class="text-ink-100"><span {...selfAttr(c.name)}>{txt(c.name)}</span><span class="text-ink-400">, <span {...selfAttr(c.country)}>{txt(c.country)}</span></span></div>
+                    <div class="text-ink-400 text-xs" {...selfAttr(c.role)}>{txt(c.role)}</div>
                   </div>
                 </li>
               ))
