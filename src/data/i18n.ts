@@ -544,6 +544,9 @@ export const dict: Record<string, Record<Lang, string>> = {
   },
   'nya.dict': {
     en: "3200-word dictionary", zh: "3200 词字典", "zh-Hant": "3200 詞字典", nl: "Woordenboek (3200)", de: "Wörterbuch (3200)", fi: "3200 sanan sanakirja", ja: "3200 語の辞書", ko: "3200단어 사전", fr: "Dictionnaire de 3200 mots"
+  },
+  'nya.translator': {
+    en: "Open the translator", zh: "打开翻译站", "zh-Hant": "開啟翻譯站", nl: "Open de vertaler", de: "Übersetzer öffnen", fi: "Avaa kääntäjä", ja: "翻訳サイトを開く", ko: "번역기 열기", fr: "Ouvrir le traducteur"
   }
 };
 

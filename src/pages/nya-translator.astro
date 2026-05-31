@@ -1,0 +1,250 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Nya Translator · Yiyang Shen" description="Translate English into Nya, a constructed cat language where every word is one cat: cat-sigils, romanized output, per-word breakdown, audio, a 3200-word dictionary, and a learn mode.">
+  <section class="relative pt-28 pb-24 min-h-screen">
+    <div class="mx-auto max-w-5xl px-6">
+      <header class="text-center mb-8">
+        <h1 class="font-display text-[clamp(2rem,6vw,3.4rem)] text-gradient leading-tight">Nya Translator</h1>
+        <p class="mt-3 text-ink-400">猫猫语翻译站 · every word becomes one cat. Sound and meaning, in a single sigil.</p>
+      </header>
+
+      <div class="flex gap-2 justify-center flex-wrap mb-6">
+        <button class="ny-tab active" data-view="translate">Translate</button>
+        <button class="ny-tab" data-view="dictionary">Dictionary</button>
+        <button class="ny-tab" data-view="learn">Learn the cats</button>
+      </div>
+
+      <!-- TRANSLATE -->
+      <section class="ny-view active" id="nv-translate">
+        <div class="flex items-center justify-center gap-3 mb-5">
+          <b id="ny-dl" class="text-ink-100">English</b>
+          <button id="ny-swap" class="ny-swap" title="Swap direction">⇄</button>
+          <b id="ny-dr" class="text-ink-100">Nya 🐾</b>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div class="glass rounded-2xl p-5">
+            <label class="text-[10px] uppercase tracking-[0.24em] text-aqua-400" id="ny-il">English text</label>
+            <textarea id="ny-in" spellcheck="false" class="mt-3 w-full h-32 bg-ink-900/60 border border-white/10 rounded-xl p-3 text-ink-100 resize-y outline-none focus:border-aqua-400/50">I study water and microplastics in rivers.</textarea>
+            <div class="flex flex-wrap gap-2 mt-3" id="ny-examples"></div>
+          </div>
+          <div class="glass rounded-2xl p-5 flex flex-col">
+            <label class="text-[10px] uppercase tracking-[0.24em] text-sol-400" id="ny-ol">In Nya</label>
+            <div id="ny-cats" class="mt-3 leading-[1.3] text-[#ffe1a8] min-h-[3.5rem]"></div>
+            <div id="ny-roman" class="mt-3 pt-3 border-t border-white/5 font-mono text-sm text-aqua-300/90 break-words"></div>
+            <div id="ny-enout" class="mt-3 text-ink-100" style="display:none"></div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <button class="btn btn-primary !py-2 !px-3 text-sm" id="ny-speak">🔊 Hear it</button>
+              <button class="btn btn-ghost !py-2 !px-3 text-sm" id="ny-copy">Copy romanized</button>
+              <button class="btn btn-ghost !py-2 !px-3 text-sm" id="ny-shuffle">🎲 Surprise me</button>
+            </div>
+          </div>
+        </div>
+        <p class="text-[10px] uppercase tracking-[0.24em] text-ink-400 mt-8 mb-3">Word by word, hover a cat to see what each part means</p>
+        <div id="ny-breakdown" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+      </section>
+
+      <!-- DICTIONARY -->
+      <section class="ny-view" id="nv-dictionary">
+        <div class="glass rounded-2xl p-5">
+          <div class="flex gap-3 items-center flex-wrap mb-3">
+            <input id="ny-q" type="text" placeholder="Search English or Nya…" autocomplete="off" class="flex-1 min-w-[200px] bg-ink-900/60 border border-white/10 rounded-xl px-3 py-2 text-ink-100 outline-none focus:border-aqua-400/50" />
+            <label class="text-sm text-ink-400 inline-flex gap-2 items-center"><input type="checkbox" id="ny-meaningful" /> only with a meaning mark</label>
+            <span id="ny-dcount" class="text-xs text-sol-400 font-mono"></span>
+          </div>
+          <div id="ny-dict" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 max-h-[70vh] overflow-auto"><p class="text-ink-400">Loading dictionary…</p></div>
+        </div>
+      </section>
+
+      <!-- LEARN -->
+      <section class="ny-view" id="nv-learn">
+        <div class="glass rounded-2xl p-5">
+          <p class="text-[10px] uppercase tracking-[0.24em] text-ink-400 mb-4">The 16 radicals, meaning + the syllable each one sounds like</p>
+          <div id="ny-radicals" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+          <p class="text-[10px] uppercase tracking-[0.24em] text-ink-400 mt-8 mb-4">How to read one cat, the body carries the grammar</p>
+          <div id="ny-features" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+      </section>
+
+      <p class="text-center text-ink-500 text-sm mt-12">
+        Built for fun. <a href="/#nyalang" class="text-aqua-400">About Nya</a> ·
+        <a href="https://github.com/syydaniel/nyalang" target="_blank" rel="noopener" class="text-aqua-400">Source &amp; grammar</a>
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .ny-tab { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); color: #9aa0bd; padding: 8px 18px; border-radius: 999px; cursor: pointer; font-size: .85rem; transition: .2s; }
+    .ny-tab:hover { color: #eef0fa; }
+    .ny-tab.active { background: linear-gradient(100deg, rgba(56,228,210,.2), rgba(255,159,67,.18)); color: #eef0fa; border-color: rgba(56,228,210,.4); }
+    .ny-view { display: none; }
+    .ny-view.active { display: block; }
+    .ny-swap { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); color: #38e4d2; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; transition: transform .35s, background .2s; }
+    .ny-swap:hover { background: rgba(56,228,210,.12); transform: rotate(180deg); }
+    #ny-cats .nya-cat { transition: transform .25s; }
+    #ny-cats .nya-cat:hover { transform: translateY(-4px) scale(1.12); }
+    #ny-cats.pop { animation: nypop .4s cubic-bezier(.2,.9,.2,1); }
+    @keyframes nypop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .ny-chip { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); color: #9aa0bd; padding: 5px 11px; border-radius: 999px; cursor: pointer; font-size: .78rem; transition: .2s; }
+    .ny-chip:hover { color: #ffe1a8; border-color: rgba(255,225,168,.4); }
+    .ny-word { background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.09); border-radius: 14px; padding: 10px; display: flex; gap: 10px; align-items: flex-start; }
+    .ny-word .g { width: 46px; height: 46px; flex: none; color: #ffe1a8; }
+    .ny-word .en { font-weight: 600; font-size: .9rem; overflow-wrap: anywhere; }
+    .ny-word .ny { font-family: ui-monospace, monospace; font-size: .82rem; color: #a9efe1; }
+    .ny-word .rd { font-size: .72rem; color: #9aa0bd; margin-top: 3px; }
+    .ny-word .ft { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+    .ny-tag { font-size: .64rem; padding: 1px 7px; border-radius: 999px; background: rgba(56,228,210,.14); color: #38e4d2; }
+    .ny-tag.g { background: rgba(255,225,168,.14); color: #ffe1a8; }
+    .ny-letter { grid-column: 1/-1; font-family: ui-monospace, monospace; letter-spacing: .2em; color: #38e4d2; padding: 10px 0 2px; border-bottom: 1px solid rgba(255,255,255,.09); }
+    .ny-leg { background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.09); border-radius: 14px; padding: 12px; text-align: center; }
+    .ny-leg .g { width: 60px; height: 60px; margin: 0 auto; color: #ffe1a8; }
+    .ny-leg .nm { font-weight: 600; font-size: .85rem; margin-top: 6px; }
+    .ny-leg .gl { font-size: .72rem; color: #9aa0bd; }
+    .ny-leg .sy { font-family: ui-monospace, monospace; color: #a9efe1; font-size: .8rem; margin-top: 2px; }
+    #ny-features .ny-leg { display: flex; gap: 10px; text-align: left; align-items: center; }
+    #ny-features .g { width: 44px; height: 44px; margin: 0; }
+  </style>
+
+  <script>
+    import { analyze, translate, ROOT_SOUND } from '../scripts/nyalang';
+    import { catSigil, renderCatText } from '../scripts/nya-script';
+    import { radicalsFor, RADICAL_GLOSSES, renderGlyph } from '../scripts/nya-logogram';
+
+    const $ = (id: string) => document.getElementById(id);
+    let dir = 'en2nya';
+    let lexicon: Record<string, string> = {};
+    let reverse: Record<string, string[]> = {};
+
+    document.querySelectorAll<HTMLElement>('.ny-tab').forEach((t) => t.addEventListener('click', () => {
+      document.querySelectorAll('.ny-tab').forEach((x) => x.classList.remove('active'));
+      document.querySelectorAll('.ny-view').forEach((x) => x.classList.remove('active'));
+      t.classList.add('active');
+      $('nv-' + t.dataset.view)!.classList.add('active');
+      if (t.dataset.view === 'dictionary') ensureDict();
+    }));
+
+    const EXAMPLES = [
+      'I study water and microplastics in rivers.',
+      'The researchers rebuild the broken system.',
+      'Hello! The cat sees the big mountain.',
+      'We love the quiet forest and the bright stars.',
+      'Where is my friend? The river flows to the sea.'
+    ];
+    function renderExamples() {
+      $('ny-examples')!.innerHTML = EXAMPLES.map((e, i) => `<span class="ny-chip" data-i="${i}">${e.length > 26 ? e.slice(0, 24) + '…' : e}</span>`).join('');
+      $('ny-examples')!.querySelectorAll<HTMLElement>('.ny-chip').forEach((c) => c.addEventListener('click', () => { ($('ny-in') as HTMLTextAreaElement).value = EXAMPLES[+c.dataset.i!]; run(); }));
+    }
+
+    const FEAT: Record<string, [string, string]> = { plural: ['plural', 'g'], agent: ['one who', ''], neg: ['not', ''], redo: ['again', ''], adverb: ['-ly', ''], emphasis: ['!', 'g'], question: ['?', 'g'] };
+    function featTags(f: any) {
+      const out: string[] = [];
+      for (const k in f) {
+        if (k === 'tense') out.push(`<span class="ny-tag">${f[k]}</span>`);
+        else if (FEAT[k]) out.push(`<span class="ny-tag ${FEAT[k][1]}">${FEAT[k][0]}</span>`);
+      }
+      return out.join('');
+    }
+
+    function run() {
+      const text = ($('ny-in') as HTMLTextAreaElement).value;
+      if (dir === 'en2nya') {
+        $('ny-cats')!.style.display = ''; $('ny-roman')!.style.display = ''; $('ny-enout')!.style.display = 'none';
+        const out = $('ny-cats')!;
+        out.innerHTML = renderCatText(text, { size: 40 });
+        out.classList.remove('pop'); void out.offsetWidth; out.classList.add('pop');
+        $('ny-roman')!.textContent = translate(text);
+        const seen = new Set<string>();
+        $('ny-breakdown')!.innerHTML = (text.match(/[A-Za-z]+/g) || []).map((t) => {
+          const key = t.toLowerCase(); if (seen.has(key)) return ''; seen.add(key);
+          const a = analyze(t); if (!a.nya) return '';
+          const rads = radicalsFor(t);
+          return `<div class="ny-word"><div class="g">${catSigil(a.nya, rads, a.features)}</div><div style="min-width:0"><div class="en">${t}</div><div class="ny">${a.nya}</div>${rads.length ? `<div class="rd">${rads.join(' + ')}</div>` : ''}<div class="ft">${featTags(a.features)}</div></div></div>`;
+        }).join('');
+      } else {
+        $('ny-cats')!.style.display = 'none'; $('ny-roman')!.style.display = 'none'; $('ny-enout')!.style.display = '';
+        const toks = text.toLowerCase().match(/[a-z]+/g) || [];
+        $('ny-enout')!.textContent = toks.map((t) => t === 'nya' ? '·' : (reverse[t]?.[0] || `(${t}?)`)).join(' ') || '…';
+        $('ny-breakdown')!.innerHTML = toks.filter((t) => t !== 'nya').map((t) => {
+          const hits = reverse[t] || [];
+          return `<div class="ny-word"><div class="g">${catSigil(t, [])}</div><div style="min-width:0"><div class="en">${hits.length ? hits.slice(0, 3).join(', ') : 'unknown'}</div><div class="ny">${t}</div></div></div>`;
+        }).join('');
+      }
+    }
+
+    $('ny-in')!.addEventListener('input', run);
+    $('ny-swap')!.addEventListener('click', () => {
+      dir = dir === 'en2nya' ? 'nya2en' : 'en2nya';
+      const en2 = dir === 'en2nya';
+      $('ny-dl')!.textContent = en2 ? 'English' : 'Nya 🐾';
+      $('ny-dr')!.textContent = en2 ? 'Nya 🐾' : 'English';
+      $('ny-il')!.textContent = en2 ? 'English text' : 'Nya (romanized)';
+      $('ny-ol')!.textContent = en2 ? 'In Nya' : 'In English';
+      $('ny-examples')!.style.display = en2 ? '' : 'none';
+      if (!en2) ensureDict().then(() => { ($('ny-in') as HTMLTextAreaElement).value = translate('water cat river forest'); run(); });
+      else { ($('ny-in') as HTMLTextAreaElement).value = EXAMPLES[0]; run(); }
+    });
+    $('ny-speak')!.addEventListener('click', () => {
+      const text = dir === 'en2nya' ? translate(($('ny-in') as HTMLTextAreaElement).value) : ($('ny-in') as HTMLTextAreaElement).value;
+      const u = new SpeechSynthesisUtterance(text.replace(/[^a-z ]/gi, ' '));
+      u.rate = 0.85; u.pitch = 1.4;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    });
+    $('ny-copy')!.addEventListener('click', (e) => {
+      navigator.clipboard?.writeText(dir === 'en2nya' ? translate(($('ny-in') as HTMLTextAreaElement).value) : $('ny-enout')!.textContent || '');
+      (e.target as HTMLElement).textContent = 'Copied ✓'; setTimeout(() => ((e.target as HTMLElement).textContent = 'Copy romanized'), 1200);
+    });
+    $('ny-shuffle')!.addEventListener('click', () => { ($('ny-in') as HTMLTextAreaElement).value = EXAMPLES[Math.floor(performance.now() / 700) % EXAMPLES.length]; run(); });
+
+    let dictReady: Promise<void> | null = null;
+    function ensureDict() {
+      if (dictReady) return dictReady;
+      dictReady = fetch('/nya-lexicon.json').then((r) => r.json()).then((lex) => {
+        lexicon = lex; reverse = {};
+        for (const en in lex) { (reverse[lex[en]] = reverse[lex[en]] || []).push(en); }
+        const entries = Object.entries(lexicon).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+        let meaningful = 0, html = '', letter = '';
+        for (const [en, nya] of entries) {
+          const L = (en[0] || '#').toUpperCase();
+          if (L !== letter) { letter = L; html += `<h3 class="ny-letter">${L}</h3>`; }
+          const rads = radicalsFor(en); if (rads.length) meaningful++;
+          html += `<div class="ny-word" data-en="${en}" data-nya="${nya}" data-m="${rads.length ? 1 : 0}"><div class="g">${catSigil(nya, rads, analyze(en).features)}</div><div style="min-width:0"><div class="en">${en}</div><div class="ny">${nya}</div>${rads.length ? `<div class="rd">${rads.join(' + ')}</div>` : ''}</div></div>`;
+        }
+        $('ny-dict')!.innerHTML = html;
+        $('ny-dcount')!.textContent = entries.length + ' words · ' + meaningful + ' with meaning';
+        const apply = () => {
+          const term = ($('ny-q') as HTMLInputElement).value.trim().toLowerCase(), m = ($('ny-meaningful') as HTMLInputElement).checked;
+          document.querySelectorAll<HTMLElement>('#ny-dict .ny-word').forEach((el) => {
+            const ok = (!term || el.dataset.en!.includes(term) || el.dataset.nya!.includes(term)) && (!m || el.dataset.m === '1');
+            el.style.display = ok ? '' : 'none';
+          });
+          document.querySelectorAll<HTMLElement>('#ny-dict .ny-letter').forEach((h) => {
+            let s = h.nextElementSibling as HTMLElement | null, any = false;
+            while (s && !s.classList.contains('ny-letter')) { if (s.style.display !== 'none') { any = true; break; } s = s.nextElementSibling as HTMLElement | null; }
+            h.style.display = any ? '' : 'none';
+          });
+        };
+        ($('ny-q') as HTMLInputElement).oninput = apply; ($('ny-meaningful') as HTMLInputElement).onchange = apply;
+      }).catch(() => { $('ny-dict')!.innerHTML = '<p class="text-ink-400">Could not load the dictionary.</p>'; });
+      return dictReady;
+    }
+
+    function buildLearn() {
+      $('ny-radicals')!.innerHTML = Object.entries(RADICAL_GLOSSES).map(([id, gloss]) =>
+        `<div class="ny-leg"><div class="g">${renderGlyph([id], { size: 64 })}</div><div class="nm">${id}</div><div class="gl">${gloss}</div><div class="sy">sounds: ${(ROOT_SOUND as any)[id] || '—'}</div></div>`).join('');
+      const F: [string, string][] = [
+        ['Ears = the first consonant', catSigil('miru', radicalsFor('water'))],
+        ['Eyes = the first vowel', catSigil('miru', radicalsFor('water'))],
+        ['Whiskers = syllable count', catSigil('puwa', radicalsFor('research'))],
+        ['Forehead = meaning', catSigil('waro', radicalsFor('river'))],
+        ['Tail = tense (past shown)', catSigil('puwa', [], { tense: 'past' })],
+        ['Second kitten = plural', catSigil('mau', radicalsFor('cat'), { plural: true })],
+        ['Raised paw = a question', catSigil('nya', [], { question: true })],
+        ['Collar = one who does it', catSigil('wimunyo', radicalsFor('research'), { agent: true })]
+      ];
+      $('ny-features')!.innerHTML = F.map(([desc, svg]) => `<div class="ny-leg"><div class="g">${svg}</div><div class="nm">${desc}</div></div>`).join('');
+    }
+
+    renderExamples(); run(); buildLearn();
+  </script>
+</Base>
