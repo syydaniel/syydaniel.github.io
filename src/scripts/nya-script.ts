@@ -12,7 +12,7 @@
 //
 // Proper nouns / names are spelled in the cat-alphabet (NyaGlyph font) instead.
 
-import { word as nyaWord, analyze } from './nyalang';
+import { word as nyaWord, analyze, toNyaTokens, PARTICLE } from './nyalang';
 import { radicalsFor } from './nya-logogram';
 
 const HEAD = '<path d="M50 21 C67 21 79 33 79 51 C79 66 70 77 59 82 C53 85 47 85 41 82 C30 77 21 66 21 51 C21 33 33 21 50 21 Z"/>';
@@ -146,8 +146,37 @@ function sigil(nya, radicals, feat) {
   return s;
 }
 
-// Render a whole string as a flowing row of cat-sigils (one per Nya word).
+// a tiny case-particle cat (subject -re / object -o): a small crouching marker cat
+function particleCat(p) {
+  const role = p === PARTICLE.subj ? 'subj' : 'obj';
+  let g = ear(-1, 2) + ear(1, 2) + '<ellipse cx="50" cy="58" rx="22" ry="18"/>';
+  g += `<circle cx="42" cy="56" r="1.6" fill="currentColor" stroke="none"/><circle cx="58" cy="56" r="1.6" fill="currentColor" stroke="none"/>`;
+  // subject = a forward arrow under the chin; object = a small dot (the thing acted on)
+  if (role === 'subj') g += `<path d="M40 70 h18 l-4 -3 m4 3 l-4 3"/>`;
+  else g += `<circle cx="50" cy="70" r="2.4"/>`;
+  return wrap(g, p, 1.9);
+}
+
+// Render text as a flowing row of cat-sigils. Uses the SAME token stream as
+// translate(), so the sigils appear in Nya's own SOV word order (with the case
+// particle cats) and always match the romanized line.
 export function renderCatText(text, opts = {}) {
+  const size = opts.size || 26;
+  const span = (svg, title, scale = 1) =>
+    `<span class="nya-cat" title="${String(title).replace(/"/g, '')}" style="display:inline-block;width:${Math.round(size * scale)}px;height:${Math.round(size * scale)}px;vertical-align:middle;margin:0 1px">${svg}</span>`;
+  let html = '';
+  for (const t of toNyaTokens(text)) {
+    if (t.purr) { html += span(sigil('nya', [], t.q ? { question: true } : t.excl ? { emphasis: true } : {}), 'nya'); continue; }
+    if (t.num != null) { html += span(numberCat(t.num), t.num); continue; }
+    if (t.punct) { if (/[,;:]/.test(t.punct)) html += `<span style="display:inline-block;width:${Math.round(size * 0.28)}px"></span>`; continue; }
+    if (t.role === 'particle') { html += span(particleCat(t.nya), t.nya, 0.72); continue; }
+    if (t.nya) html += span(sigil(t.nya, t.radicals || [], t.features || {}), t.nya);
+  }
+  return html;
+}
+
+// (legacy per-token renderer kept for reference; unused)
+function renderCatTextLinear(text, opts = {}) {
   const size = opts.size || 26;
   const toks = String(text).match(/[A-Za-z]+|[0-9]+|[.!?]+|[,;:]+/g) || [];
   const span = (svg, title) =>

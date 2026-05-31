@@ -14,9 +14,9 @@
 //
 // This file is the single source of truth; the website ships a copy.
 
-import { CONCEPTS } from './nya-logogram';
+import { CONCEPTS, radicalsFor } from './nya-logogram';
 
-export const VERSION = '0.3.0';
+export const VERSION = '0.4.0';
 
 // ---------- core lexicon (English -> Nya) ----------
 export const LEXICON = {
@@ -204,18 +204,128 @@ export function analyze(token) {
   return { nya: pre + base + suf, features: feat };
 }
 
-// Translate free English text into Nya, preserving numbers, punctuation, and
-// capitalisation. A purr particle "nya" is added before clause-final . ! ?.
+// ---------- syntax: Nya has its OWN word order (it is not relexified English) ----------
+// Nya is verb-final (SOV) and uses postpositive case particles, so the structure
+// does not follow the English source. A simple sentence becomes:
+//     Subject -re   [oblique phrases]   Object -o   Verb   nya.
+// "I study water in rivers" -> "mi re waro ni wa o puwa nya."
+//   (i SUBJ  rivers in  water OBJ  study PURR)
+// Prepositions become POSTpositions; articles drop; adjectives keep their place.
+// Fragments with no verb (most UI labels, names) fall back to analytic order.
+export const PARTICLE = { subj: 're', obj: 'o' };
+const ARTICLE = new Set(['a', 'an', 'the']);
+const PRONOUN = new Set(['i', 'me', 'we', 'us', 'you', 'he', 'she', 'it', 'they', 'them']);
+const COPULA = new Set(['is', 'are', 'am', 'was', 'were', 'be', 'been']);
+const AUX = new Set(['will', 'would', 'can', 'could', 'shall', 'should', 'may', 'might', 'must', 'do', 'does', 'did', 'have', 'has', 'had', 'is', 'are', 'am', 'was', 'were', 'be', 'been']);
+const PREP = new Set(['in', 'on', 'at', 'to', 'from', 'with', 'for', 'of', 'by', 'about', 'into', 'onto', 'under', 'over', 'through', 'across', 'near', 'around']);
+const NEGW = new Set(['not', 'no', 'never', "don't", "doesn't", "didn't", "won't", "cannot", "can't", "isn't", "aren't"]);
+const VERBS = new Set(('be have do say go get make know think take see come want look use find give tell work call try ask need feel become leave put mean keep let begin seem help talk turn start show hear play run move like live believe hold bring happen write provide sit stand lose pay meet include continue set learn change lead understand watch follow stop create speak read allow add spend grow open walk win offer remember love consider appear buy wait serve die send build stay fall cut reach kill remain study research explore graduate collaborate photograph view download hover pick carry teach eat drink sleep fly swim jump sing dance cook wash draw paint flow rain shine sail hunt gather share protect heal break fix wander rest forget seek search choose select sell fight hope dream wake listen').split(' '));
+
+function verbRoot(lw) {
+  if (VERBS.has(lw)) return lw;
+  for (const suf of ['ing', 'ed', 'es', 's']) {
+    if (lw.endsWith(suf)) { const b = lw.slice(0, -suf.length); if (VERBS.has(b) || VERBS.has(b + 'e')) return b; }
+  }
+  if (lw.endsWith('ies') && VERBS.has(lw.slice(0, -3) + 'y')) return lw.slice(0, -3) + 'y';
+  const m = lw.match(/^(re|un|over|under)(.+)/);
+  if (m) { const r = verbRoot(m[2]); if (r) return m[1] + r; }
+  return null;
+}
+const isVerb = (w) => !!verbRoot(String(w).toLowerCase());
+
+// build one content token (sound + features + meaning radicals) from an English word
+function contentToken(en, extra) {
+  const a = analyze(en);
+  return { nya: a.nya, features: extra ? { ...a.features, ...extra } : a.features, radicals: radicalsFor(en), en };
+}
+const partToken = (p) => ({ nya: p, features: {}, radicals: [], en: '', role: 'particle' });
+
+// translate a noun-phrase span into ordered tokens (drop articles)
+function npTokens(span) {
+  const out = [];
+  for (const w of span) {
+    if (ARTICLE.has(w.toLowerCase())) continue;
+    const t = contentToken(w);
+    if (t.nya) out.push(t);
+  }
+  return out;
+}
+
+// split the post-verb span into a direct object + oblique (postpositional) phrases
+function splitObject(rest) {
+  const dobj = []; const obliques = []; let i = 0;
+  while (i < rest.length && !PREP.has(rest[i].toLowerCase())) { dobj.push(rest[i]); i++; }
+  while (i < rest.length) {
+    const prep = rest[i].toLowerCase(); i++;
+    const npw = [];
+    while (i < rest.length && !PREP.has(rest[i].toLowerCase())) { npw.push(rest[i]); i++; }
+    const t = npTokens(npw);
+    if (t.length) { t.push(partToken(word(prep) || prep)); obliques.push(t); } // noun ... PREP (postposition)
+  }
+  return { dobj, obliques };
+}
+
+// parse a clause (list of English words) into Nya-ordered tokens
+function parseClause(words) {
+  let vi = -1;
+  for (let i = 0; i < words.length; i++) {
+    const lw = words[i].toLowerCase();
+    if (ARTICLE.has(lw) || PREP.has(lw) || PRONOUN.has(lw) || COPULA.has(lw) || AUX.has(lw)) continue;
+    if (isVerb(words[i])) { vi = i; break; }
+  }
+  // copula clause "X is Y" -> "X Y" (predication, no copula); adjective/noun follows subject
+  const ci = words.findIndex((w) => COPULA.has(w.toLowerCase()));
+  if (vi === -1 && ci !== -1) return [...npTokens(words.slice(0, ci)), ...npTokens(words.slice(ci + 1))];
+  if (vi === -1) return npTokens(words); // no verb: analytic NP order
+  const neg = words.some((w) => NEGW.has(w.toLowerCase()));
+  const subj = words.slice(0, vi).filter((w) => !AUX.has(w.toLowerCase()));
+  const { dobj, obliques } = splitObject(words.slice(vi + 1));
+  const out = [];
+  const s = npTokens(subj);
+  if (s.length) { out.push(...s, partToken(PARTICLE.subj)); }
+  for (const ob of obliques) out.push(...ob);
+  const o = npTokens(dobj);
+  if (o.length) { out.push(...o, partToken(PARTICLE.obj)); }
+  out.push(contentToken(words[vi], neg ? { neg: true } : null));
+  return out;
+}
+
+// Tokenise free text into Nya-ordered tokens. Shared by translate() and the cat
+// renderer so the romanized line and the sigils are always the same order.
+// Token kinds: {nya,features,radicals,en} | {num} | {punct} | {purr,q,excl}
+export function toNyaTokens(text) {
+  const out = [];
+  const sentences = String(text).split(/([.!?]+)/);
+  for (const seg of sentences) {
+    if (/^[.!?]+$/.test(seg)) { out.push({ purr: true, q: seg.includes('?'), excl: seg.includes('!') }, { punct: seg }); continue; }
+    if (!seg.trim()) { if (seg) out.push({ punct: seg }); continue; }
+    const words = seg.match(/[A-Za-z']+/g) || [];
+    if (words.some(isVerb) && !/[0-9]/.test(seg)) {
+      out.push(...parseClause(words));
+    } else {
+      for (const t of seg.match(/[A-Za-z']+|[0-9]+|[,;:]/g) || []) {
+        if (/^[0-9]+$/.test(t)) out.push({ num: t });
+        else if (/[,;:]/.test(t)) out.push({ punct: t });
+        else { const tk = contentToken(t); if (tk.nya) out.push(tk); }
+      }
+    }
+  }
+  return out;
+}
+
+// Translate free English text into Nya (its own SOV order, with case particles
+// and a clause-final purr). Numbers and sentence punctuation are preserved.
 export function translate(text) {
   if (!text) return text;
-  let out = text.replace(/[A-Za-z]+/g, (tok) => {
-    const isCap = tok[0] >= 'A' && tok[0] <= 'Z';
-    const nya = analyze(tok).nya;
-    return isCap ? cap(nya) : nya;
-  });
-  out = out.replace(/\s{2,}/g, ' ').replace(/\s+([.,!?;:])/g, '$1').trim();
-  out = out.replace(/\s*([.!?])(\s*)$/, ' nya$1');
-  return out;
+  let s = '';
+  for (const t of toNyaTokens(text)) {
+    if (t.punct) { s = s.replace(/ $/, '') + t.punct + ' '; }
+    else if (t.purr) { s += 'nya '; }
+    else if (t.num) { s += t.num + ' '; }
+    else if (t.nya) { s += t.nya + ' '; }
+  }
+  s = s.replace(/\s+([.,!?;:])/g, '$1').replace(/\s{2,}/g, ' ').trim();
+  return cap(s);
 }
 
 // Merge an extra dictionary (e.g. the generated 3000-word lexicon) into the core.
@@ -223,4 +333,4 @@ export function mergeLexicon(extra) {
   if (extra) for (const k in extra) if (LEXICON[k] === undefined) LEXICON[k] = extra[k];
 }
 
-export default { VERSION, LEXICON, ROOT_SOUND, composeSound, translate, word, analyze, fallbackWord, mergeLexicon };
+export default { VERSION, LEXICON, ROOT_SOUND, composeSound, translate, toNyaTokens, PARTICLE, word, analyze, fallbackWord, mergeLexicon };
