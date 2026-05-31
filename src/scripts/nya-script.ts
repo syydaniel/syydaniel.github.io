@@ -12,7 +12,7 @@
 //
 // Proper nouns / names are spelled in the cat-alphabet (NyaGlyph font) instead.
 
-import { word as nyaWord, analyze, toNyaTokens, PARTICLE } from './nyalang';
+import { word as nyaWord, analyze, toNyaTokens, PARTICLE, numberToBase4, numberToNya } from './nyalang';
 import { radicalsFor } from './nya-logogram';
 
 const HEAD = '<path d="M50 21 C67 21 79 33 79 51 C79 66 70 77 59 82 C53 85 47 85 41 82 C30 77 21 66 21 51 C21 33 33 21 50 21 Z"/>';
@@ -129,13 +129,23 @@ export function catSigil(nya, radicals, feat = {}) {
   return wrap(g, nya, feat.emphasis ? 3.3 : 2.4);
 }
 
+// numbers are paw-prints: a cat counts in base 4, so each quaternary digit is one
+// paw pad with 0-3 toe-beans above it (most significant paw on the left).
+function pawDigit(cx, cy, d, s) {
+  let g = `<ellipse cx="${cx}" cy="${cy + 4 * s}" rx="${7 * s}" ry="${5.5 * s}"/>`; // main pad
+  const xs = [cx - 4.5 * s, cx - 1.5 * s, cx + 1.5 * s, cx + 4.5 * s];
+  for (let i = 0; i < d; i++) g += `<circle cx="${xs[i].toFixed(1)}" cy="${(cy - 4 * s).toFixed(1)}" r="${1.7 * s}" fill="currentColor" stroke="none"/>`;
+  return g;
+}
 function numberCat(t) {
-  const n = parseInt(t, 10) || 0;
-  let g = ear(-1, 0) + ear(1, 0) + HEAD + eye(38, 'a') + eye(62, 'a') + NOSE + MOUTH + whiskers(2) + tailMark('present');
-  const k = Math.min(n, 5);
-  for (let j = 0; j < k; j++) { const x = 50 - (k - 1) * 3 + j * 6; g += `<line x1="${x}" y1="33" x2="${x}" y2="41"/>`; }
-  if (n > 5) g += `<circle cx="50" cy="37" r="6"/>`;
-  return wrap(g, t);
+  const digits = numberToBase4(t);
+  const k = Math.min(digits.length, 4);
+  const shown = digits.slice(0, k);
+  const span = 22, step = shown.length > 1 ? span / (shown.length - 1) : 0;
+  const x0 = 50 - (shown.length > 1 ? span / 2 : 0);
+  let g = '';
+  shown.forEach((d, i) => { g += pawDigit(x0 + i * step, 50, d, shown.length > 2 ? 0.85 : 1.1); });
+  return wrap(g, String(t) + ' (' + numberToNya(t) + ')');
 }
 
 const cache = new Map();

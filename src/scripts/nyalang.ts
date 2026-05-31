@@ -73,6 +73,22 @@ export function composeSound(radicals) {
   return radicals.map((r) => ROOT_SOUND[r] || '').join('');
 }
 
+// ---------- numbers: a cat has four paws, so Nya counts in base 4 ----------
+// Each quaternary digit (0-3) is one paw holding 0-3 toe-beans. Spoken digits:
+export const NUM_DIGIT = ['pim', 'wun', 'nyu', 'pri']; // 0 1 2 3
+// base-4 digits of n, most-significant first (for both the word and the paws)
+export function numberToBase4(n) {
+  n = Math.abs(Math.trunc(Number(n) || 0));
+  if (n === 0) return [0];
+  const d = [];
+  while (n > 0) { d.unshift(n % 4); n = Math.floor(n / 4); }
+  return d;
+}
+// Spoken Nya numeral: the base-4 digits joined with hyphens, e.g. 6 -> "wun-nyu".
+export function numberToNya(n) {
+  return numberToBase4(n).map((d) => NUM_DIGIT[d]).join('-');
+}
+
 // Closed-class function words are irregular (as in every language): kept stable
 // and arbitrary. Content words instead compose from their radicals (above).
 const FUNCTION_KEYS = new Set([
@@ -322,7 +338,7 @@ export function translate(text) {
   for (const t of toNyaTokens(text)) {
     if (t.punct) { s = s.replace(/ $/, '') + t.punct + ' '; }
     else if (t.purr) { s += 'nya '; }
-    else if (t.num) { s += t.num + ' '; }
+    else if (t.num != null) { s += numberToNya(t.num) + ' '; }
     else if (t.nya) { s += t.nya + ' '; }
   }
   s = s.replace(/\s+([.,!?;:])/g, '$1').replace(/\s{2,}/g, ' ').trim();
@@ -334,4 +350,4 @@ export function mergeLexicon(extra) {
   if (extra) for (const k in extra) if (LEXICON[k] === undefined) LEXICON[k] = extra[k];
 }
 
-export default { VERSION, LEXICON, ROOT_SOUND, composeSound, translate, toNyaTokens, PARTICLE, word, analyze, fallbackWord, mergeLexicon };
+export default { VERSION, LEXICON, ROOT_SOUND, composeSound, NUM_DIGIT, numberToBase4, numberToNya, translate, toNyaTokens, PARTICLE, word, analyze, fallbackWord, mergeLexicon };
