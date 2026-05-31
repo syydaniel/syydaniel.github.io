@@ -1,18 +1,18 @@
 // Nya script: the unified writing system, ONE cat-sigil per word.
 //
 // Every word is drawn as a single cat whose own anatomy encodes the word, so
-// sound and meaning live in one glyph (phono-semantic):
+// sound, meaning AND grammar live in one glyph:
 //   ears      = onset (first consonant of the spoken Nya word)
 //   eyes      = the word's first vowel (a i u e o)
 //   whiskers  = syllable count (1-3)
-//   forehead  = meaning, as semantic radicals shared with logogram.mjs
-//   purr-cat  = the clause-final particle "nya" (a happy closed-eye cat)
+//   forehead  = meaning, as semantic radicals shared with nya-logogram
+//   tail      = tense (up = present, curled = past, straight = future, flick = ongoing)
+//   2nd kitten= plural ; raised paw = question ; collar = agent ; slash = negation
+//   bold ink  = emphasis ; purring closed-eye cat = the particle "nya"
 //
-// Proper nouns / names are NOT turned into sigils; they are spelled in the
-// cat-alphabet (the NyaGlyph font), a separate register, so the system has both
-// a logographic and an alphabetic face, like real mixed scripts.
+// Proper nouns / names are spelled in the cat-alphabet (NyaGlyph font) instead.
 
-import { word as nyaWord } from './nyalang';
+import { word as nyaWord, analyze } from './nyalang';
 import { radicalsFor } from './nya-logogram';
 
 const HEAD = '<path d="M50 21 C67 21 79 33 79 51 C79 66 70 77 59 82 C53 85 47 85 41 82 C30 77 21 66 21 51 C21 33 33 21 50 21 Z"/>';
@@ -69,7 +69,7 @@ const MARK = {
   light: (x, y) => `<circle cx="${x}" cy="${y}" r="1.8" fill="currentColor" stroke="none"/>` +
     [0, 90, 180, 270, 45, 135, 225, 315].map((a) => `<line x1="${(x + 3 * Math.cos(rad(a))).toFixed(1)}" y1="${(y - 3 * Math.sin(rad(a))).toFixed(1)}" x2="${(x + 6 * Math.cos(rad(a))).toFixed(1)}" y2="${(y - 6 * Math.sin(rad(a))).toFixed(1)}"/>`).join(''),
   made: (x, y) => `<rect x="${x - 4.5}" y="${y - 4.5}" width="9" height="9" rx="1"/>`,
-  place: (x, y) => `<line x1="${x - 7}" y1="${y}" x2="${x + 7}" y2="${y}"/><line x1="${x - 7}" y1="${y}" x2="${x - 7}" y2="${y + 4}"/><line x1="${x + 7}" y1="${y}" x2="${x + 7}" y2="${y + 4}"/>`,
+  place: (x, y) => `<line x1="${x - 7}" y1="${y}" x2="${x + 7}" y2="${y}"/><line x1="${x - 7}" y1="${y}" x2="${x - 7}" y2="${y + 4}"/>${''}<line x1="${x + 7}" y1="${y}" x2="${x + 7}" y2="${y + 4}"/>`,
   life: (x, y) => `<path d="M${x} ${y + 5} v-9"/><path d="M${x} ${y - 2} q-5 -1 -6 -6 q5 0 6 5"/><path d="M${x} ${y - 1} q5 -1 6 -6 q-5 0 -6 5"/>`,
   change: (x, y) => `<path d="M${x + 4} ${y - 3} a5 5 0 1 1 -3 -3"/><path d="M${x + 4} ${y - 5} l1 3 l-3 0"/>`,
   many: (x, y) => `<line x1="${x - 5}" y1="${y - 3}" x2="${x - 5}" y2="${y + 3}"/><line x1="${x}" y1="${y - 4}" x2="${x}" y2="${y + 4}"/><line x1="${x + 5}" y1="${y - 3}" x2="${x + 5}" y2="${y + 3}"/>`,
@@ -78,39 +78,60 @@ const MARK = {
   being: (x, y) => `<circle cx="${x}" cy="${y}" r="2" fill="currentColor" stroke="none"/><circle cx="${x - 3.5}" cy="${y - 1}" r="1.1" fill="currentColor" stroke="none"/><circle cx="${x + 3.5}" cy="${y - 1}" r="1.1" fill="currentColor" stroke="none"/>`
 };
 
-function wrap(inner, label) {
-  return `<svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${String(label).replace(/"/g, '')}" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${inner}</g></svg>`;
+function wrap(inner, label, sw = 2.4) {
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${String(label).replace(/"/g, '')}" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${inner}</g></svg>`;
 }
 
-function purrCat() {
+// ---------- whole-cat grammar: the body encodes inflection ----------
+function tailMark(tense) {
+  if (tense === 'past') return '<path d="M77 77 q16 3 11 19"/>';
+  if (tense === 'future') return '<path d="M80 74 q11 -5 8 -23"/>';
+  if (tense === 'ongoing') return '<path d="M77 76 q15 -1 11 -11 q-4 -9 9 -12"/>';
+  return '<path d="M78 78 q15 -2 13 -15"/>';
+}
+function pluralKitten() {
+  return '<g transform="translate(83 83) scale(0.3)"><path d="M-24 -6 l3 -15 l14 9z"/><path d="M24 -6 l-3 -15 l-14 9z"/><circle cx="0" cy="6" r="24" fill="none"/><circle cx="-9" cy="3" r="3" fill="currentColor" stroke="none"/><circle cx="9" cy="3" r="3" fill="currentColor" stroke="none"/></g>';
+}
+function questionPaw() {
+  return '<g transform="translate(13 71)"><ellipse cx="0" cy="6" rx="6" ry="7"/><circle cx="-3" cy="-2" r="1.5"/><circle cx="0" cy="-3" r="1.5"/><circle cx="3" cy="-2" r="1.5"/></g>';
+}
+function agentCollar() {
+  return '<path d="M38 73 q12 7 24 0"/><circle cx="50" cy="78" r="1.8" fill="currentColor" stroke="none"/>';
+}
+
+function purrCat(feat = {}) {
   let g = ear(-1, 0) + ear(1, 0) + HEAD;
   g += `<path d="M33 51 q5 5 10 0"/><path d="M57 51 q5 5 10 0"/>`;
   g += NOSE + `<path d="M50 63 q-5 6 -9 2 M50 63 q5 6 9 2"/>`;
-  g += whiskers(2);
+  g += whiskers(2) + tailMark('present');
   g += `<path d="M72 28 q5 -2 5 -7"/><circle cx="77" cy="19" r="1.7" fill="currentColor" stroke="none"/>`;
-  return wrap(g, 'nya');
+  if (feat.question) g += questionPaw();
+  return wrap(g, 'nya', feat.emphasis ? 3.3 : 2.4);
 }
 
-export function catSigil(nya, radicals) {
-  if (nya === 'nya') return purrCat();
+export function catSigil(nya, radicals, feat = {}) {
+  if (nya === 'nya') return purrCat(feat);
   const v = (nya.match(/[aeiou]/) || ['a'])[0];
   const oi = onsetIdx(nya);
   const syl = Math.min(3, Math.max(1, (nya.match(/[aeiou]+/g) || ['a']).length));
   const big = radicals.includes('big');
-  const not = radicals.includes('not');
+  const not = radicals.includes('not') || feat.neg;
   const marks = radicals.filter((r) => r !== 'big' && r !== 'not' && MARK[r]).slice(0, 2);
   let g = ear(-1, oi) + ear(1, oi) + HEAD;
   if (big) g += HEAD_BIG;
-  g += eye(38, v) + eye(62, v) + NOSE + MOUTH + whiskers(syl);
+  g += eye(38, v) + eye(62, v) + NOSE + MOUTH + whiskers(syl) + tailMark(feat.tense);
   if (marks.length === 1) g += MARK[marks[0]](50, 37);
   else if (marks.length === 2) g += MARK[marks[0]](42, 37) + MARK[marks[1]](58, 37);
+  if (feat.plural) g += pluralKitten();
+  if (feat.agent) g += agentCollar();
+  if (feat.question) g += questionPaw();
   if (not) g += `<line x1="24" y1="80" x2="76" y2="24" stroke-width="2.6"/>`;
-  return wrap(g, nya);
+  return wrap(g, nya, feat.emphasis ? 3.3 : 2.4);
 }
 
 function numberCat(t) {
   const n = parseInt(t, 10) || 0;
-  let g = ear(-1, 0) + ear(1, 0) + HEAD + eye(38, 'a') + eye(62, 'a') + NOSE + MOUTH + whiskers(2);
+  let g = ear(-1, 0) + ear(1, 0) + HEAD + eye(38, 'a') + eye(62, 'a') + NOSE + MOUTH + whiskers(2) + tailMark('present');
   const k = Math.min(n, 5);
   for (let j = 0; j < k; j++) { const x = 50 - (k - 1) * 3 + j * 6; g += `<line x1="${x}" y1="33" x2="${x}" y2="41"/>`; }
   if (n > 5) g += `<circle cx="50" cy="37" r="6"/>`;
@@ -118,10 +139,10 @@ function numberCat(t) {
 }
 
 const cache = new Map();
-function sigil(nya, radicals) {
-  const key = nya + '|' + radicals.join(',');
+function sigil(nya, radicals, feat) {
+  const key = nya + '|' + radicals.join(',') + '|' + (feat ? JSON.stringify(feat) : '');
   let s = cache.get(key);
-  if (s === undefined) { s = catSigil(nya, radicals); cache.set(key, s); }
+  if (s === undefined) { s = catSigil(nya, radicals, feat); cache.set(key, s); }
   return s;
 }
 
@@ -134,13 +155,16 @@ export function renderCatText(text, opts = {}) {
   let html = '';
   for (const t of toks) {
     if (/^[A-Za-z]+$/.test(t)) {
-      const nya = nyaWord(t.toLowerCase());
+      const { nya, features } = analyze(t);
       if (!nya) continue;
-      html += span(sigil(nya, radicalsFor(t)), nya);
+      const f = { ...features };
+      if (t.length > 1 && t === t.toUpperCase()) f.emphasis = true;
+      html += span(sigil(nya, radicalsFor(t), f), nya);
     } else if (/^[0-9]+$/.test(t)) {
       html += span(numberCat(t), t);
     } else if (/[.!?]/.test(t)) {
-      html += span(sigil('nya', []), 'nya ' + t);
+      const f = t.includes('?') ? { question: true } : t.includes('!') ? { emphasis: true } : {};
+      html += span(sigil('nya', [], f), 'nya ' + t);
     } else {
       html += `<span style="display:inline-block;width:${Math.round(size * 0.28)}px"></span>`;
     }
