@@ -343,12 +343,161 @@ export function renderText(text, opts = {}) {
   return (sents.length ? sents : [String(text)]).map((s) => renderNested(s, opts));
 }
 
-// English word -> its semantic radical ids (the dictionary lookup, no SVG).
+// ---------- inferred meaning: give EVERY word a radical composition ----------
+// Strategy, most reliable first:
+//   1. exact concept / lemma     2. plural & derivational stripping (recursive)
+//   3. bound Latin/Greek roots   4. semantic-field keywords
+//   5. sound-symbolism fallback  (onset + rime -> a plausible, never-empty set)
+// The result is deterministic, so a word always maps to the same meaning.
+
+// derivational endings -> the radical(s) they add, plus how to find the stem
+const DERIV = [
+  [/(ation|ition|tion|sion|ment|ness|ity|ty|ance|ence|hood|ship|ism|age|al|ure)$/, ['change'], 4],
+  [/(er|or|ist|ant|ent|eer|ician)$/, ['being'], 3],     // agent
+  [/(ology|ography|onomy|osophy|ics|logy)$/, ['see', 'many'], 5], // a field of study
+  [/(able|ible|ful|ous|ive|ic|al|ary|ory|ish|like|y|ly)$/, ['feel'], 3], // quality-ish
+  [/(ing|ed|en|s)$/, [], 2]                              // inflection only
+];
+const PREFIX = [
+  [/^(un|in|im|il|ir|dis|non|anti|de)/, ['not']],
+  [/^(re)/, ['change']],
+  [/^(pre|fore|ante)/, ['change']],
+  [/^(sub|under|infra)/, ['small', 'place']],
+  [/^(super|over|hyper|out)/, ['big']],
+  [/^(inter|trans|across)/, ['flow']],
+  [/^(multi|poly|many)/, ['many']],
+  [/^(micro|mini)/, ['small']],
+  [/^(macro|mega|grand)/, ['big']],
+  [/^(co|com|con|syn|together)/, ['many', 'feel']],
+  [/^(tele|far)/, ['flow', 'place']],
+  [/^(auto|self)/, ['self']],
+  [/^(bio|zoo|eco)/, ['life']],
+  [/^(geo|terra)/, ['place']],
+  [/^(hydro|aqua)/, ['water']],
+  [/^(photo|lumin|illu)/, ['light']],
+  [/^(psych|neuro|cogn)/, ['see', 'self']]
+];
+// bound roots that strongly imply a radical (substring match, longest first)
+const ROOTS = [
+  ['aqua', 'water'], ['hydro', 'water'], ['mar', 'water'], ['rain', 'water'], ['ocean', 'water'], ['flu', 'flow'], ['riv', 'water'],
+  ['photo', 'light'], ['lumin', 'light'], ['sol', 'light'], ['stell', 'light'], ['lux', 'light'], ['shin', 'light'],
+  ['terr', 'place'], ['geo', 'place'], ['loc', 'place'], ['urb', 'place'], ['dom', 'place'], ['hous', 'place'], ['land', 'place'],
+  ['bio', 'life'], ['viv', 'life'], ['vit', 'life'], ['zoo', 'life'], ['germ', 'life'], ['gen', 'life'], ['plant', 'life'],
+  ['vid', 'see'], ['vis', 'see'], ['spec', 'see'], ['scop', 'see'], ['watch', 'see'], ['look', 'see'], ['ophth', 'see'],
+  ['dict', 'speak'], ['loqu', 'speak'], ['phon', 'speak'], ['voc', 'speak'], ['ling', 'speak'], ['nounc', 'speak'], ['vot', 'speak'],
+  ['fab', 'made'], ['fac', 'made'], ['struct', 'made'], ['mech', 'made'], ['techn', 'made'], ['mach', 'made'], ['build', 'made'],
+  ['anim', 'being'], ['anthro', 'being'], ['homo', 'being'], ['ped', 'being'], ['cred', 'feel'], ['cord', 'feel'], ['emot', 'feel'],
+  ['mov', 'flow'], ['mot', 'flow'], ['migr', 'flow'], ['curr', 'flow'], ['ven', 'flow'], ['port', 'flow'], ['grad', 'flow'],
+  ['magn', 'big'], ['grand', 'big'], ['max', 'big'], ['micr', 'small'], ['min', 'small'], ['nano', 'small'],
+  ['chron', 'change'], ['tempor', 'change'], ['nov', 'change'], ['mut', 'change'], ['volv', 'change'],
+  ['cogn', 'see'], ['sci', 'see'], ['memor', 'see'], ['ment', 'self'], ['ego', 'self']
+];
+// semantic-field keyword substrings -> radicals (broad nets, checked last-ish)
+const FIELDS = [
+  [/(cat|dog|bird|fish|beast|animal|wolf|lion|bear|hors|cow|mous)/, ['being']],
+  [/(king|queen|man|woman|child|person|peopl|folk|friend|famil|tribe)/, ['being']],
+  [/(tree|leaf|flow|grass|seed|root|fruit|wood|forest|plant|grow)/, ['life']],
+  [/(war|fight|kill|weapon|sword|battl)/, ['big', 'not', 'feel']],
+  [/(love|joy|hope|kind|happy|heart|dear|warm|gentl)/, ['feel']],
+  [/(sad|fear|anger|pain|grief|hurt|cruel)/, ['feel', 'not']],
+  [/(king|rule|law|govern|order|power|lead)/, ['big', 'made']],
+  [/(money|trade|buy|sell|gold|wealth|coin|market|price)/, ['made', 'many']],
+  [/(time|year|day|hour|age|moment|season|clock)/, ['change']],
+  [/(mountain|hill|rock|stone|cliff|peak)/, ['place', 'big']],
+  [/(road|path|way|street|route|bridge)/, ['place', 'flow']],
+  [/(book|word|story|song|name|note|letter|text|speak|tale)/, ['speak']],
+  [/(star|sun|moon|sky|light|fire|bright|glow|day)/, ['light']],
+  [/(water|sea|lake|wave|wet|drink|flood)/, ['water']],
+  [/(big|great|huge|grand|vast|tall|wide)/, ['big']],
+  [/(small|tiny|little|micro|wee|mini)/, ['small']]
+];
+const VOWELS = 'aeiou';
+// onset (first consonant cluster) -> a radical; rime nucleus -> a radical.
+const ONSET_RAD = { m: 'feel', n: 'self', p: 'made', b: 'made', t: 'place', d: 'place', k: 'made', c: 'made', g: 'life', f: 'flow', v: 'flow', s: 'see', z: 'see', r: 'flow', l: 'flow', w: 'water', h: 'light', j: 'change', y: 'self', q: 'speak', x: 'change' };
+const VOWEL_RAD = { a: 'big', e: 'feel', i: 'small', o: 'place', u: 'change' };
+
+function sym(raw) {
+  // sound-symbolism: never empty. onset radical + first-vowel radical.
+  const onset = (raw.match(/^[^aeiou]+/) || [''])[0][0];
+  const vow = (raw.match(/[aeiou]/) || ['e'])[0];
+  const out = [];
+  if (onset && ONSET_RAD[onset]) out.push(ONSET_RAD[onset]);
+  if (VOWEL_RAD[vow]) out.push(VOWEL_RAD[vow]);
+  return out.length ? [...new Set(out)] : ['self'];
+}
+
+const dedupe = (a) => [...new Set(a)].filter(Boolean).slice(0, 3);
+const inferCache = new Map();
+
+// Infer a radical composition for ANY English word (deterministic, never empty).
+export function inferRadicals(word) {
+  const raw = String(word).toLowerCase().replace(/[^a-z]/g, '');
+  if (!raw) return [];
+  if (inferCache.has(raw)) return inferCache.get(raw);
+  let result = null;
+
+  // 1. exact concept / lemma
+  if (CONCEPTS[raw]) result = CONCEPTS[raw];
+  else if (LEMMA[raw] && CONCEPTS[LEMMA[raw]]) result = CONCEPTS[LEMMA[raw]];
+
+  // 2. affix stripping: prefix and/or one derivational suffix that exposes a known stem
+  if (!result) {
+    let add = [];
+    let stem = raw;
+    for (const [re, rads] of PREFIX) { if (re.test(stem) && stem.replace(re, '').length >= 3) { add = add.concat(rads); stem = stem.replace(re, ''); break; } }
+    for (const [re, rads, min] of DERIV) {
+      const m = stem.match(re);
+      if (m && stem.length - m[0].length >= min - 1) {
+        let base = stem.slice(0, stem.length - m[0].length);
+        for (const cand of [base, base + 'e', base + 'y', base.replace(/i$/, 'y')]) {
+          if (CONCEPTS[cand]) { result = dedupe([...CONCEPTS[cand], ...rads, ...add]); break; }
+          if (LEMMA[cand] && CONCEPTS[LEMMA[cand]]) { result = dedupe([...CONCEPTS[LEMMA[cand]], ...rads, ...add]); break; }
+        }
+        if (result) break;
+        if (rads.length || add.length) { /* remember affix meaning for later */ stem = base || stem; add = add.concat(rads); }
+      }
+    }
+    if (!result && add.length) {
+      // prefix/suffix meaning + sound symbolism of the remaining stem
+      result = dedupe([...add, ...sym(stem)]);
+    }
+  }
+
+  // 3. bound Latin/Greek roots
+  if (!result) {
+    const hit = [];
+    for (const [sub, rad] of ROOTS) if (raw.includes(sub)) { hit.push(rad); if (hit.length >= 2) break; }
+    if (hit.length) result = dedupe(hit);
+  }
+
+  // 4. semantic fields
+  if (!result) {
+    for (const [re, rads] of FIELDS) if (re.test(raw)) { result = dedupe(rads); break; }
+  }
+
+  // 5. sound-symbolism fallback (always non-empty)
+  if (!result) result = sym(raw);
+
+  inferCache.set(raw, result);
+  return result;
+}
+
+// English word -> its semantic radical ids. Curated concepts win; otherwise the
+// meaning is inferred so EVERY word carries a composition (a forehead mark).
 export function radicalsFor(word) {
   const raw = String(word).toLowerCase().replace(/[^a-z]/g, '');
   let key = CONCEPTS[raw] ? raw : LEMMA[raw];
   if (!key && raw.endsWith('s') && CONCEPTS[raw.slice(0, -1)]) key = raw.slice(0, -1);
-  return key ? CONCEPTS[key] : [];
+  if (key) return CONCEPTS[key];
+  return inferRadicals(raw);
 }
 
-export default { RADICALS: RADICAL_GLOSSES, CONCEPTS, radicalsFor, renderGlyph, glyphFor, glyphsForPhrase, renderSentence, renderNested, renderText };
+// Whether a word's meaning is curated/structural (true) vs sound-symbolism only.
+export function hasCuratedMeaning(word) {
+  const raw = String(word).toLowerCase().replace(/[^a-z]/g, '');
+  if (CONCEPTS[raw] || (LEMMA[raw] && CONCEPTS[LEMMA[raw]])) return true;
+  if (raw.endsWith('s') && CONCEPTS[raw.slice(0, -1)]) return true;
+  return false;
+}
+
+export default { RADICALS: RADICAL_GLOSSES, CONCEPTS, radicalsFor, inferRadicals, hasCuratedMeaning, renderGlyph, glyphFor, glyphsForPhrase, renderSentence, renderNested, renderText };

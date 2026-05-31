@@ -50,7 +50,7 @@ import Base from '../layouts/Base.astro';
         <div class="glass rounded-2xl p-5">
           <div class="flex gap-3 items-center flex-wrap mb-3">
             <input id="ny-q" type="text" placeholder="Search English or Nya…" autocomplete="off" class="flex-1 min-w-[200px] bg-ink-900/60 border border-white/10 rounded-xl px-3 py-2 text-ink-100 outline-none focus:border-aqua-400/50" />
-            <label class="text-sm text-ink-400 inline-flex gap-2 items-center"><input type="checkbox" id="ny-meaningful" /> only with a meaning mark</label>
+            <label class="text-sm text-ink-400 inline-flex gap-2 items-center"><input type="checkbox" id="ny-meaningful" /> only hand-curated meanings</label>
             <span id="ny-dcount" class="text-xs text-sol-400 font-mono"></span>
           </div>
           <div id="ny-dict" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 max-h-[70vh] overflow-auto"><p class="text-ink-400">Loading dictionary…</p></div>
@@ -109,7 +109,7 @@ import Base from '../layouts/Base.astro';
   <script>
     import { analyze, translate, ROOT_SOUND } from '../scripts/nyalang';
     import { catSigil, renderCatText } from '../scripts/nya-script';
-    import { radicalsFor, RADICAL_GLOSSES, renderGlyph } from '../scripts/nya-logogram';
+    import { radicalsFor, hasCuratedMeaning, RADICAL_GLOSSES, renderGlyph } from '../scripts/nya-logogram';
 
     const $ = (id: string) => document.getElementById(id);
     let dir = 'en2nya';
@@ -203,12 +203,12 @@ import Base from '../layouts/Base.astro';
         lexicon = lex; reverse = {};
         for (const en in lex) { (reverse[lex[en]] = reverse[lex[en]] || []).push(en); }
         const entries = Object.entries(lexicon).sort((a, b) => (a[0] < b[0] ? -1 : 1));
-        let meaningful = 0, html = '', letter = '';
+        let curated = 0, html = '', letter = '';
         for (const [en, nya] of entries) {
           const L = (en[0] || '#').toUpperCase();
           if (L !== letter) { letter = L; html += `<h3 class="ny-letter">${L}</h3>`; }
-          const rads = radicalsFor(en); if (rads.length) meaningful++;
-          html += `<div class="ny-word" data-en="${en}" data-nya="${nya}" data-m="${rads.length ? 1 : 0}"><div class="g">${catSigil(nya, rads, analyze(en).features)}</div><div style="min-width:0"><div class="en">${en}</div><div class="ny">${nya}</div>${rads.length ? `<div class="rd">${rads.join(' + ')}</div>` : ''}</div></div>`;
+          const rads = radicalsFor(en); const cur = hasCuratedMeaning(en); if (cur) curated++;
+          html += `<div class="ny-word" data-en="${en}" data-nya="${nya}" data-m="${cur ? 1 : 0}"><div class="g">${catSigil(nya, rads, analyze(en).features)}</div><div style="min-width:0"><div class="en">${en}</div><div class="ny">${nya}</div>${rads.length ? `<div class="rd">${rads.join(' + ')}</div>` : ''}</div></div>`;
         }
         $('ny-dict')!.innerHTML = html;
         $('ny-dcount')!.textContent = entries.length + ' words · ' + meaningful + ' with meaning';
