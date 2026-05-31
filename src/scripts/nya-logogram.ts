@@ -63,7 +63,77 @@ export const CONCEPTS = {
   feel: ['feel'], love: ['feel', 'big'], like: ['feel'], good: ['feel'],
   master: ['see', 'big'], graduate: ['see', 'big', 'change'], education: ['see', 'place'],
   question: ['speak', 'change'], system: ['flow', 'many'], global: ['big'], landscape: ['place', 'big'],
-  pressure: ['big', 'flow'], not: ['not'], no: ['not']
+  pressure: ['big', 'flow'], not: ['not'], no: ['not'],
+
+  // --- expanded common vocabulary: meaning -> radical composition ---
+  // people & beings
+  person: ['being'], people: ['being', 'many'], human: ['being'], man: ['being'], woman: ['being'],
+  child: ['being', 'small'], baby: ['being', 'small'], kid: ['being', 'small'], friend: ['being', 'feel'],
+  family: ['being', 'many', 'feel'], mother: ['being', 'feel'], father: ['being', 'big'], parent: ['being', 'big'],
+  teacher: ['being', 'speak'], student: ['being', 'see'], they: ['being', 'many'], he: ['being'], she: ['being'],
+  // nature
+  sun: ['light', 'big'], moon: ['light', 'change'], star: ['light', 'small'], sky: ['big', 'light'],
+  cloud: ['water', 'light'], snow: ['water', 'small'], wind: ['flow', 'big'], storm: ['water', 'flow', 'big'],
+  fire: ['light', 'change'], earth: ['place', 'big'], ground: ['place'], land: ['place'], soil: ['place', 'life'],
+  mountain: ['place', 'big'], hill: ['place'], rock: ['place', 'small'], stone: ['place', 'small'],
+  tree: ['life', 'big'], flower: ['life', 'feel'], grass: ['life', 'small'], leaf: ['life', 'small'],
+  root: ['life', 'place'], seed: ['life', 'small'], wood: ['life', 'made'], lake: ['water', 'place'],
+  stream: ['water', 'flow', 'small'], ocean: ['water', 'big'], wave: ['water', 'flow'], island: ['place', 'water'],
+  desert: ['place', 'not', 'water'], sand: ['place', 'small', 'many'], beach: ['place', 'water'], valley: ['place', 'small'],
+  // animals (all beings)
+  bird: ['being', 'flow'], fish: ['being', 'water'], dog: ['being'], horse: ['being', 'big'], cow: ['being', 'big'],
+  bug: ['being', 'small'], insect: ['being', 'small'], snake: ['being', 'flow'], lion: ['being', 'big'],
+  bear: ['being', 'big'], mouse: ['being', 'small'], wolf: ['being'], kitten: ['being', 'small'],
+  // body
+  body: ['self', 'made'], head: ['self', 'big'], eye: ['see'], ear: ['speak'], nose: ['self', 'small'],
+  mouth: ['speak'], hand: ['self', 'made'], arm: ['self'], leg: ['self', 'flow'], foot: ['flow', 'place'],
+  heart: ['feel'], mind: ['see', 'self'], brain: ['see', 'self'], hair: ['self', 'small', 'many'],
+  skin: ['self', 'made'], blood: ['water', 'life'], bone: ['self', 'made'], face: ['self', 'see'], voice: ['speak'],
+  // food & drink
+  food: ['life', 'made'], drink: ['water', 'self'], eat: ['life', 'self'], bread: ['life', 'made'],
+  rice: ['life', 'small', 'many'], meat: ['being', 'life'], milk: ['water', 'life'], egg: ['life', 'small'],
+  tea: ['water', 'life'], coffee: ['water', 'life'], sugar: ['life', 'small'], salt: ['place', 'small'],
+  apple: ['life', 'feel'], fruit: ['life', 'feel'], soup: ['water', 'life'],
+  // time
+  day: ['light', 'change'], night: ['not', 'light'], morning: ['light', 'change'], evening: ['change', 'not', 'light'],
+  week: ['change', 'many'], month: ['change', 'light'], hour: ['change', 'small'], minute: ['change', 'small'],
+  moment: ['change', 'small'], today: ['change', 'self'], tomorrow: ['change', 'flow'], yesterday: ['change', 'not'],
+  now: ['change', 'self'], future: ['change', 'flow'], past: ['change', 'not'], spring: ['life', 'change'],
+  summer: ['light', 'big', 'change'], autumn: ['change', 'life', 'not'], winter: ['not', 'light', 'change'],
+  season: ['change', 'many'], age: ['change', 'big'],
+  // actions
+  go: ['flow'], come: ['flow', 'self'], walk: ['flow', 'self'], run: ['flow', 'big'], jump: ['flow', 'light'],
+  fly: ['flow', 'light'], swim: ['flow', 'water'], move: ['flow'], stop: ['not', 'flow'], start: ['change', 'flow'],
+  begin: ['change'], end: ['not', 'change'], stay: ['not', 'flow'], leave: ['flow', 'not'], give: ['made', 'flow'],
+  take: ['self', 'made'], get: ['self'], do: ['made', 'self'], use: ['made', 'self'], help: ['feel', 'self'],
+  work: ['made', 'self'], play: ['feel', 'flow'], read: ['see', 'speak'], write: ['made', 'speak'],
+  learn: ['see', 'change'], find: ['see', 'change'], lose: ['not', 'see'], win: ['big', 'self'], buy: ['made', 'self'],
+  sell: ['made', 'flow'], open: ['change', 'place'], close: ['not', 'place'], grow: ['life', 'change'],
+  live: ['life'], die: ['not', 'life'], sleep: ['not', 'see'], wake: ['see', 'change'], hear: ['speak', 'self'],
+  listen: ['speak', 'see'], look: ['see'], watch: ['see', 'change'], wait: ['not', 'change'], want: ['feel', 'self'],
+  need: ['feel', 'not'], hope: ['feel', 'change'], dream: ['see', 'feel'], sing: ['speak', 'feel'], dance: ['flow', 'feel'],
+  call: ['speak', 'flow'], ask: ['speak', 'change'], answer: ['speak', 'self'], tell: ['speak'], meet: ['flow', 'feel'],
+  follow: ['flow', 'many'], lead: ['flow', 'big'], carry: ['flow', 'made'], fix: ['made', 'change'], break: ['not', 'made'],
+  // qualities
+  bad: ['not', 'feel'], new: ['change'], old: ['change', 'many'], young: ['life', 'small'], hot: ['light', 'big'],
+  cold: ['not', 'light'], warm: ['light', 'feel'], long: ['big', 'flow'], short: ['small'], tall: ['big', 'life'],
+  high: ['big', 'light'], low: ['small', 'place'], fast: ['flow', 'big'], slow: ['flow', 'small'], strong: ['big', 'self'],
+  weak: ['small', 'not'], happy: ['feel', 'light'], sad: ['feel', 'not'], angry: ['feel', 'big'], beautiful: ['feel', 'light'],
+  clean: ['water', 'made'], dirty: ['not', 'water'], rich: ['made', 'many'], poor: ['not', 'made'], dark: ['not', 'light'],
+  bright: ['light', 'big'], deep: ['water', 'big'], wide: ['big', 'place'], full: ['big', 'many'], empty: ['not', 'many'],
+  true: ['see'], free: ['not', 'made'], quiet: ['not', 'speak'], loud: ['speak', 'big'], soft: ['feel', 'small'],
+  hard: ['made', 'big'], easy: ['small', 'flow'], important: ['big', 'feel'], real: ['see', 'place'],
+  // society & things
+  money: ['made', 'many'], book: ['speak', 'made'], word: ['speak', 'small'], story: ['speak', 'many'], song: ['speak', 'feel'],
+  music: ['speak', 'feel'], art: ['made', 'feel'], science: ['see', 'made'], war: ['big', 'not', 'feel'], peace: ['feel', 'big'],
+  truth: ['see', 'place'], power: ['big', 'self'], energy: ['light', 'big'], health: ['life', 'feel'], law: ['made', 'speak'],
+  death: ['not', 'life'], birth: ['life', 'change'], name: ['speak', 'self'], number: ['many', 'made'], color: ['light', 'many'],
+  sound: ['speak'], shadow: ['not', 'light'], road: ['place', 'flow'], path: ['flow', 'place'], door: ['place', 'change'],
+  window: ['place', 'see'], wall: ['made', 'place'], house: ['made', 'place'], room: ['place', 'small'], school: ['place', 'see'],
+  hospital: ['place', 'life', 'feel'], market: ['place', 'made', 'many'], shop: ['place', 'made'], bridge: ['made', 'flow'],
+  boat: ['made', 'water'], ship: ['made', 'water', 'big'], car: ['made', 'flow'], train: ['made', 'flow', 'many'],
+  plane: ['made', 'flow', 'light'], machine: ['made', 'change'], computer: ['made', 'see'], phone: ['made', 'speak'],
+  tool: ['made', 'self'], gift: ['made', 'feel'], letter: ['speak', 'made'], message: ['speak', 'flow'], paper: ['made', 'speak']
 };
 
 // English lemma -> concept key (handles a few synonyms / plurals)
