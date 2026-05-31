@@ -1,4 +1,4 @@
-// Nya logograms — an Arrival-inspired, compositional writing system.
+// Nya logograms: an Arrival-inspired, compositional writing system.
 //
 // Idea (and the key to decipherability): meaning is NOT phonetic. Each concept
 // is a circular logogram built from a small set of ~16 semantic RADICALS
