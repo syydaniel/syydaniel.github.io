@@ -14,7 +14,9 @@
 //
 // This file is the single source of truth; the website ships a copy.
 
-export const VERSION = '0.1.0';
+import { CONCEPTS } from './nya-logogram';
+
+export const VERSION = '0.2.0';
 
 // ---------- core lexicon (English -> Nya) ----------
 export const LEXICON = {
@@ -99,13 +101,79 @@ export function word(w) {
   return fallbackWord(w);
 }
 
+// ---------- morphology: productive derivation + grammatical features ----------
+// Nya is built from roots + a few regular affixes. A derivational affix is
+// applied only when stripping the English affix leaves a KNOWN root, so derived
+// words stay decipherable (root + affix), not random. Inflection (plural, tense,
+// mood, question, emphasis) is returned as FEATURES; tense and mood are shown in
+// the WRITTEN cat (its tail / eyes), not spoken, the way a cat shows mood.
+const AFFIX = {
+  agent: 'nyo',   // -er / -or / -ist : one who
+  abstract: 'wa', // -ness / -tion / -ity : a state or quality
+  adverb: 'li',   // -ly
+  full: 'wim',    // -ful : with
+  without: 'nim', // -less : not
+  able: 'kan',    // -able / -ible : can
+  like: 'na',     // -ish / -like / -y
+  neg: 'ni',      // un- / in- / dis- / non- : opposite (prefix)
+  redo: 'wi'      // re- : again (prefix)
+};
+const isRoot = (w) => LEXICON[w] !== undefined || CONCEPTS[w] !== undefined;
+function firstRoot(stem) {
+  const c = [stem, stem + 'e'];
+  if (/([bdgklmnprt])\1$/.test(stem)) c.push(stem.slice(0, -1)); // running -> run
+  if (stem.endsWith('i')) c.push(stem.slice(0, -1) + 'y');       // studi -> study
+  for (const x of c) if (isRoot(x)) return x;
+  return null;
+}
+
+// Analyse one English word -> { nya, features }.
+export function analyze(token) {
+  let w = String(token).toLowerCase();
+  const feat = {};
+  if (DROP.has(w)) return { nya: '', features: feat };
+  if (isRoot(w)) return { nya: word(w), features: feat };
+
+  let pre = '', suf = '', m;
+  // prefixes (opposite / again) — only if the remainder is a known root
+  if ((m = w.match(/^(?:un|in|im|il|ir|dis|non)(.+)$/)) && isRoot(m[1])) { feat.neg = true; pre = AFFIX.neg; w = m[1]; }
+  else if ((m = w.match(/^re(.+)$/)) && isRoot(m[1])) { feat.redo = true; pre = AFFIX.redo; w = m[1]; }
+
+  // inflection: plural, then tense (root must resolve)
+  let r;
+  if (/(?:ies|es|s)$/.test(w) && !/(?:ss|us|is)$/.test(w) && (r = firstRoot(w.replace(/ies$/, 'y').replace(/es$/, '').replace(/s$/, '')))) {
+    feat.plural = true; suf = PLURAL + suf; w = r;
+  } else if ((m = w.match(/^(.+?)ing$/)) && (r = firstRoot(m[1]))) { feat.tense = 'ongoing'; w = r; }
+  else if ((m = w.match(/^(.+?)ed$/)) && (r = firstRoot(m[1]))) { feat.tense = 'past'; w = r; }
+
+  // one derivational suffix (only if we still don't have a root)
+  if (!isRoot(w)) {
+    const rules = [
+      [/^(.+?)(?:ness|ity|tion|sion|ment|ance|ence)$/, 'abstract'],
+      [/^(.+?)(?:er|or)$/, 'agent'],
+      [/^(.+?)ly$/, 'adverb'],
+      [/^(.+?)ful$/, 'full'],
+      [/^(.+?)less$/, 'without'],
+      [/^(.+?)(?:able|ible)$/, 'able'],
+      [/^(.+?)(?:ish|like)$/, 'like']
+    ];
+    for (const [re, key] of rules) {
+      const mm = w.match(re);
+      if (mm && (r = firstRoot(mm[1]))) { suf = AFFIX[key] + suf; if (key === 'agent') feat.agent = true; if (key === 'adverb') feat.adverb = true; w = r; break; }
+    }
+  }
+
+  const base = word(w);
+  return { nya: pre + base + suf, features: feat };
+}
+
 // Translate free English text into Nya, preserving numbers, punctuation, and
 // capitalisation. A purr particle "nya" is added before clause-final . ! ?.
 export function translate(text) {
   if (!text) return text;
   let out = text.replace(/[A-Za-z]+/g, (tok) => {
     const isCap = tok[0] >= 'A' && tok[0] <= 'Z';
-    const nya = word(tok.toLowerCase());
+    const nya = analyze(tok).nya;
     return isCap ? cap(nya) : nya;
   });
   out = out.replace(/\s{2,}/g, ' ').replace(/\s+([.,!?;:])/g, '$1').trim();
@@ -118,4 +186,4 @@ export function mergeLexicon(extra) {
   if (extra) for (const k in extra) if (LEXICON[k] === undefined) LEXICON[k] = extra[k];
 }
 
-export default { VERSION, LEXICON, translate, word, fallbackWord, mergeLexicon };
+export default { VERSION, LEXICON, translate, word, analyze, fallbackWord, mergeLexicon };
