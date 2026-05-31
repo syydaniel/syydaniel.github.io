@@ -5,7 +5,7 @@
 //   ears      = onset (first consonant of the spoken Nya word)
 //   eyes      = the word's first vowel (a i u e o)
 //   whiskers  = syllable count (1-3)
-//   forehead  = meaning, as semantic radicals shared with nya-logogram
+//   forehead  = meaning, as semantic radicals shared with logogram.mjs
 //   tail      = tense (up = present, curled = past, straight = future, flick = ongoing)
 //   2nd kitten= plural ; raised paw = question ; collar = agent ; slash = negation
 //   bold ink  = emphasis ; purring closed-eye cat = the particle "nya"
@@ -69,7 +69,7 @@ const MARK = {
   light: (x, y) => `<circle cx="${x}" cy="${y}" r="1.8" fill="currentColor" stroke="none"/>` +
     [0, 90, 180, 270, 45, 135, 225, 315].map((a) => `<line x1="${(x + 3 * Math.cos(rad(a))).toFixed(1)}" y1="${(y - 3 * Math.sin(rad(a))).toFixed(1)}" x2="${(x + 6 * Math.cos(rad(a))).toFixed(1)}" y2="${(y - 6 * Math.sin(rad(a))).toFixed(1)}"/>`).join(''),
   made: (x, y) => `<rect x="${x - 4.5}" y="${y - 4.5}" width="9" height="9" rx="1"/>`,
-  place: (x, y) => `<line x1="${x - 7}" y1="${y}" x2="${x + 7}" y2="${y}"/><line x1="${x - 7}" y1="${y}" x2="${x - 7}" y2="${y + 4}"/>${''}<line x1="${x + 7}" y1="${y}" x2="${x + 7}" y2="${y + 4}"/>`,
+  place: (x, y) => `<line x1="${x - 7}" y1="${y}" x2="${x + 7}" y2="${y}"/><line x1="${x - 7}" y1="${y}" x2="${x - 7}" y2="${y + 4}"/><line x1="${x + 7}" y1="${y}" x2="${x + 7}" y2="${y + 4}"/>`,
   life: (x, y) => `<path d="M${x} ${y + 5} v-9"/><path d="M${x} ${y - 2} q-5 -1 -6 -6 q5 0 6 5"/><path d="M${x} ${y - 1} q5 -1 6 -6 q-5 0 -6 5"/>`,
   change: (x, y) => `<path d="M${x + 4} ${y - 3} a5 5 0 1 1 -3 -3"/><path d="M${x + 4} ${y - 5} l1 3 l-3 0"/>`,
   many: (x, y) => `<line x1="${x - 5}" y1="${y - 3}" x2="${x - 5}" y2="${y + 3}"/><line x1="${x}" y1="${y - 4}" x2="${x}" y2="${y + 4}"/><line x1="${x + 5}" y1="${y - 3}" x2="${x + 5}" y2="${y + 3}"/>`,

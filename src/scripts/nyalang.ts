@@ -16,7 +16,7 @@
 
 import { CONCEPTS } from './nya-logogram';
 
-export const VERSION = '0.2.0';
+export const VERSION = '0.3.0';
 
 // ---------- core lexicon (English -> Nya) ----------
 export const LEXICON = {
@@ -56,6 +56,36 @@ export const LEXICON = {
   hello: 'nyao', hi: 'nyao', four: 'nyo', one: 'wun', let: 'pan', us2: 'nau'
 };
 
+// ---------- combinatorial roots: a word's SOUND derives from its MEANING ----------
+// Each of the 16 semantic radicals has one canonical syllable. A content word's
+// spoken form is its radicals' syllables joined, so you can HEAR the meaning the
+// same way the cat-sigil's forehead SHOWS it. e.g. river = water+flow = "waro".
+// Onsets use only Nya consonants (m n p r w y); being = "mau" (a cat!).
+export const ROOT_SOUND = {
+  self: 'mi', water: 'wa', flow: 'ro', big: 'wo', small: 'pi', see: 'wi',
+  light: 'ri', made: 'ma', not: 'ni', place: 'po', life: 'nu', change: 'pe',
+  many: 'mu', speak: 'pa', feel: 'ne', being: 'mau'
+};
+// Compose a spoken word from a list of radical ids (the meaning), e.g.
+// ['water','flow'] -> 'waro'. Unknown radicals are skipped.
+export function composeSound(radicals) {
+  if (!radicals || !radicals.length) return '';
+  return radicals.map((r) => ROOT_SOUND[r] || '').join('');
+}
+
+// Closed-class function words are irregular (as in every language): kept stable
+// and arbitrary. Content words instead compose from their radicals (above).
+const FUNCTION_KEYS = new Set([
+  'i', 'me', 'my', 'mine', 'we', 'us', 'our', 'ours', 'you', 'your', 'yours',
+  'the', 'this', 'that', 'these', 'those',
+  'and', 'or', 'but', 'of', 'in', 'on', 'to', 'with', 'for', 'from', 'at', 'by', 'as', 'about',
+  'is', 'are', 'am', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'will',
+  'not', 'no', 'yes', 'can', 'where', 'how', 'what', 'who', 'why', 'when',
+  'hello', 'hi', 'let'
+]);
+// A couple of iconic content words stay irregular for charm (documented).
+const IRREGULAR = { cat: 'mau' };
+
 // articles that are simply dropped (Nya has no indefinite article)
 const DROP = new Set(['a', 'an']);
 
@@ -89,12 +119,19 @@ const PLURAL = 'mi';
 const cap = (w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : w);
 
 // Translate one already-lowercased word to its Nya form (no caps handling).
+// Priority: drop articles -> function words (irregular, stable) -> iconic
+// irregulars -> content words composed from their meaning (transparent) ->
+// curated/merged lexicon -> simple plural -> phonetic fallback.
 export function word(w) {
   if (DROP.has(w)) return '';
+  if (FUNCTION_KEYS.has(w) && LEXICON[w] !== undefined) return LEXICON[w];
+  if (IRREGULAR[w]) return IRREGULAR[w];
+  if (CONCEPTS[w]) return composeSound(CONCEPTS[w]);
   if (LEXICON[w] !== undefined) return LEXICON[w];
   // simple plural: trailing -s on a known singular -> base + -mi
   if (w.length > 2 && w.endsWith('s')) {
     const base = w.slice(0, -1);
+    if (CONCEPTS[base]) return composeSound(CONCEPTS[base]) + PLURAL;
     if (LEXICON[base] !== undefined) return LEXICON[base] + PLURAL;
     if (DROP.has(base)) return '';
   }
@@ -186,4 +223,4 @@ export function mergeLexicon(extra) {
   if (extra) for (const k in extra) if (LEXICON[k] === undefined) LEXICON[k] = extra[k];
 }
 
-export default { VERSION, LEXICON, translate, word, analyze, fallbackWord, mergeLexicon };
+export default { VERSION, LEXICON, ROOT_SOUND, composeSound, translate, word, analyze, fallbackWord, mergeLexicon };
