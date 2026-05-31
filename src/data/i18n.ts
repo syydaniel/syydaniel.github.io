@@ -502,6 +502,48 @@ export const dict: Record<string, Record<Lang, string>> = {
     ja: "イースターエッグを入れたのは、個人サイトは楽しくあるべきだと Daniel が思っているから。",
     ko: "개인 사이트는 재미있어야 한다고 Daniel이 믿기에 이스터에그를 넣었어요.",
     fr: "Easter eggs ajoutés parce que Daniel pense que les sites personnels devraient être amusants."
+  },
+
+  // ---- 猫猫语 (Nya) intro module ----
+  'nya.eyebrow': {
+    en: "A made language", zh: "一门自创语言", "zh-Hant": "一門自創語言", nl: "Een zelfgemaakte taal", de: "Eine erfundene Sprache",
+    fi: "Tehty kieli", ja: "つくった言語", ko: "만든 언어", fr: "Une langue inventée"
+  },
+  'nya.title.a': {
+    en: "Nya, a", zh: "Nya，一门", "zh-Hant": "Nya，一門", nl: "Nya, een", de: "Nya, eine", fi: "Nya, ", ja: "Nya、", ko: "Nya,", fr: "Nya, une"
+  },
+  'nya.title.b': {
+    en: "cat language", zh: "猫的语言", "zh-Hant": "貓的語言", nl: "kattentaal", de: "Katzensprache", fi: "kissakieli", ja: "猫の言語", ko: "고양이 언어", fr: "langue de chats"
+  },
+  'nya.title.c': {
+    en: "where every word is one cat.", zh: "每个词都是一只猫。", "zh-Hant": "每個詞都是一隻貓。", nl: "waar elk woord één kat is.", de: "in der jedes Wort eine Katze ist.",
+    fi: "jossa jokainen sana on yksi kissa.", ja: "どの単語も一匹の猫。", ko: "모든 단어가 고양이 한 마리.", fr: "où chaque mot est un chat."
+  },
+  'nya.intro': {
+    en: "For fun, I built a small constructed language. It has its own words, a little grammar, and one writing system where each word is drawn as a single cat. The cat's body encodes the word: its sound and its meaning at once. Switch the site language to 猫语 to read the whole page in it.",
+    zh: "出于好玩，我做了一门小小的人造语言。它有自己的词汇、一点语法，还有一套文字：每个词都画成一只猫。猫的身体同时编码这个词的读音和含义。把网站语言切到「猫语」，整页都会用它来显示。",
+    "zh-Hant": "出於好玩，我做了一門小小的人造語言。它有自己的詞彙、一點語法，還有一套文字：每個詞都畫成一隻貓。貓的身體同時編碼這個詞的讀音和含義。把網站語言切到「貓語」，整頁都會用它顯示。",
+    nl: "Voor de lol bouwde ik een kleine kunsttaal. Ze heeft eigen woorden, een beetje grammatica en één schrift waarin elk woord als één kat wordt getekend. Het lichaam van de kat codeert het woord: klank en betekenis tegelijk. Zet de sitetaal op 猫语 om de hele pagina erin te lezen.",
+    de: "Zum Spaß habe ich eine kleine Plansprache gebaut. Sie hat eigene Wörter, etwas Grammatik und eine Schrift, in der jedes Wort als eine Katze gezeichnet wird. Der Körper der Katze codiert das Wort: Klang und Bedeutung zugleich. Stelle die Seitensprache auf 猫语, um die ganze Seite darin zu lesen.",
+    fi: "Huvikseni rakensin pienen keinotekoisen kielen. Sillä on omat sanansa, hieman kielioppia ja yksi kirjoitusjärjestelmä, jossa jokainen sana piirretään yhtenä kissana. Kissan keho koodaa sanan: äänteen ja merkityksen yhtä aikaa. Vaihda sivun kieleksi 猫语, niin luet koko sivun sillä.",
+    ja: "遊びで小さな人工言語をつくりました。独自の単語と少しの文法、そして各単語を一匹の猫として描く文字があります。猫の体が単語の音と意味を同時に表します。サイトの言語を「猫语」に切り替えると、ページ全体がこの言語になります。",
+    ko: "재미로 작은 인공어를 만들었어요. 자체 단어와 약간의 문법, 그리고 각 단어를 고양이 한 마리로 그리는 문자가 있습니다. 고양이의 몸이 단어의 소리와 의미를 동시에 담습니다. 사이트 언어를 '猫语'로 바꾸면 페이지 전체를 이 언어로 읽을 수 있어요.",
+    fr: "Pour le plaisir, j'ai créé une petite langue construite. Elle a ses propres mots, un peu de grammaire et une écriture où chaque mot est dessiné comme un seul chat. Le corps du chat encode le mot : son et sens à la fois. Passez la langue du site en 猫语 pour lire toute la page ainsi."
+  },
+  'nya.try': {
+    en: "Type something", zh: "输入点什么", "zh-Hant": "輸入點什麼", nl: "Typ iets", de: "Tippe etwas", fi: "Kirjoita jotain", ja: "何か入力", ko: "무언가 입력", fr: "Tapez quelque chose"
+  },
+  'nya.in_nya': {
+    en: "In Nya", zh: "用 Nya 写", "zh-Hant": "用 Nya 寫", nl: "In Nya", de: "Auf Nya", fi: "Nyaksi", ja: "Nya では", ko: "Nya로", fr: "En Nya"
+  },
+  'nya.legend.title': {
+    en: "How to read one cat", zh: "如何读懂一只猫", "zh-Hant": "如何讀懂一隻貓", nl: "Hoe lees je één kat", de: "Wie man eine Katze liest", fi: "Miten lukea yhtä kissaa", ja: "一匹の猫の読み方", ko: "고양이 한 마리 읽는 법", fr: "Comment lire un chat"
+  },
+  'nya.repo': {
+    en: "The language repo", zh: "语言代码仓库", "zh-Hant": "語言程式碼倉庫", nl: "De taal-repo", de: "Das Sprach-Repo", fi: "Kielen repo", ja: "言語のリポジトリ", ko: "언어 저장소", fr: "Le dépôt de la langue"
+  },
+  'nya.dict': {
+    en: "3200-word dictionary", zh: "3200 词字典", "zh-Hant": "3200 詞字典", nl: "Woordenboek (3200)", de: "Wörterbuch (3200)", fi: "3200 sanan sanakirja", ja: "3200 語の辞書", ko: "3200단어 사전", fr: "Dictionnaire de 3200 mots"
   }
 };
 

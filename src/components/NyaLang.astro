@@ -1,0 +1,117 @@
+---
+// 猫猫语 (Nya) intro module: explains the constructed cat language built for this
+// site. A live mini-translator (English -> cat-sigils + romanized Nya) and a
+// featural legend, both rendered client-side and language-independent, plus the
+// prose which follows the site language like everything else.
+---
+
+<section id="nyalang" class="relative py-28 md:py-40 scroll-mt-20">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="reveal max-w-3xl">
+      <span class="section-eyebrow" data-i18n="nya.eyebrow">A made language</span>
+      <h2 class="section-title mt-4">
+        <span data-i18n="nya.title.a">Nya, a</span>
+        <span class="text-gradient italic font-display" data-i18n="nya.title.b">cat language</span>
+        <span data-i18n="nya.title.c">where every word is one cat.</span>
+      </h2>
+      <p class="mt-6 text-ink-300 leading-relaxed" data-i18n="nya.intro">
+        For fun, I built a small constructed language. It has its own words, a little grammar, and one
+        writing system where each word is drawn as a single cat. The cat's body encodes the word:
+        its sound and its meaning at once. Switch the site language to 猫语 to read the whole page in it.
+      </p>
+    </div>
+
+    <!-- live translator -->
+    <div class="reveal mt-12 grid lg:grid-cols-2 gap-6">
+      <div class="glass rounded-2xl p-5">
+        <label class="text-[10px] uppercase tracking-[0.24em] text-aqua-400" for="nya-in" data-i18n="nya.try">Type something</label>
+        <textarea
+          id="nya-in"
+          class="mt-3 w-full h-28 bg-ink-900/60 border border-white/10 rounded-xl p-3 text-ink-100 text-sm resize-none focus:border-aqua-400/50 outline-none"
+        >I study water and microplastics in rivers.</textarea>
+      </div>
+      <div class="glass rounded-2xl p-5 flex flex-col">
+        <span class="text-[10px] uppercase tracking-[0.24em] text-sol-400" data-i18n="nya.in_nya">In Nya</span>
+        <div id="nya-out" class="mt-3 leading-[1.7] text-ink-100 min-h-[3rem]"></div>
+        <div id="nya-roman" class="mt-3 pt-3 border-t border-white/5 font-mono text-xs text-aqua-300/80"></div>
+      </div>
+    </div>
+
+    <!-- featural legend: how to read one cat -->
+    <div class="reveal mt-12">
+      <p class="text-[10px] uppercase tracking-[0.24em] text-ink-400 mb-5" data-i18n="nya.legend.title">How to read one cat</p>
+      <div id="nya-legend" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+    </div>
+
+    <!-- links -->
+    <div class="reveal mt-10 flex flex-wrap gap-3">
+      <a href="https://github.com/syydaniel/nyalang" target="_blank" rel="noopener" class="btn btn-primary">
+        <span data-i18n="nya.repo">The language repo</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg>
+      </a>
+      <a href="https://github.com/syydaniel/nyalang/blob/main/demo/dictionary.html" target="_blank" rel="noopener" class="btn btn-ghost">
+        <span data-i18n="nya.dict">3200-word dictionary</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { renderCatText, catSigil } from '../scripts/nya-script';
+  import { analyze } from '../scripts/nyalang';
+  import { radicalsFor } from '../scripts/nya-logogram';
+
+  // ---- live translator ----
+  const inEl = document.getElementById('nya-in') as HTMLTextAreaElement | null;
+  const outEl = document.getElementById('nya-out');
+  const romanEl = document.getElementById('nya-roman');
+  function renderTranslator() {
+    if (!inEl || !outEl || !romanEl) return;
+    outEl.innerHTML = renderCatText(inEl.value, { size: 34 });
+    romanEl.textContent = analyze ? inEl.value.replace(/[A-Za-z]+/g, (w) => analyze(w).nya || '') .replace(/\s{2,}/g, ' ').trim() : '';
+  }
+  inEl?.addEventListener('input', renderTranslator);
+  renderTranslator();
+
+  // ---- featural legend: each card shows an example cat + which body part means what ----
+  // Labels carried here (en + zh + a few) so the legend stays readable in any UI language.
+  type Row = { word: string; key: string };
+  const LABELS: Record<string, Record<string, [string, string]>> = {
+    en: { ears: ['Ears', 'the first consonant'], eyes: ['Eyes', 'the first vowel'], whiskers: ['Whiskers', 'how many syllables'], forehead: ['Forehead', 'the meaning (radicals)'], tail: ['Tail', 'tense: past / now / future'], kitten: ['Second kitten', 'plural'], paw: ['Raised paw', 'a question'], collar: ['Collar', 'one who does it (-er)'] },
+    zh: { ears: ['耳朵', '首辅音'], eyes: ['眼睛', '首元音'], whiskers: ['胡须', '音节数'], forehead: ['额头', '词义（部首）'], tail: ['尾巴', '时态：过去/现在/将来'], kitten: ['第二只小猫', '复数'], paw: ['抬起的爪', '疑问'], collar: ['项圈', '做这件事的人（-er）'] },
+    'zh-Hant': { ears: ['耳朵', '首輔音'], eyes: ['眼睛', '首元音'], whiskers: ['鬍鬚', '音節數'], forehead: ['額頭', '詞義（部首）'], tail: ['尾巴', '時態：過去/現在/將來'], kitten: ['第二隻小貓', '複數'], paw: ['抬起的爪', '疑問'], collar: ['項圈', '做這件事的人（-er）'] },
+    ja: { ears: ['耳', '最初の子音'], eyes: ['目', '最初の母音'], whiskers: ['ひげ', '音節の数'], forehead: ['額', '意味（部首）'], tail: ['しっぽ', '時制：過去/現在/未来'], kitten: ['2匹目の子猫', '複数'], paw: ['上げた前足', '疑問'], collar: ['首輪', '〜する人（-er）'] },
+    ko: { ears: ['귀', '첫 자음'], eyes: ['눈', '첫 모음'], whiskers: ['수염', '음절 수'], forehead: ['이마', '의미(부수)'], tail: ['꼬리', '시제: 과거/현재/미래'], kitten: ['두 번째 새끼고양이', '복수'], paw: ['든 앞발', '의문'], collar: ['목줄', '~하는 사람(-er)'] }
+  };
+  // example cats that visibly show each feature
+  const EXAMPLES: Record<string, () => string> = {
+    ears: () => catSigil('miru', radicalsFor('water')),
+    eyes: () => catSigil('miru', radicalsFor('water')),
+    whiskers: () => catSigil('purwa', radicalsFor('research')),
+    forehead: () => catSigil('mirun', radicalsFor('river')),
+    tail: () => catSigil('puwa', [], { tense: 'past' }),
+    kitten: () => catSigil('mau', radicalsFor('cat'), { plural: true }),
+    paw: () => catSigil('nya', [], { question: true }),
+    collar: () => catSigil('purwanyo', radicalsFor('research'), { agent: true })
+  };
+  const ORDER = ['ears', 'eyes', 'whiskers', 'forehead', 'tail', 'kitten', 'paw', 'collar'];
+
+  function renderLegend() {
+    const host = document.getElementById('nya-legend');
+    if (!host) return;
+    const lang = ((window as any).__getLang?.() as string) || 'en';
+    const L = LABELS[lang] || LABELS.en;
+    host.innerHTML = ORDER.map((k) => {
+      const [name, desc] = L[k] || LABELS.en[k];
+      return `<div class="glass-soft rounded-xl p-3 flex items-center gap-3">
+        <div style="width:42px;height:42px;flex:none;color:#ffe1a8">${EXAMPLES[k]()}</div>
+        <div style="min-width:0">
+          <div class="text-ink-100 text-xs font-medium">${name}</div>
+          <div class="text-ink-400 text-[11px] leading-snug">${desc}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  renderLegend();
+  window.addEventListener('lang:change', renderLegend);
+</script>
