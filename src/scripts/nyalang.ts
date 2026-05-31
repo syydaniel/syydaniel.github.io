@@ -1,4 +1,4 @@
-// Nya (猫猫语) — a small constructed cat language.
+// Nya (猫猫语) : a small constructed cat language.
 //
 // Design: a meaning-based core lexicon + light, regular grammar, plus a
 // productive phonetic fallback so ANY English text can be rendered in Nya. It
@@ -172,7 +172,7 @@ export function analyze(token) {
   if (isRoot(w)) return { nya: word(w), features: feat };
 
   let pre = '', suf = '', m;
-  // prefixes (opposite / again) — only if the remainder is a known root
+  // prefixes (opposite / again) : only if the remainder is a known root
   if ((m = w.match(/^(?:un|in|im|il|ir|dis|non)(.+)$/)) && isRoot(m[1])) { feat.neg = true; pre = AFFIX.neg; w = m[1]; }
   else if ((m = w.match(/^re(.+)$/)) && isRoot(m[1])) { feat.redo = true; pre = AFFIX.redo; w = m[1]; }
 
@@ -300,7 +300,8 @@ export function toNyaTokens(text) {
     if (/^[.!?]+$/.test(seg)) { out.push({ purr: true, q: seg.includes('?'), excl: seg.includes('!') }, { punct: seg }); continue; }
     if (!seg.trim()) { if (seg) out.push({ punct: seg }); continue; }
     const words = seg.match(/[A-Za-z']+/g) || [];
-    if (words.some(isVerb) && !/[0-9]/.test(seg)) {
+    const hasClause = words.some(isVerb) || words.some((w) => COPULA.has(w.toLowerCase()));
+    if (hasClause && !/[0-9]/.test(seg)) {
       out.push(...parseClause(words));
     } else {
       for (const t of seg.match(/[A-Za-z']+|[0-9]+|[,;:]/g) || []) {
