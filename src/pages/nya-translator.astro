@@ -231,7 +231,7 @@ import Base from '../layouts/Base.astro';
 
     function buildLearn() {
       $('ny-radicals')!.innerHTML = Object.entries(RADICAL_GLOSSES).map(([id, gloss]) =>
-        `<div class="ny-leg"><div class="g">${renderGlyph([id], { size: 64 })}</div><div class="nm">${id}</div><div class="gl">${gloss}</div><div class="sy">sounds: ${(ROOT_SOUND as any)[id] || '—'}</div></div>`).join('');
+        `<div class="ny-leg"><div class="g">${renderGlyph([id], { size: 64 })}</div><div class="nm">${id}</div><div class="gl">${gloss}</div><div class="sy">sounds: ${(ROOT_SOUND as any)[id] || '·'}</div></div>`).join('');
       const F: [string, string][] = [
         ['Ears = the first consonant', catSigil('miru', radicalsFor('water'))],
         ['Eyes = the first vowel', catSigil('miru', radicalsFor('water'))],
