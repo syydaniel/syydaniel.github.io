@@ -224,6 +224,70 @@ export const CONCEPTS = {
   begin: ['change', 'small'], end: ['not', 'change']
 };
 
+// ---------- hand-curated vocabulary, batch 3 (deliberately composed) ----------
+// Merged (not overwriting) so each is a designed meaning, not an inference.
+const CONCEPTS_B3 = {
+  // direction & space
+  north: ['place', 'not', 'light'], south: ['place', 'light'], east: ['place', 'light', 'change'], west: ['place', 'not', 'change'],
+  up: ['flow', 'big'], down: ['flow', 'place'], left: ['place', 'not'], right2: ['place', 'made'],
+  center: ['place', 'self'], edge: ['place', 'not', 'flow'], corner: ['place', 'made', 'not'], side: ['place', 'small'],
+  top: ['big', 'place'], bottom: ['small', 'place'], front: ['place', 'see'], near: ['place', 'feel'], far: ['place', 'flow', 'big'],
+  inside: ['place', 'self'], outside: ['place', 'not', 'self'], between: ['place', 'flow', 'many'], distance: ['place', 'flow', 'big'],
+  // color
+  red: ['light', 'feel'], blue: ['light', 'water'], green: ['light', 'life'], yellow: ['light', 'big'],
+  white: ['light', 'many'], black: ['not', 'light'], grey: ['light', 'not', 'small'], brown: ['place', 'life', 'not'],
+  gold2: ['light', 'made', 'big'], pink: ['light', 'feel', 'small'], purple: ['light', 'feel', 'big'], color2: ['light', 'many'],
+  // clothing & cloth
+  cloth: ['made', 'flow', 'many'], robe: ['made', 'self', 'big'], shirt: ['made', 'self'], shoe: ['made', 'flow', 'place'],
+  hat: ['made', 'self', 'big'], glove: ['made', 'self', 'small'], belt: ['made', 'self', 'flow'], cloak: ['made', 'self', 'not'],
+  thread: ['made', 'flow', 'small'], string: ['made', 'flow'], rope: ['made', 'flow', 'big'], knot: ['made', 'flow', 'place'],
+  // tools & objects
+  hammer: ['made', 'big', 'not'], blade: ['made', 'not', 'small'], axe: ['made', 'not', 'big'], saw: ['made', 'not', 'many'],
+  needle: ['made', 'small', 'not'], hook: ['made', 'flow', 'self'], chain: ['made', 'many', 'flow'], lock: ['made', 'not', 'change'],
+  wheel: ['made', 'flow', 'change'], pot: ['made', 'place', 'water'], cup: ['made', 'water', 'small'], bowl: ['made', 'place', 'small'],
+  plate: ['made', 'place', 'flow'], jar: ['made', 'place'], basket: ['made', 'many', 'place'], box: ['made', 'place', 'not'],
+  bag: ['made', 'place', 'self'], candle: ['made', 'light', 'small'], torch: ['made', 'light', 'big'], drum: ['made', 'speak', 'big'],
+  bell: ['made', 'speak', 'light'], flute: ['made', 'speak', 'flow'], brush: ['made', 'flow', 'feel'], pen: ['made', 'speak', 'flow'],
+  // building & dwelling
+  roof: ['made', 'place', 'big'], floor: ['made', 'place'], gate: ['made', 'place', 'change'], stair: ['made', 'flow', 'place'],
+  pillar: ['made', 'big', 'place'], hall: ['place', 'big', 'made'], castle: ['place', 'big', 'made'], hut: ['place', 'small', 'made'],
+  tent: ['made', 'place', 'flow'], barn: ['place', 'made', 'life'], well: ['place', 'water', 'made'], fence: ['made', 'place', 'not'],
+  // science & abstract
+  number2: ['many', 'made'], shape: ['made', 'see'], line: ['flow', 'made'], circle: ['made', 'flow', 'big'],
+  point2: ['small', 'place'], space: ['place', 'big', 'not'], matter: ['made', 'place'], force: ['flow', 'big'],
+  weight: ['big', 'place'], speed: ['flow', 'big', 'change'], heat: ['light', 'big', 'feel'], cold2: ['not', 'light', 'feel'],
+  reason: ['see', 'change'], logic: ['see', 'made'], proof: ['see', 'made', 'big'], theory: ['see', 'many', 'change'],
+  fact: ['see', 'place'], cause: ['change', 'flow'], effect: ['change', 'made'], pattern: ['see', 'many', 'made'],
+  balance: ['made', 'feel', 'place'], order2: ['made', 'many', 'place'], chaos: ['not', 'made', 'many'], energy2: ['light', 'flow', 'big'],
+  // mind & communication
+  thought: ['see', 'change', 'self'], belief: ['feel', 'see'], doubt: ['feel', 'not', 'see'], wisdom: ['see', 'big', 'change'],
+  knowledge: ['see', 'many'], skill: ['made', 'self', 'change'], art2: ['made', 'feel'], craft: ['made', 'self', 'feel'],
+  voice2: ['speak', 'self'], echo: ['speak', 'change', 'flow'], silence: ['not', 'speak'], whisper: ['speak', 'small'],
+  shout: ['speak', 'big'], question2: ['speak', 'change'], reply: ['speak', 'self', 'change'], debate: ['speak', 'many', 'not'],
+  poem: ['speak', 'feel', 'many'], verse: ['speak', 'feel', 'small'], rhyme: ['speak', 'feel', 'change'], lyric: ['speak', 'feel', 'light'],
+  // verbs (more)
+  give2: ['made', 'flow', 'feel'], send: ['flow', 'made', 'big'], bring: ['flow', 'self', 'made'], keep: ['place', 'self', 'not'],
+  drop: ['flow', 'place', 'small'], lift: ['flow', 'big', 'self'], bend: ['change', 'flow', 'made'], turn: ['change', 'flow'],
+  spin: ['flow', 'change', 'big'], shake: ['flow', 'change', 'small'], press: ['made', 'big', 'place'], rub: ['made', 'flow', 'feel'],
+  pour: ['water', 'flow', 'down'], fill: ['big', 'many', 'place'], empty2: ['not', 'many', 'place'], join: ['many', 'flow', 'feel'],
+  split: ['not', 'made', 'many'], mix: ['many', 'flow', 'change'], burn: ['light', 'change', 'not'], freeze: ['water', 'not', 'change'],
+  melt: ['water', 'change', 'flow'], shine: ['light', 'flow'], glow: ['light', 'small', 'feel'], fade: ['not', 'light', 'change'],
+  // qualities (more)
+  smooth: ['flow', 'feel'], rough: ['not', 'flow', 'place'], sharp2: ['made', 'small', 'not'], dull: ['not', 'made', 'feel'],
+  wet: ['water', 'feel'], dry: ['not', 'water'], soft: ['feel', 'small', 'flow'], firm: ['made', 'place', 'big'],
+  loud: ['speak', 'big'], faint: ['small', 'not', 'light'], wild: ['life', 'not', 'made'], tame: ['made', 'feel', 'life'],
+  pure: ['light', 'self', 'not'], holy: ['big', 'feel', 'light'], plain2: ['place', 'not', 'feel'], fancy: ['made', 'feel', 'many'],
+  // social & life
+  birth2: ['life', 'change', 'small'], death2: ['not', 'life'], marriage: ['being', 'feel', 'made'], funeral: ['being', 'not', 'life'],
+  feast2: ['life', 'made', 'many'], work2: ['made', 'self', 'flow'], play2: ['feel', 'flow'], travel: ['flow', 'self', 'big'],
+  trade2: ['made', 'flow', 'many'], gift2: ['made', 'feel', 'flow'], help2: ['feel', 'self', 'flow'], harm: ['not', 'feel', 'self'],
+  freedom2: ['not', 'made', 'big'], slavery: ['made', 'not', 'self'], wealth: ['made', 'many', 'big'], poverty: ['not', 'made', 'many'],
+  // weather & sky (more)
+  breeze: ['flow', 'small', 'feel'], gale: ['flow', 'big', 'not'], hail: ['water', 'not', 'small'], sunrise: ['light', 'change', 'big'],
+  sunset: ['light', 'not', 'change'], shadow2: ['not', 'light', 'place'], cloud2: ['water', 'light', 'flow'], season2: ['change', 'many']
+};
+for (const k in CONCEPTS_B3) if (!(k in CONCEPTS)) CONCEPTS[k] = CONCEPTS_B3[k];
+
 // English lemma -> concept key (handles a few synonyms / plurals)
 const LEMMA = {
   countries: 'country', universities: 'university', systems: 'system', places: 'place',
