@@ -288,6 +288,61 @@ const CONCEPTS_B3 = {
 };
 for (const k in CONCEPTS_B3) if (!(k in CONCEPTS)) CONCEPTS[k] = CONCEPTS_B3[k];
 
+// ---------- hand-curated vocabulary, batch 4 (deliberately composed) ----------
+const CONCEPTS_B4 = {
+  // academic fields & study
+  history: ['see', 'change', 'many'], geography: ['place', 'see', 'many'], biology: ['life', 'see', 'many'],
+  chemistry: ['made', 'change', 'see'], physics: ['place', 'made', 'see'], mathematics: ['many', 'see', 'made'],
+  medicine: ['life', 'feel', 'made'], philosophy: ['see', 'feel', 'big'], psychology: ['self', 'feel', 'see'],
+  economy: ['made', 'many', 'flow'], politics: ['being', 'many', 'made'], language: ['speak', 'many'],
+  grammar: ['speak', 'made', 'many'], music: ['speak', 'feel', 'flow'], poetry: ['speak', 'feel', 'many'],
+  ecology: ['life', 'place', 'many'], geology: ['place', 'see', 'change'], astronomy: ['light', 'see', 'big'],
+  // abstract concepts
+  truth: ['see', 'place'], meaning: ['speak', 'see'], purpose: ['see', 'flow', 'big'], value: ['feel', 'big', 'made'],
+  quality: ['made', 'feel'], quantity: ['many', 'made'], unity: ['self', 'big'], harmony: ['feel', 'many', 'flow'],
+  freedom3: ['not', 'made', 'flow'], duty2: ['made', 'self', 'feel'], honor: ['feel', 'big', 'see'], glory: ['light', 'big', 'feel'],
+  beauty: ['feel', 'light', 'see'], chaos2: ['not', 'made', 'flow'], void: ['not', 'place'], whole: ['big', 'self'],
+  origin: ['change', 'small', 'place'], future: ['change', 'flow', 'big'], memory: ['see', 'change', 'self'], dream3: ['see', 'feel', 'not'],
+  // finer emotions & states
+  hope3: ['feel', 'light', 'flow'], trust: ['feel', 'see', 'place'], peace2: ['feel', 'not', 'flow'], rage: ['feel', 'big', 'not'],
+  jealousy: ['feel', 'not', 'self'], loneliness: ['self', 'not', 'feel'], nostalgia: ['feel', 'change', 'place'], passion: ['feel', 'big', 'light'],
+  serenity: ['feel', 'not', 'change'], boredom: ['not', 'feel', 'change'], confusion: ['not', 'see', 'many'], wonder2: ['feel', 'see', 'big'],
+  // plants
+  oak: ['life', 'big', 'place'], pine: ['life', 'big', 'not'], willow: ['life', 'water', 'flow'], bamboo: ['life', 'big', 'small'],
+  rose: ['life', 'feel', 'big'], lily: ['life', 'feel', 'water'], lotus: ['life', 'feel', 'water'], fern: ['life', 'small', 'many'],
+  vine: ['life', 'flow', 'place'], reed: ['life', 'water', 'small'], thorn: ['life', 'not', 'small'], blossom: ['life', 'feel', 'change'],
+  harvest: ['life', 'made', 'many'], orchard: ['place', 'life', 'many'], meadow2: ['place', 'life', 'big'], garden2: ['place', 'life', 'made'],
+  // more animals
+  elephant: ['being', 'big', 'place'], monkey: ['being', 'flow', 'small'], camel: ['being', 'big', 'place'], donkey: ['being', 'made', 'big'],
+  goose: ['being', 'water', 'big'], hen: ['being', 'small', 'life'], rooster: ['being', 'speak', 'light'], peacock: ['being', 'feel', 'light'],
+  turtle: ['being', 'place', 'made'], lizard: ['being', 'place', 'flow'], moth: ['being', 'light', 'not'], beetle: ['being', 'made', 'small'],
+  jellyfish: ['being', 'water', 'light'], coral: ['being', 'water', 'place'], snail: ['being', 'small', 'flow'], serpent: ['being', 'flow', 'big'],
+  // materials & substance
+  iron: ['made', 'place', 'big'], copper: ['made', 'place', 'light'], steel: ['made', 'place', 'not'], glass: ['made', 'light', 'see'],
+  clay: ['place', 'water', 'made'], brick: ['made', 'place', 'small'], paper2: ['made', 'speak', 'flow'], silk: ['made', 'flow', 'feel'],
+  wool: ['life', 'made', 'feel'], leather: ['being', 'made', 'place'], crystal: ['made', 'light', 'place'], marble: ['place', 'made', 'light'],
+  diamond: ['made', 'light', 'big'], coal: ['place', 'not', 'light'], salt2: ['place', 'small', 'see'], dust2: ['place', 'small', 'many'],
+  // weather & cosmos
+  comet: ['light', 'flow', 'big'], planet: ['place', 'light', 'big'], galaxy: ['light', 'many', 'big'], eclipse: ['not', 'light', 'change'],
+  aurora: ['light', 'flow', 'feel'], meteor: ['light', 'flow', 'place'], orbit: ['flow', 'change', 'place'], gravity: ['flow', 'big', 'place'],
+  // measure & quantity
+  half2: ['small', 'made', 'self'], double: ['many', 'self'], dozen: ['many', 'made', 'small'], pair2: ['self', 'self'],
+  amount: ['many', 'made', 'see'], total: ['big', 'many', 'made'], portion: ['small', 'made', 'many'], scale2: ['made', 'see', 'big'],
+  level: ['place', 'made', 'flow'], degree: ['change', 'made', 'small'], rate: ['change', 'flow', 'made'], limit: ['not', 'flow', 'place'],
+  // verbs (more)
+  create2: ['made', 'change', 'big'], destroy: ['not', 'made', 'big'], protect2: ['feel', 'place', 'self'], attack: ['not', 'flow', 'big'],
+  defend: ['place', 'feel', 'not'], gather2: ['many', 'flow', 'self'], scatter: ['many', 'flow', 'not'], guide: ['see', 'flow', 'feel'],
+  discover: ['see', 'change', 'big'], invent: ['made', 'see', 'change'], imagine: ['see', 'feel', 'not'], decide: ['see', 'made', 'change'],
+  promise2: ['speak', 'feel', 'flow'], forgive: ['feel', 'not', 'change'], betray: ['feel', 'not', 'flow'], obey: ['self', 'made', 'feel'],
+  command: ['speak', 'big', 'made'], wander2: ['flow', 'not', 'self'], arrive: ['flow', 'place', 'self'], depart: ['flow', 'not', 'place'],
+  // qualities (more)
+  ancient: ['change', 'big', 'place'], modern: ['change', 'made', 'light'], eternal: ['change', 'big', 'not'], sacred: ['big', 'feel', 'light'],
+  humble: ['small', 'feel', 'self'], proud: ['feel', 'big', 'self'], noble: ['being', 'big', 'feel'], gentle2: ['feel', 'small', 'flow'],
+  fierce: ['feel', 'big', 'not'], swift: ['flow', 'big', 'small'], steady: ['place', 'not', 'change'], fragile: ['small', 'not', 'made'],
+  hollow: ['not', 'place', 'made'], solid: ['made', 'place', 'big'], liquid: ['water', 'flow'], radiant: ['light', 'big', 'flow']
+};
+for (const k in CONCEPTS_B4) if (!(k in CONCEPTS)) CONCEPTS[k] = CONCEPTS_B4[k];
+
 // English lemma -> concept key (handles a few synonyms / plurals)
 const LEMMA = {
   countries: 'country', universities: 'university', systems: 'system', places: 'place',
