@@ -202,7 +202,7 @@ export const dict: Record<string, Record<Lang, string>> = {
     en: "Yiyang Shen", zh: "沈亦旸"
   },
   'globe.hint': {
-    en: "Drag to rotate", zh: "拖动旋转"
+    en: "Drag to rotate · colored dots: countries I've been", zh: "拖动旋转 · 彩色的点是我去过的国家"
   },
   'about.skill.water': {
     en: "Water Quality", zh: "水质"

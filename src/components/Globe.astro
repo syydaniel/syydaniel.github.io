@@ -1,6 +1,7 @@
 ---
 import { researchCities } from '../data/journey';
 import { photos as allPhotos } from '../data/photos-loader';
+import travel from '../data/travel.generated.json';
 
 const cities = researchCities;
 const orbitPhotos = allPhotos
@@ -12,6 +13,8 @@ const orbitPhotos = allPhotos
     caption: p.caption ?? '',
     location: p.location?.name ?? ''
   }));
+// Visited countries (scripts/build-travel.mjs): tinted land dots + footprint spots.
+const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spots }) => ({ flag, en, zh, color, dots, spots }));
 ---
 
 <div class="globe-wrap relative w-full aspect-square max-w-md mx-auto">
@@ -36,9 +39,10 @@ const orbitPhotos = allPhotos
   </figure>
 </div>
 
-<script is:inline define:vars={{ cityData: cities, photoData: orbitPhotos }}>
+<script is:inline define:vars={{ cityData: cities, photoData: orbitPhotos, countryData: visitedCountries }}>
   window.__GLOBE_CITIES__ = cityData;
   window.__GLOBE_PHOTOS__ = photoData;
+  window.__GLOBE_COUNTRIES__ = countryData;
 </script>
 
 <script>
@@ -61,6 +65,12 @@ const orbitPhotos = allPhotos
 
   const cities = ((window as unknown as { __GLOBE_CITIES__: City[] }).__GLOBE_CITIES__ ?? []) as City[];
   const orbitPhotos = ((window as unknown as { __GLOBE_PHOTOS__: OrbitPhoto[] }).__GLOBE_PHOTOS__ ?? []) as OrbitPhoto[];
+
+  type VisitedCountry = { flag: string; en: string; zh: string; color: string; dots: number[]; spots: number[][] };
+  const visited = ((window as unknown as { __GLOBE_COUNTRIES__: VisitedCountry[] }).__GLOBE_COUNTRIES__ ?? []) as VisitedCountry[];
+  // land-dot spiral index -> the visited country it lies in
+  const dotCountry = new Map<number, VisitedCountry>();
+  visited.forEach((c) => c.dots.forEach((i) => dotCountry.set(i, c)));
 
   const canvas = document.getElementById('globe-canvas') as HTMLCanvasElement | null;
   const label = document.getElementById('globe-label');
@@ -121,7 +131,7 @@ const orbitPhotos = allPhotos
     octx.drawImage(img, 0, 0);
     const data = octx.getImageData(0, 0, W, H).data;
 
-    const CANDIDATES = 32000;
+    const CANDIDATES = 32000; // keep in sync with GLOBE_DOTS in scripts/build-travel.mjs
     // In earth-dark.jpg land is near-black (~0) and ocean is dark grey (~14), so
     // land is the LOW-luminance pixels.
     const LAND_MAX_LUM = 8; // luminance 0..255 below which a pixel counts as land
@@ -142,10 +152,19 @@ const orbitPhotos = allPhotos
       const py = Math.min(H - 1, Math.floor(v * H));
       const idx = (py * W + px) * 4;
       const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-      if (lum >= LAND_MAX_LUM) continue; // ocean → skip
+      // Visited countries take their own color. Their dots stay even where the
+      // coarse mask reads ocean, so small islands (Faroe, Cape Verde) still show.
+      const country = dotCountry.get(i);
+      if (!country && lum >= LAND_MAX_LUM) continue; // ocean → skip
       pos.push(x * 1.005, y * 1.005, z * 1.005);
-      const b = 0.55 + Math.random() * 0.45;
-      col.push(0.22 * b, 0.89 * b, 0.82 * b);
+      if (country) {
+        const c = new THREE.Color(country.color);
+        const b = 0.75 + Math.random() * 0.25;
+        col.push(c.r * b, c.g * b, c.b * b);
+      } else {
+        const b = 0.45 + Math.random() * 0.4;
+        col.push(0.22 * b, 0.89 * b, 0.82 * b);
+      }
     }
     addDots(pos, col);
   }
@@ -170,6 +189,47 @@ const orbitPhotos = allPhotos
   maskImg.onload = () => dotsFromMask(maskImg);
   maskImg.onerror = () => dotsFallback();
   maskImg.src = '/textures/earth-dark.jpg';
+
+  // ---- Footprint spots: where I've actually been, one glowing dot per ~50 km,
+  // colored by country. Hover one to see the country name.
+  function createSpotTexture(): THREE.CanvasTexture {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const ctx = c.getContext('2d')!;
+    const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.35, 'rgba(255,255,255,0.8)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  }
+  const spotPos: number[] = [];
+  const spotCol: number[] = [];
+  const spotCountry: VisitedCountry[] = [];
+  visited.forEach((country) => {
+    const color = new THREE.Color(country.color);
+    country.spots.forEach(([lon, lat]) => {
+      const v = latLonToVec3(lon, lat, 1.014);
+      spotPos.push(v.x, v.y, v.z);
+      spotCol.push(color.r, color.g, color.b);
+      spotCountry.push(country);
+    });
+  });
+  const spotsMat = new THREE.PointsMaterial({
+    size: 0.045,
+    map: createSpotTexture(),
+    vertexColors: true,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    sizeAttenuation: true
+  });
+  const spotsGeom = new THREE.BufferGeometry();
+  spotsGeom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(spotPos), 3));
+  spotsGeom.setAttribute('color', new THREE.BufferAttribute(new Float32Array(spotCol), 3));
+  const spotsPoints = new THREE.Points(spotsGeom, spotsMat);
+  if (spotCountry.length) globe.add(spotsPoints);
 
   // ---- Latitude lines (subtle) ----
   const latGroup = new THREE.Group();
@@ -471,8 +531,15 @@ const orbitPhotos = allPhotos
       const sprites = photoStars.map((s) => s.sprite);
       const cityHit = raycaster.intersectObjects(cores, false)[0];
       const photoHit = raycaster.intersectObjects(sprites, false)[0];
-      const closest = [cityHit, photoHit].filter(Boolean).sort((a, b) => a!.distance - b!.distance)[0];
-      if (closest && closest === cityHit) {
+      const spotHit = visibleSpotHit();
+      const closest = [cityHit, photoHit, spotHit].filter(Boolean).sort((a, b) => a!.distance - b!.distance)[0];
+      if (closest && closest === spotHit) {
+        const c = spotCountry[spotHit.index!];
+        hoveredStarSprite = null;
+        const zh = (window as any).__getLang?.() === 'zh';
+        setLabel(`${c.flag} ${zh ? c.zh : c.en}`, e.clientX, e.clientY);
+        canvas.style.cursor = 'default';
+      } else if (closest && closest === cityHit) {
         const idx = cores.indexOf(cityHit.object as THREE.Mesh);
         const m = markers[idx];
         hoveredStarSprite = null;
@@ -525,6 +592,19 @@ const orbitPhotos = allPhotos
   });
 
   const raycaster = new THREE.Raycaster();
+  raycaster.params.Points = { threshold: 0.03 };
+
+  // Nearest footprint spot under the ray, ignoring spots on the far side of the
+  // planet (the ray test on Points has no depth, so check the spot faces the camera).
+  const spotWorld = new THREE.Vector3();
+  function visibleSpotHit() {
+    if (!spotCountry.length) return undefined;
+    return raycaster.intersectObject(spotsPoints, false).find((h) => {
+      spotWorld.fromBufferAttribute(spotsGeom.attributes.position as THREE.BufferAttribute, h.index!);
+      globe.localToWorld(spotWorld);
+      return spotWorld.dot(camera.position.clone().sub(spotWorld)) > 0;
+    });
+  }
 
   // ---- Lightbox (click a star to open the full photo) ----
   const lightboxEl = document.getElementById('globe-lightbox');
@@ -601,6 +681,9 @@ const orbitPhotos = allPhotos
         (ring.material as THREE.MeshBasicMaterial).opacity = 0.4 + Math.sin(t * 2 + i) * 0.2;
       }
     });
+
+    // footprint spots breathe gently
+    spotsMat.size = 0.042 + Math.sin(t * 2.2) * 0.006;
 
     // animate arc dashing
     arcs.forEach((arc) => {

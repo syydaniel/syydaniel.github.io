@@ -159,9 +159,8 @@ function polyContains(poly, x, y) {
   for (let h = 1; h < poly.length; h++) if (ringContains(poly[h], x, y)) return false;
   return true;
 }
-function bboxOf(geom) {
+function bboxOf(polys) {
   let [x0, y0, x1, y1] = [180, 90, -180, -90];
-  const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
   for (const p of polys) for (const [x, y] of p[0]) {
     if (x < x0) x0 = x;
     if (y < y0) y0 = y;
@@ -175,16 +174,31 @@ function bboxOf(geom) {
 const EN_SHORT = { CHN: 'China', PRK: 'North Korea', KOR: 'South Korea', TWN: 'Taiwan' };
 const ZH_SHORT = { CHN: '中国', PRK: '朝鲜', KOR: '韩国', TWN: '台湾', HKG: '香港', MAC: '澳门' };
 const ne50 = await naturalEarth('ne_50m_admin_0_countries.geojson');
-const countryShapes = ne50.features
-  .filter((f) => f.geometry)
-  .map((f) => ({
-    a3: f.properties.ADM0_A3,
-    a2: f.properties.ISO_A2_EH && f.properties.ISO_A2_EH !== '-99' ? f.properties.ISO_A2_EH : f.properties.ISO_A2,
-    en: EN_SHORT[f.properties.ADM0_A3] || f.properties.NAME_EN || f.properties.NAME,
-    zh: ZH_SHORT[f.properties.ADM0_A3] || f.properties.NAME_ZH || f.properties.NAME,
-    polys: f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates,
-    bbox: bboxOf(f.geometry)
-  }));
+// Borders follow Natural Earth's China point of view (ADM0_A3_CN), so Taiwan is
+// drawn and counted as part of China.
+const a3Of = (p) => (p.ADM0_A3_CN && p.ADM0_A3_CN !== '-99' ? p.ADM0_A3_CN : p.ADM0_A3);
+const polysOf = (g) => (g.type === 'Polygon' ? [g.coordinates] : g.coordinates);
+function mergeByA3(features) {
+  const out = new Map(); // a3 -> { p: properties of the country itself, polys }
+  for (const f of features) {
+    if (!f.geometry) continue;
+    const a3 = a3Of(f.properties);
+    const e = out.get(a3) || { p: f.properties, polys: [] };
+    if (f.properties.ADM0_A3 === a3) e.p = f.properties;
+    e.polys.push(...polysOf(f.geometry));
+    out.set(a3, e);
+  }
+  return out;
+}
+const remapA3 = new Map(ne50.features.map((f) => [f.properties.ADM0_A3, a3Of(f.properties)]));
+const countryShapes = [...mergeByA3(ne50.features)].map(([a3, { p, polys }]) => ({
+  a3,
+  a2: p.ISO_A2_EH && p.ISO_A2_EH !== '-99' ? p.ISO_A2_EH : p.ISO_A2,
+  en: EN_SHORT[a3] || p.NAME_EN || p.NAME,
+  zh: ZH_SHORT[a3] || p.NAME_ZH || p.NAME,
+  polys,
+  bbox: bboxOf(polys)
+}));
 
 // Small islands and coastlines are missing or simplified at 50m, so a point
 // that lands in no polygon goes to the nearest country border within 25 km.
@@ -256,7 +270,7 @@ for (const f of places.features) {
   const [x, y] = f.geometry.coordinates;
   const k = `${Math.floor(x)},${Math.floor(y)}`;
   if (!cityGrid.has(k)) cityGrid.set(k, []);
-  cityGrid.get(k).push({ x, y, en: p.NAME_EN || p.NAME, zh: p.NAME_ZH || p.NAME_EN || p.NAME, a3: p.ADM0_A3, pop: p.POP_MAX || 0 });
+  cityGrid.get(k).push({ x, y, en: p.NAME_EN || p.NAME, zh: p.NAME_ZH || p.NAME_EN || p.NAME, a3: remapA3.get(p.ADM0_A3) ?? p.ADM0_A3, pop: p.POP_MAX || 0 });
 }
 const cityHits = new Map();
 for (const [x, y, n] of finePts) {
@@ -283,10 +297,81 @@ const ne110 = await naturalEarth('ne_110m_admin_0_countries.geojson');
 const round = (v) => (Array.isArray(v) ? v.map(round) : +v.toFixed(2));
 const outlines = {
   type: 'FeatureCollection',
-  features: ne110.features
-    .filter((f) => visitedA3.has(f.properties.ADM0_A3) && f.geometry)
-    .map((f) => ({ type: 'Feature', properties: { a3: f.properties.ADM0_A3 }, geometry: { type: f.geometry.type, coordinates: round(f.geometry.coordinates) } }))
+  features: [...mergeByA3(ne110.features)]
+    .filter(([a3]) => visitedA3.has(a3))
+    .map(([a3, { polys }]) => ({ type: 'Feature', properties: { a3 }, geometry: { type: 'MultiPolygon', coordinates: round(polys) } }))
 };
+
+// ---------- rotating-globe data (hero) ----------
+// One color per visited country, shared by the hero globe and the Places list.
+// No teal: that is the globe's color for everywhere else.
+const PALETTE = ['#ff5a5f', '#ffb000', '#5aa9ff', '#9ef01a', '#b388ff', '#ff6ec7', '#fff275', '#ff7f11', '#f72585', '#a0c4ff', '#d4a373', '#c0ff8c', '#ffadad', '#e0e0ff', '#bdb2ff'];
+
+// Footprint spots on a coarse 0.5 degree grid: the globe is small.
+const GLOBE_CELL = 0.5;
+const spotsBy = new Map(); // a3 -> Set of "lng,lat"
+for (const [lng, lat] of points) {
+  const a3 = fineCountry.get(`${lng.toFixed(2)},${lat.toFixed(2)}`);
+  if (!a3 || !visitedA3.has(a3)) continue;
+  const k = `${((Math.floor(lng / GLOBE_CELL) + 0.5) * GLOBE_CELL).toFixed(2)},${((Math.floor(lat / GLOBE_CELL) + 0.5) * GLOBE_CELL).toFixed(2)}`;
+  if (!spotsBy.has(a3)) spotsBy.set(a3, new Set());
+  spotsBy.get(a3).add(k);
+}
+
+// Neighbours must not look alike: each country (most visited first) takes the
+// unused palette color that differs most from those of countries within 2500 km.
+const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const colorDist = (a, b) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]));
+function centroid(a3) {
+  const s = [...(spotsBy.get(a3) || [])].map((k) => k.split(',').map(Number));
+  return s.length ? [s.reduce((t, p) => t + p[0], 0) / s.length, s.reduce((t, p) => t + p[1], 0) / s.length] : null;
+}
+const colorBy = new Map(); // a3 -> color
+for (const e of visited) {
+  const here = centroid(e.c.a3);
+  const near = [...colorBy].filter(([a3]) => {
+    const there = centroid(a3);
+    return here && there && km(here, there) < 2500;
+  }).map(([, col]) => col);
+  const used = new Set(colorBy.values());
+  const pool = PALETTE.filter((c) => !used.has(c));
+  const choices = pool.length ? pool : PALETTE;
+  let best = choices[0];
+  let bestScore = -1;
+  for (const c of choices) {
+    const score = near.length ? Math.min(...near.map((n) => colorDist(c, n))) : Infinity;
+    if (score > bestScore) {
+      best = c;
+      bestScore = score;
+    }
+  }
+  colorBy.set(e.c.a3, best);
+}
+
+// The globe draws land as a golden-angle spiral of GLOBE_DOTS points. Record
+// which spiral indices fall inside each visited country so those get tinted.
+const GLOBE_DOTS = 32000; // keep in sync with CANDIDATES in src/components/Globe.astro
+const golden = Math.PI * (3 - Math.sqrt(5));
+const visitedShapes = countryShapes.filter((c) => visitedA3.has(c.a3));
+const dotsBy = new Map(); // a3 -> spiral indices
+for (let i = 0; i < GLOBE_DOTS; i++) {
+  const y = 1 - (i / (GLOBE_DOTS - 1)) * 2;
+  const rr = Math.sqrt(Math.max(0, 1 - y * y));
+  const x = Math.cos(golden * i) * rr;
+  const z = Math.sin(golden * i) * rr;
+  let th = Math.atan2(z, -x);
+  if (th < 0) th += Math.PI * 2;
+  const lon = (th / (Math.PI * 2)) * 360 - 180;
+  const lat = 90 - (Math.acos(Math.min(1, Math.max(-1, y))) * 180) / Math.PI;
+  for (const c of visitedShapes) {
+    const [x0, y0, x1, y1] = c.bbox;
+    if (lon < x0 || lon > x1 || lat < y0 || lat > y1) continue;
+    if (!c.polys.some((p) => polyContains(p, lon, lat))) continue;
+    if (!dotsBy.has(c.a3)) dotsBy.set(c.a3, []);
+    dotsBy.get(c.a3).push(i);
+    break;
+  }
+}
 
 // ---------- write ----------
 const flag = (a2) => (a2 && /^[A-Z]{2}$/.test(a2) ? String.fromCodePoint(...[...a2].map((ch) => 0x1f1a5 + ch.charCodeAt(0))) : '🏳️');
@@ -300,12 +385,15 @@ const summary = {
     firstYear: times.length ? new Date(times[0]).getUTCFullYear() : null,
     lastYear: times.length ? new Date(times[times.length - 1]).getUTCFullYear() : null
   },
-  countries: visited.map((e) => ({
+  countries: visited.map((e, i) => ({
     a3: e.c.a3,
     flag: flag(e.c.a2),
     en: e.c.en,
     zh: e.c.zh,
-    cities: cityList.filter((x) => x.c.a3 === e.c.a3).map((x) => ({ en: x.c.en, zh: x.c.zh }))
+    color: colorBy.get(e.c.a3),
+    cities: cityList.filter((x) => x.c.a3 === e.c.a3).map((x) => ({ en: x.c.en, zh: x.c.zh })),
+    dots: dotsBy.get(e.c.a3) || [],
+    spots: [...(spotsBy.get(e.c.a3) || [])].map((k) => k.split(',').map(Number))
   }))
 };
 
