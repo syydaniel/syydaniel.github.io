@@ -244,9 +244,10 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
         sources: {
           basemap: {
             type: 'raster',
-            tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
             tileSize: 256,
-            attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OpenStreetMap contributors'
+            maxzoom: 16,
+            attribution: 'Tiles © Esri, HERE, Garmin, © OpenStreetMap contributors'
           }
         },
         layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]

@@ -48,7 +48,7 @@ async function naturalEarth(name) {
 
 // ---------- parse ----------
 const PT = /<(trkpt|rtept|wpt)\b([^>]*?)(\/>|>([\s\S]*?)<\/\1>)/g;
-const points = []; // [lng, lat, epochMs | NaN]
+let points = []; // [lng, lat, epochMs | NaN, ele | NaN]
 for (const f of files) {
   const xml = fs.readFileSync(f, 'utf8');
   let m;
@@ -70,6 +70,47 @@ if (!points.length) {
   process.exit(1);
 }
 console.log(`${points.length.toLocaleString()} points from ${files.length} file(s)`);
+
+// ---------- outlier clusters ----------
+// GPS glitches and stray in-flight fixes show up as tiny islands far from
+// everything else. Cells within ~1 degree of each other form one cluster; a
+// cluster with fewer than MIN_CLUSTER_POINTS fixes is dropped before anything
+// else is computed. (Real short visits, e.g. a day in Lisbon, have 100+.)
+const MIN_CLUSTER_POINTS = 30;
+{
+  const cellKey = (lng, lat) => `${Math.floor(lng / CELL)},${Math.floor(lat / CELL)}`;
+  const counts = new Map();
+  for (const [lng, lat] of points) {
+    const k = cellKey(lng, lat);
+    counts.set(k, (counts.get(k) || 0) + 1);
+  }
+  const LINK = Math.round(1 / CELL);
+  const cluster = new Map(); // cell key -> shared member list
+  for (const start of counts.keys()) {
+    if (cluster.has(start)) continue;
+    const members = [start];
+    cluster.set(start, members);
+    for (let i = 0; i < members.length; i++) {
+      const [cx, cy] = members[i].split(',').map(Number);
+      for (let dx = -LINK; dx <= LINK; dx++) for (let dy = -LINK; dy <= LINK; dy++) {
+        const k = `${cx + dx},${cy + dy}`;
+        if (counts.has(k) && !cluster.has(k)) {
+          cluster.set(k, members);
+          members.push(k);
+        }
+      }
+    }
+  }
+  const drop = new Set();
+  for (const members of new Set(cluster.values())) {
+    const n = members.reduce((s, k) => s + counts.get(k), 0);
+    if (n >= MIN_CLUSTER_POINTS) continue;
+    members.forEach((k) => drop.add(k));
+    const [cx, cy] = members[0].split(',').map(Number);
+    console.log(`  dropped outlier: ${n} point(s) near ${((cy + 0.5) * CELL).toFixed(2)}, ${((cx + 0.5) * CELL).toFixed(2)}`);
+  }
+  points = points.filter(([lng, lat]) => !drop.has(cellKey(lng, lat)));
+}
 
 // ---------- distance + time span ----------
 const R = 6371;

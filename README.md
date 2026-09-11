@@ -89,7 +89,8 @@ The Places section is built from my GPX tracks (exported from the StepOfMyWorld 
 npm run travel -- path/to/backUpData-all.gpx
 ```
 
-`scripts/build-travel.mjs` snaps every point to a ~10 km grid cell, drops in-flight fixes, and
+`scripts/build-travel.mjs` snaps every point to a ~10 km grid cell, drops in-flight fixes and tiny
+isolated clusters (GPS glitches, under 30 points), and
 looks up countries and cities with Natural Earth. Only the binned output is committed
 (`public/travel.json`, `src/data/travel.generated.json`); raw `*.gpx` files are gitignored.
 Countries only crossed by plane go in `EXCLUDE_COUNTRIES` at the top of the script.
