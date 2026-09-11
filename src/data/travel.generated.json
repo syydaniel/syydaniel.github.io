@@ -2,7 +2,7 @@
   "generatedAt": "2026-09-11",
   "stats": {
     "countries": 15,
-    "cities": 89,
+    "cities": 90,
     "km": 43393,
     "days": 1078,
     "firstYear": 2022,
@@ -2995,7 +2995,12 @@
       "en": "Norway",
       "zh": "挪威",
       "color": "#ff7f11",
-      "cities": [],
+      "cities": [
+        {
+          "en": "Longyearbyen",
+          "zh": "朗伊尔城"
+        }
+      ],
       "dots": [
         259,
         280,

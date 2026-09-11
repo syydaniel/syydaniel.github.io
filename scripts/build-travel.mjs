@@ -191,7 +191,6 @@ function mergeByA3(features) {
   }
   return out;
 }
-const remapA3 = new Map(ne50.features.map((f) => [f.properties.ADM0_A3, a3Of(f.properties)]));
 const countryShapes = [...mergeByA3(ne50.features)].map(([a3, { p, polys }]) => ({
   a3,
   a2: p.ISO_A2_EH && p.ISO_A2_EH !== '-99' ? p.ISO_A2_EH : p.ISO_A2,
@@ -271,7 +270,7 @@ for (const f of places.features) {
   const [x, y] = f.geometry.coordinates;
   const k = `${Math.floor(x)},${Math.floor(y)}`;
   if (!cityGrid.has(k)) cityGrid.set(k, []);
-  cityGrid.get(k).push({ x, y, en: p.NAME_EN || p.NAME, zh: p.NAME_ZH || p.NAME_EN || p.NAME, a3: remapA3.get(p.ADM0_A3) ?? p.ADM0_A3, pop: p.POP_MAX || 0 });
+  cityGrid.get(k).push({ x, y, en: p.NAME_EN || p.NAME, zh: p.NAME_ZH || p.NAME_EN || p.NAME, a3: p.ADM0_A3, pop: p.POP_MAX || 0 });
 }
 const cityHits = new Map();
 for (const [x, y, n] of finePts) {
@@ -288,6 +287,9 @@ for (const [x, y, n] of finePts) {
     }
   }
 }
+// Natural Earth files some towns under a territory code (Longyearbyen: SJM,
+// Svalbard), so each city belongs to the country its location falls in.
+for (const e of cityHits.values()) e.c.a3 = countryAt(e.c.x, e.c.y)?.a3 ?? e.c.a3;
 // One stray fix (GPS glitch) is not a visit: need at least two separate ~1 km spots.
 const cityList = [...cityHits.values()]
   .filter((e) => e.spots >= 2 && visitedA3.has(e.c.a3))
