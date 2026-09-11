@@ -12,6 +12,7 @@
 //   public/travel.json                cells + visited-country outlines (fetched lazily by the map)
 //   src/data/travel.generated.json    stats + country / city lists (rendered at build time)
 
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -295,11 +296,14 @@ const cityList = [...cityHits.values()]
 // ---------- outlines (coarse 110m shapes keep the file small) ----------
 const ne110 = await naturalEarth('ne_110m_admin_0_countries.geojson');
 const round = (v) => (Array.isArray(v) ? v.map(round) : +v.toFixed(2));
+const coarse = mergeByA3(ne110.features);
 const outlines = {
   type: 'FeatureCollection',
-  features: [...mergeByA3(ne110.features)]
-    .filter(([a3]) => visitedA3.has(a3))
-    .map(([a3, { polys }]) => ({ type: 'Feature', properties: { a3 }, geometry: { type: 'MultiPolygon', coordinates: round(polys) } }))
+  features: [...visitedA3].map((a3) => {
+    // Small islands (Faroe, Cape Verde) are missing at 110m: fall back to 50m.
+    const polys = coarse.get(a3)?.polys ?? countryShapes.find((c) => c.a3 === a3).polys;
+    return { type: 'Feature', properties: { a3 }, geometry: { type: 'MultiPolygon', coordinates: round(polys) } };
+  })
 };
 
 // ---------- rotating-globe data (hero) ----------
@@ -397,7 +401,11 @@ const summary = {
   }))
 };
 
-fs.writeFileSync(path.join(root, 'public/travel.json'), JSON.stringify({ cells: cellList, outlines }));
+const travelJson = JSON.stringify({ cells: cellList, outlines });
+// The page fetches /travel.json?v=<hash>, so fresh data is never hidden behind
+// a browser's cached copy (GitHub Pages lets browsers cache it for 10 minutes).
+summary.version = createHash('sha1').update(travelJson).digest('hex').slice(0, 10);
+fs.writeFileSync(path.join(root, 'public/travel.json'), travelJson);
 fs.writeFileSync(path.join(root, 'src/data/travel.generated.json'), JSON.stringify(summary, null, 2) + '\n');
 console.log(`${cellList.length} cells, ${visited.length} countries, ${cityList.length} cities, ${Math.round(distance)} km`);
 // Diagnostics: a country seen on only a day or two at high median altitude is

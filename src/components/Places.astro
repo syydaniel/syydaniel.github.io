@@ -43,7 +43,7 @@ const loc = (en: string, zh: string) => JSON.stringify({ en, zh });
 
     <div class="grid lg:grid-cols-[1.6fr_1fr] gap-6">
       <div class="glass rounded-2xl overflow-hidden reveal">
-        <div id="places-map" class="w-full h-[520px] bg-ink-800"></div>
+        <div id="places-map" class="w-full h-[520px] bg-ink-800" data-version={travel.version}></div>
         {
           years && (
             <div class="border-t border-white/5 px-5 py-3 text-xs font-mono text-ink-400 flex justify-between">
@@ -98,7 +98,7 @@ const loc = (en: string, zh: string) => JSON.stringify({ en, zh });
       const [, mod, data] = await Promise.all([
         import('maplibre-gl/dist/maplibre-gl.css'),
         import('maplibre-gl'),
-        fetch('/travel.json').then((r) => r.json())
+        fetch(`/travel.json?v=${el.dataset.version ?? ''}`).then((r) => r.json())
       ]);
       const maplibregl = mod.default;
 
