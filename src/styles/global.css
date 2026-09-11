@@ -333,15 +333,6 @@ html[data-lang='cat'] .btn {
   font-variation-settings: normal !important;
   letter-spacing: 0.08em;
 }
-html[data-lang='klingon'] body,
-html[data-lang='klingon'] .font-display,
-html[data-lang='klingon'] .section-title,
-html[data-lang='klingon'] .font-mono,
-html[data-lang='klingon'] .btn {
-  font-family: 'Orbitron', 'Inter', system-ui, sans-serif !important;
-  font-variation-settings: normal !important;
-  letter-spacing: 0.01em;
-}
 
 /* ---------- Prefers reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {

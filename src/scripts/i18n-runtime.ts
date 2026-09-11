@@ -1,10 +1,9 @@
 import { dict, type Lang, type UILang } from '../data/i18n';
 import { translate as nyaTranslate, mergeLexicon } from './nyalang';
 import { renderCatText } from './nya-script';
-import { toKlingon } from './klingon';
 
 const STORAGE_KEY = 'site-lang';
-const SUPPORTED: UILang[] = ['en', 'zh', 'zh-Hant', 'nl', 'de', 'fi', 'ja', 'ko', 'fr', 'cat', 'klingon'];
+const SUPPORTED: UILang[] = ['en', 'zh', 'cat'];
 const YEAR = String(new Date().getFullYear());
 
 // 猫语 (Nya): the unified cat-sigil script. Every element's text becomes a row of
@@ -19,27 +18,17 @@ function catHTML(text: string, el: HTMLElement): string {
   return renderCatText(text, { size: catSize(el) });
 }
 
-// Maps each UI language to the value for <html lang="...">. Fun languages are
-// derived from Chinese, so they report a Chinese locale.
+// Maps each UI language to the value for <html lang="...">.
 const HTML_LANG: Record<UILang, string> = {
   en: 'en',
   zh: 'zh-CN',
-  'zh-Hant': 'zh-Hant',
-  nl: 'nl',
-  de: 'de',
-  fi: 'fi',
-  ja: 'ja',
-  ko: 'ko',
-  fr: 'fr',
-  cat: 'art-x-cat',
-  klingon: 'tlh'
+  cat: 'art-x-cat'
 };
 
-// Playful display fonts for the constructed languages, loaded on demand so
-// they cost nothing for everyone else.
+// Playful display font for the cat language, loaded on demand so it costs
+// nothing for everyone else.
 const FONT_LINKS: Record<string, string> = {
-  cat: 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap',
-  klingon: 'https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap'
+  cat: 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap'
 };
 function ensureFont(lang: UILang) {
   const href = FONT_LINKS[lang];
@@ -51,7 +40,7 @@ function ensureFont(lang: UILang) {
   document.head.appendChild(link);
 }
 
-// ---------- Constructed cat language + Klingon ----------
+// ---------- Constructed cat language ----------
 
 // 猫猫语 (Nya): a real constructed cat language with its own lexicon + grammar
 // (src/scripts/nyalang.ts, mirrored from the standalone nyalang repo). Rendered
@@ -60,30 +49,20 @@ function toCatLang(s: string): string {
   if (!s) return s;
   return nyaTranslate(s) + ' 🐾';
 }
-// tlhIngan Hol: a real Klingon grammar engine (src/scripts/klingon.ts) with OVS
-// word order, verb prefixes and noun suffixes over a curated common-word lexicon.
 
 // Resolve an entry (dict row or inline JSON map) to text for the chosen UI lang.
 function resolve(entry: Record<string, string>, lang: UILang): string {
   if (lang === 'cat') return toCatLang((entry.en ?? entry['zh'] ?? '').replace(/\{year\}/g, YEAR));
-  if (lang === 'klingon') return toKlingon((entry.en ?? entry['zh'] ?? '').replace(/\{year\}/g, YEAR));
   return entry[lang] ?? entry.en ?? '';
 }
 
+// A saved choice wins; otherwise Chinese browsers get 中文 and everyone else
+// English. Old saved values from removed languages fall through to this too.
 function detectLang(): UILang {
   const saved = localStorage.getItem(STORAGE_KEY) as UILang | null;
   if (saved && SUPPORTED.includes(saved)) return saved;
   const nav = (navigator.language || '').toLowerCase();
-  if (nav.startsWith('zh')) {
-    if (nav.includes('hant') || nav.includes('tw') || nav.includes('hk') || nav.includes('mo')) return 'zh-Hant';
-    return 'zh';
-  }
-  if (nav.startsWith('ja')) return 'ja';
-  if (nav.startsWith('ko')) return 'ko';
-  if (nav.startsWith('fr')) return 'fr';
-  if (nav.startsWith('nl')) return 'nl';
-  if (nav.startsWith('de')) return 'de';
-  if (nav.startsWith('fi')) return 'fi';
+  if (nav.startsWith('zh')) return 'zh';
   return 'en';
 }
 
@@ -165,7 +144,7 @@ document.addEventListener('click', (e) => {
 });
 
 // expose for other components if needed
-(window as any).__getLang = () => (localStorage.getItem(STORAGE_KEY) as UILang | null) ?? detectLang();
+(window as any).__getLang = () => detectLang();
 (window as any).__setLang = (l: UILang) => {
   localStorage.setItem(STORAGE_KEY, l);
   apply(l);

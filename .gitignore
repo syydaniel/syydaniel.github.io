@@ -16,3 +16,6 @@ conversation-transcript.md
 # generated
 src/data/photos.generated.json
 public/photos/
+
+# Raw GPS tracks stay local; only the binned output (public/travel.json) is committed.
+*.gpx

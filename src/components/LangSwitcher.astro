@@ -1,5 +1,5 @@
 ---
-// Language dropdown: EN / 简 / 繁 / NL / DE. Runs client-side via the
+// Language dropdown: EN / 中 / 喵. Runs client-side via the
 // data-lang + .lang-opt pattern handled by the i18n runtime.
 import { LANGS } from '../data/i18n';
 ---
@@ -44,11 +44,11 @@ import { LANGS } from '../data/i18n';
   const btn = document.getElementById('lang-btn');
   const menu = document.getElementById('lang-menu');
   const current = document.getElementById('lang-current');
-  const SHORT: Record<string, string> = { en: 'EN', zh: '简', 'zh-Hant': '繁', nl: 'NL', de: 'DE', fi: 'FI', ja: '日', ko: '한', fr: 'FR', cat: '喵', klingon: 'tlh' };
+  const SHORT: Record<string, string> = { en: 'EN', zh: '中', cat: '喵' };
 
   function refresh() {
     const get = (window as any).__getLang;
-    const l = (get && get()) || localStorage.getItem('site-lang') || 'en';
+    const l = (get && get()) || 'en';
     if (current) current.textContent = SHORT[l] || 'EN';
   }
   refresh();

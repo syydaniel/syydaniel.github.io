@@ -10,7 +10,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "photos:manifest": "node scripts/build-photo-manifest.mjs",
-    "og:image": "node scripts/build-og-image.mjs"
+    "og:image": "node scripts/build-og-image.mjs",
+    "travel": "node scripts/build-travel.mjs"
   },
   "dependencies": {
     "astro": "^5.1.0",

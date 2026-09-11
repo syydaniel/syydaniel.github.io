@@ -1,0 +1,488 @@
+{
+  "generatedAt": "2026-09-11",
+  "stats": {
+    "countries": 15,
+    "cities": 89,
+    "km": 43475,
+    "days": 1078,
+    "firstYear": 2022,
+    "lastYear": 2026
+  },
+  "countries": [
+    {
+      "a3": "CAN",
+      "flag": "🇨🇦",
+      "en": "Canada",
+      "zh": "加拿大",
+      "cities": [
+        {
+          "en": "Vancouver",
+          "zh": "温哥华"
+        },
+        {
+          "en": "Victoria",
+          "zh": "维多利亚"
+        },
+        {
+          "en": "Nanaimo",
+          "zh": "纳奈莫"
+        },
+        {
+          "en": "Whitehorse",
+          "zh": "白马"
+        }
+      ]
+    },
+    {
+      "a3": "NLD",
+      "flag": "🇳🇱",
+      "en": "Netherlands",
+      "zh": "荷兰",
+      "cities": [
+        {
+          "en": "Utrecht",
+          "zh": "乌得勒支"
+        },
+        {
+          "en": "Amsterdam",
+          "zh": "阿姆斯特丹"
+        },
+        {
+          "en": "Arnhem",
+          "zh": "阿纳姆"
+        },
+        {
+          "en": "The Hague",
+          "zh": "海牙"
+        },
+        {
+          "en": "Groningen",
+          "zh": "格罗宁根"
+        },
+        {
+          "en": "Zwolle",
+          "zh": "兹沃勒"
+        },
+        {
+          "en": "Assen",
+          "zh": "阿森"
+        },
+        {
+          "en": "Haarlem",
+          "zh": "哈勒姆"
+        },
+        {
+          "en": "Rotterdam",
+          "zh": "鹿特丹"
+        }
+      ]
+    },
+    {
+      "a3": "FIN",
+      "flag": "🇫🇮",
+      "en": "Finland",
+      "zh": "芬兰",
+      "cities": [
+        {
+          "en": "Joensuu",
+          "zh": "约恩苏"
+        },
+        {
+          "en": "Helsinki",
+          "zh": "赫尔辛基"
+        },
+        {
+          "en": "Lappeenranta",
+          "zh": "拉彭兰塔"
+        },
+        {
+          "en": "Lahti",
+          "zh": "拉赫蒂"
+        },
+        {
+          "en": "Kouvola",
+          "zh": "科沃拉"
+        }
+      ]
+    },
+    {
+      "a3": "CHN",
+      "flag": "🇨🇳",
+      "en": "China",
+      "zh": "中国",
+      "cities": [
+        {
+          "en": "Hangzhou",
+          "zh": "杭州"
+        },
+        {
+          "en": "Lhasa",
+          "zh": "拉萨"
+        },
+        {
+          "en": "Shanghai",
+          "zh": "上海"
+        },
+        {
+          "en": "Yichang",
+          "zh": "宜昌"
+        },
+        {
+          "en": "Chongqing",
+          "zh": "重庆"
+        },
+        {
+          "en": "Langzhong",
+          "zh": "阆中"
+        },
+        {
+          "en": "Xigazê",
+          "zh": "日喀则"
+        },
+        {
+          "en": "Nanchong",
+          "zh": "南充"
+        },
+        {
+          "en": "Weinan",
+          "zh": "渭南"
+        },
+        {
+          "en": "Wuxi",
+          "zh": "无锡"
+        },
+        {
+          "en": "Xi'an",
+          "zh": "西安"
+        },
+        {
+          "en": "Fengjie",
+          "zh": "奉节"
+        },
+        {
+          "en": "Gyantse",
+          "zh": "江孜镇"
+        },
+        {
+          "en": "Lanzhou",
+          "zh": "兰州"
+        },
+        {
+          "en": "Luoyang",
+          "zh": "洛阳"
+        },
+        {
+          "en": "Changzhou",
+          "zh": "常州"
+        },
+        {
+          "en": "Zhengzhou",
+          "zh": "郑州"
+        },
+        {
+          "en": "Baoji",
+          "zh": "宝鸡"
+        },
+        {
+          "en": "Xining",
+          "zh": "西宁"
+        },
+        {
+          "en": "Fuyang",
+          "zh": "富阳区"
+        },
+        {
+          "en": "Xianyang",
+          "zh": "咸阳"
+        },
+        {
+          "en": "Nanjing",
+          "zh": "南京"
+        },
+        {
+          "en": "Suzhou",
+          "zh": "苏州"
+        },
+        {
+          "en": "Zhenjiang",
+          "zh": "镇江"
+        },
+        {
+          "en": "Bengbu",
+          "zh": "蚌埠"
+        },
+        {
+          "en": "Longxi",
+          "zh": "陇西"
+        },
+        {
+          "en": "Tianshui",
+          "zh": "天水"
+        },
+        {
+          "en": "Kaifeng",
+          "zh": "开封"
+        },
+        {
+          "en": "Wanzhou",
+          "zh": "万州"
+        },
+        {
+          "en": "Golmud",
+          "zh": "格尔木"
+        },
+        {
+          "en": "Shangqiu",
+          "zh": "商丘"
+        },
+        {
+          "en": "Xuzhou",
+          "zh": "徐州"
+        }
+      ]
+    },
+    {
+      "a3": "ZAF",
+      "flag": "🇿🇦",
+      "en": "South Africa",
+      "zh": "南非",
+      "cities": [
+        {
+          "en": "Hermanus",
+          "zh": "赫爾馬努斯"
+        },
+        {
+          "en": "Mossel Bay",
+          "zh": "莫塞尔贝"
+        },
+        {
+          "en": "Cape Town",
+          "zh": "开普敦"
+        },
+        {
+          "en": "Port Elizabeth",
+          "zh": "伊莉莎白港"
+        },
+        {
+          "en": "Knysna",
+          "zh": "克尼斯纳"
+        },
+        {
+          "en": "Benoni",
+          "zh": "伯诺尼"
+        },
+        {
+          "en": "Swellendam",
+          "zh": "斯韦伦丹"
+        },
+        {
+          "en": "George",
+          "zh": "喬治"
+        },
+        {
+          "en": "Middelburg",
+          "zh": "米德尔堡"
+        }
+      ]
+    },
+    {
+      "a3": "DEU",
+      "flag": "🇩🇪",
+      "en": "Germany",
+      "zh": "德国",
+      "cities": [
+        {
+          "en": "Cologne",
+          "zh": "科隆"
+        },
+        {
+          "en": "Duisburg",
+          "zh": "杜伊斯堡"
+        },
+        {
+          "en": "Berlin",
+          "zh": "柏林"
+        },
+        {
+          "en": "Heidelberg",
+          "zh": "海德堡"
+        },
+        {
+          "en": "Düsseldorf",
+          "zh": "杜塞道夫"
+        },
+        {
+          "en": "Munich",
+          "zh": "慕尼黑"
+        },
+        {
+          "en": "Hamburg",
+          "zh": "汉堡"
+        },
+        {
+          "en": "Frankfurt",
+          "zh": "美因河畔法兰克福"
+        },
+        {
+          "en": "Lübeck",
+          "zh": "吕贝克"
+        },
+        {
+          "en": "Mainz",
+          "zh": "美因茨"
+        },
+        {
+          "en": "Bonn",
+          "zh": "波恩"
+        },
+        {
+          "en": "Koblenz",
+          "zh": "科布伦茨"
+        },
+        {
+          "en": "Wiesbaden",
+          "zh": "威斯巴登"
+        },
+        {
+          "en": "Stuttgart",
+          "zh": "斯图加特"
+        },
+        {
+          "en": "Nuremberg",
+          "zh": "纽伦堡"
+        },
+        {
+          "en": "Ulm",
+          "zh": "乌尔姆"
+        },
+        {
+          "en": "Erfurt",
+          "zh": "埃尔福特"
+        }
+      ]
+    },
+    {
+      "a3": "NOR",
+      "flag": "🇳🇴",
+      "en": "Norway",
+      "zh": "挪威",
+      "cities": []
+    },
+    {
+      "a3": "CPV",
+      "flag": "🇨🇻",
+      "en": "Cape Verde",
+      "zh": "佛得角",
+      "cities": [
+        {
+          "en": "Praia",
+          "zh": "培亞"
+        }
+      ]
+    },
+    {
+      "a3": "FRO",
+      "flag": "🇫🇴",
+      "en": "Faroe Islands",
+      "zh": "法罗群岛",
+      "cities": [
+        {
+          "en": "Tórshavn",
+          "zh": "托尔斯港"
+        },
+        {
+          "en": "Klaksvík",
+          "zh": "克拉克斯维克"
+        }
+      ]
+    },
+    {
+      "a3": "SWE",
+      "flag": "🇸🇪",
+      "en": "Sweden",
+      "zh": "瑞典",
+      "cities": [
+        {
+          "en": "Kiruna",
+          "zh": "基律纳"
+        }
+      ]
+    },
+    {
+      "a3": "ESP",
+      "flag": "🇪🇸",
+      "en": "Spain",
+      "zh": "西班牙",
+      "cities": [
+        {
+          "en": "Barcelona",
+          "zh": "巴塞罗那"
+        },
+        {
+          "en": "Zaragoza",
+          "zh": "萨拉戈萨"
+        },
+        {
+          "en": "Tarragona",
+          "zh": "塔拉戈纳"
+        }
+      ]
+    },
+    {
+      "a3": "FRA",
+      "flag": "🇫🇷",
+      "en": "France",
+      "zh": "法国",
+      "cities": [
+        {
+          "en": "Paris",
+          "zh": "巴黎"
+        },
+        {
+          "en": "Versailles",
+          "zh": "凡尔赛"
+        }
+      ]
+    },
+    {
+      "a3": "DNK",
+      "flag": "🇩🇰",
+      "en": "Denmark",
+      "zh": "丹麦",
+      "cities": [
+        {
+          "en": "Copenhagen",
+          "zh": "哥本哈根"
+        }
+      ]
+    },
+    {
+      "a3": "PRT",
+      "flag": "🇵🇹",
+      "en": "Portugal",
+      "zh": "葡萄牙",
+      "cities": [
+        {
+          "en": "Lisbon",
+          "zh": "里斯本"
+        }
+      ]
+    },
+    {
+      "a3": "BEL",
+      "flag": "🇧🇪",
+      "en": "Belgium",
+      "zh": "比利时",
+      "cities": [
+        {
+          "en": "Antwerp",
+          "zh": "安特卫普"
+        },
+        {
+          "en": "Brussels",
+          "zh": "布鲁塞尔"
+        }
+      ]
+    }
+  ]
+}

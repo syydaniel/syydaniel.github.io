@@ -1,0 +1,202 @@
+---
+// "Places I've been": built from my GPX tracks by scripts/build-travel.mjs.
+// Tracks are snapped to ~10 km cells before they reach the repo, so the map
+// shows regions, never routes.
+import travel from '../data/travel.generated.json';
+
+const { stats, countries } = travel;
+const CITY_PREVIEW = 8;
+const years = stats.firstYear && stats.lastYear ? stats.lastYear - stats.firstYear + 1 : null;
+const loc = (en: string, zh: string) => JSON.stringify({ en, zh });
+---
+
+<section id="places" class="relative py-28 md:py-40 scroll-mt-20">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
+      <div>
+        <span class="section-eyebrow" data-i18n="places.eyebrow">Places</span>
+        <h2 class="section-title mt-4 max-w-3xl">
+          <span data-i18n="places.title.a">Everywhere my</span>
+          <span class="text-gradient italic font-display" data-i18n="places.title.b">footsteps</span>
+          <span data-i18n="places.title.c">have been.</span>
+        </h2>
+        <p class="mt-5 text-ink-300 max-w-2xl" data-i18n="places.intro">
+          Drawn from years of GPS tracks I've recorded. Each glowing square is a roughly 10 km patch of
+          the world I've passed through. Brighter means more time spent there.
+        </p>
+      </div>
+      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-3 gap-6 min-w-[280px]">
+        <div>
+          <div class="font-display text-2xl text-ink-100">{stats.countries}</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.countries">Countries</div>
+        </div>
+        <div>
+          <div class="font-display text-2xl text-ink-100">{stats.cities}</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.cities">Cities</div>
+        </div>
+        <div>
+          <div class="font-display text-2xl text-ink-100">{stats.km.toLocaleString('en-US')}</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.km">km tracked</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-[1.6fr_1fr] gap-6">
+      <div class="glass rounded-2xl overflow-hidden reveal">
+        <div id="places-map" class="w-full h-[520px] bg-ink-800"></div>
+        {
+          years && (
+            <div class="border-t border-white/5 px-5 py-3 text-xs font-mono text-ink-400 flex justify-between">
+              <span>{stats.firstYear} to {stats.lastYear}</span>
+              <span>
+                {stats.days} <span data-i18n="places.days">days on the move</span>
+              </span>
+            </div>
+          )
+        }
+      </div>
+
+      <div class="glass rounded-2xl p-5 reveal lg:max-h-[570px] overflow-y-auto">
+        <ul class="space-y-4">
+          {
+            countries.map((c) => (
+              <li class="places-country" data-a3={c.a3}>
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xl leading-none">{c.flag}</span>
+                  <span class="text-ink-100" data-i18n-self={loc(c.en, c.zh)}>{c.en}</span>
+                  <span class="ml-auto text-[10px] font-mono text-ink-500">{c.cities.length || ''}</span>
+                </div>
+                {c.cities.length > 0 && (
+                  <p class="mt-1.5 pl-8 text-xs text-ink-400 leading-relaxed">
+                    {c.cities.slice(0, CITY_PREVIEW).map((city, i) => (
+                      <Fragment>
+                        {i > 0 && <span class="text-ink-600"> · </span>}
+                        <span data-i18n-self={loc(city.en, city.zh)}>{city.en}</span>
+                      </Fragment>
+                    ))}
+                    {c.cities.length > CITY_PREVIEW && <span class="text-ink-500"> +{c.cities.length - CITY_PREVIEW}</span>}
+                  </p>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Load MapLibre (~800 KB) and the cell data only when the map nears view.
+  const el = document.getElementById('places-map');
+  if (el) {
+    let started = false;
+    const initMap = async () => {
+      if (started) return;
+      started = true;
+      const [, mod, data] = await Promise.all([
+        import('maplibre-gl/dist/maplibre-gl.css'),
+        import('maplibre-gl'),
+        fetch('/travel.json').then((r) => r.json())
+      ]);
+      const maplibregl = mod.default;
+
+      const cells: [number, number, number][] = data.cells;
+      const half = 0.05;
+      const maxLog = Math.log1p(Math.max(...cells.map((c) => c[2])));
+      const cellFeatures = {
+        type: 'FeatureCollection',
+        features: cells.map(([x, y, n]) => ({
+          type: 'Feature',
+          properties: { w: Math.log1p(n) / maxLog },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[[x - half, y - half], [x + half, y - half], [x + half, y + half], [x - half, y + half], [x - half, y - half]]]
+          }
+        }))
+      };
+
+      const map = new maplibregl.Map({
+        container: el,
+        style: {
+          version: 8,
+          sources: {
+            basemap: {
+              type: 'raster',
+              tiles: ['https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '© <a href="https://carto.com/attributions">CARTO</a> · © OpenStreetMap contributors · Natural Earth'
+            }
+          },
+          layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
+        },
+        center: [20, 35],
+        zoom: 1.2,
+        attributionControl: true,
+        dragRotate: false
+      });
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+
+      map.on('load', () => {
+        map.addSource('outlines', { type: 'geojson', data: data.outlines });
+        map.addSource('cells', { type: 'geojson', data: cellFeatures as any });
+        map.addLayer({ id: 'country-fill', type: 'fill', source: 'outlines', paint: { 'fill-color': '#38e4d2', 'fill-opacity': 0.07 } });
+        map.addLayer({ id: 'country-line', type: 'line', source: 'outlines', paint: { 'line-color': '#38e4d2', 'line-opacity': 0.35, 'line-width': 0.8 } });
+        // Glow halo so single cells stay visible at world zoom, then the crisp squares.
+        map.addLayer({
+          id: 'cells-glow',
+          type: 'circle',
+          source: 'cells',
+          maxzoom: 6,
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 0, 2.5, 5, 7],
+            'circle-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#38e4d2', 1, '#ff9f43'],
+            'circle-blur': 0.8,
+            'circle-opacity': ['interpolate', ['linear'], ['zoom'], 0, 0.9, 6, 0]
+          }
+        });
+        map.addLayer({
+          id: 'cells',
+          type: 'fill',
+          source: 'cells',
+          paint: {
+            'fill-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#38e4d2', 1, '#ff9f43'],
+            'fill-opacity': ['interpolate', ['linear'], ['get', 'w'], 0, 0.45, 1, 0.9]
+          }
+        });
+
+        const bounds = new maplibregl.LngLatBounds();
+        cells.forEach(([x, y]) => bounds.extend([x, y]));
+        if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 40, maxZoom: 5, duration: 0 });
+
+        // Clicking a country in the list flies the map to it.
+        document.querySelectorAll<HTMLElement>('.places-country').forEach((li) => {
+          li.addEventListener('click', () => {
+            const f = (data.outlines.features as any[]).find((x) => x.properties.a3 === li.dataset.a3);
+            if (!f) return;
+            const b = new maplibregl.LngLatBounds();
+            const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+            polys.forEach((p: number[][][]) => p[0].forEach((pt) => b.extend(pt as [number, number])));
+            map.fitBounds(b, { padding: 40, maxZoom: 6, duration: 1200 });
+          });
+        });
+      });
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          initMap();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+    io.observe(el);
+  }
+</script>
+
+<style>
+  .places-country { cursor: pointer; }
+  .places-country:hover .text-ink-100 { color: #38e4d2; }
+</style>

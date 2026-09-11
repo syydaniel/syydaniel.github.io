@@ -6,24 +6,14 @@ import { LANG_CODES, type Lang } from '../data/i18n';
 const sorted = [...journey].sort((a, b) => (a.start < b.start ? 1 : -1));
 
 // Localized month labels for date ranges.
-// Month abbreviations for languages that use them (CJK + Korean handled separately).
-const MONTHS: Record<string, string[]> = {
-  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  nl: ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
-  de: ['Jan', 'Feb', 'März', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-  fi: ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'],
-  fr: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
-};
-const PRESENT: Record<Lang, string> = { en: 'present', zh: '至今', 'zh-Hant': '至今', nl: 'heden', de: 'heute', fi: 'nyt', ja: '現在', ko: '현재', fr: "aujourd'hui" };
+const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const PRESENT: Record<Lang, string> = { en: 'present', zh: '至今' };
 
 function fmtMonth(s: string, lang: Lang): string {
   const [y, m] = s.split('-');
   const mi = parseInt(m, 10) - 1;
-  if (lang === 'zh' || lang === 'zh-Hant') return `${y} 年 ${mi + 1} 月`;
-  if (lang === 'ja') return `${y}年${mi + 1}月`;
-  if (lang === 'ko') return `${y}년 ${mi + 1}월`;
-  const arr = MONTHS[lang];
-  return `${(arr && arr[mi]) || ''} ${y}`;
+  if (lang === 'zh') return `${y} 年 ${mi + 1} 月`;
+  return `${MONTHS_EN[mi] || ''} ${y}`;
 }
 function dateLoc(item: { start: string; end: string; ongoing?: boolean }): Loc {
   const out = {} as Loc;

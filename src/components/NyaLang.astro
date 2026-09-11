@@ -75,14 +75,11 @@
   renderTranslator();
 
   // ---- featural legend: each card shows an example cat + which body part means what ----
-  // Labels carried here (en + zh + a few) so the legend stays readable in any UI language.
+  // Labels carried here (en + zh) so the legend stays readable in any UI language.
   type Row = { word: string; key: string };
   const LABELS: Record<string, Record<string, [string, string]>> = {
     en: { ears: ['Ears', 'the first consonant'], eyes: ['Eyes', 'the first vowel'], whiskers: ['Whiskers', 'how many syllables'], forehead: ['Forehead', 'the meaning (radicals)'], tail: ['Tail', 'tense: past / now / future'], kitten: ['Second kitten', 'plural'], paw: ['Raised paw', 'a question'], collar: ['Collar', 'one who does it (-er)'] },
-    zh: { ears: ['耳朵', '首辅音'], eyes: ['眼睛', '首元音'], whiskers: ['胡须', '音节数'], forehead: ['额头', '词义（部首）'], tail: ['尾巴', '时态：过去/现在/将来'], kitten: ['第二只小猫', '复数'], paw: ['抬起的爪', '疑问'], collar: ['项圈', '做这件事的人（-er）'] },
-    'zh-Hant': { ears: ['耳朵', '首輔音'], eyes: ['眼睛', '首元音'], whiskers: ['鬍鬚', '音節數'], forehead: ['額頭', '詞義（部首）'], tail: ['尾巴', '時態：過去/現在/將來'], kitten: ['第二隻小貓', '複數'], paw: ['抬起的爪', '疑問'], collar: ['項圈', '做這件事的人（-er）'] },
-    ja: { ears: ['耳', '最初の子音'], eyes: ['目', '最初の母音'], whiskers: ['ひげ', '音節の数'], forehead: ['額', '意味（部首）'], tail: ['しっぽ', '時制：過去/現在/未来'], kitten: ['2匹目の子猫', '複数'], paw: ['上げた前足', '疑問'], collar: ['首輪', '〜する人（-er）'] },
-    ko: { ears: ['귀', '첫 자음'], eyes: ['눈', '첫 모음'], whiskers: ['수염', '음절 수'], forehead: ['이마', '의미(부수)'], tail: ['꼬리', '시제: 과거/현재/미래'], kitten: ['두 번째 새끼고양이', '복수'], paw: ['든 앞발', '의문'], collar: ['목줄', '~하는 사람(-er)'] }
+    zh: { ears: ['耳朵', '首辅音'], eyes: ['眼睛', '首元音'], whiskers: ['胡须', '音节数'], forehead: ['额头', '词义（部首）'], tail: ['尾巴', '时态：过去/现在/将来'], kitten: ['第二只小猫', '复数'], paw: ['抬起的爪', '疑问'], collar: ['项圈', '做这件事的人（-er）'] }
   };
   // example cats that visibly show each feature
   const EXAMPLES: Record<string, () => string> = {

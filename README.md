@@ -41,7 +41,7 @@ Posts live in `src/content/blog` as Markdown. Front matter schema is in
 title: "Post title"
 description: "One sentence shown in lists, RSS, and link previews."
 pubDate: 2026-05-29
-lang: en            # en, zh, zh-Hant, ja, ko, fr, de, nl, fi (real post languages)
+lang: en            # en or zh
 slug: my-post       # the URL becomes /blog/my-post (keep it unique)
 tags: ["water"]
 cover: /photos/wildlife/DSC_0057.jpg   # optional, used as the card + share image
@@ -80,6 +80,19 @@ the RSS feed update on their own.
   [giscus app](https://github.com/apps/giscus), then paste the repo and category IDs from
   [giscus.app](https://giscus.app) and set `enabled: true`. Until then, posts show a small
   "comments coming soon" note.
+
+## Places (footprint map)
+
+The Places section is built from my GPX tracks (exported from the StepOfMyWorld app):
+
+```bash
+npm run travel -- path/to/backUpData-all.gpx
+```
+
+`scripts/build-travel.mjs` snaps every point to a ~10 km grid cell, drops in-flight fixes, and
+looks up countries and cities with Natural Earth. Only the binned output is committed
+(`public/travel.json`, `src/data/travel.generated.json`); raw `*.gpx` files are gitignored.
+Countries only crossed by plane go in `EXCLUDE_COUNTRIES` at the top of the script.
 
 ## Social share image
 
