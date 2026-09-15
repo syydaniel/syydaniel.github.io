@@ -1,0 +1,98 @@
+---
+// Notes: a curated selection of LinkedIn posts in the site's film language.
+// Cards with a film open the site-wide player; the rest link out to LinkedIn.
+import { notes, LINKEDIN_ACTIVITY } from '../data/notes';
+import { filmByBvid, filmLabel } from '../data/films';
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const dateLoc = (d: string) => {
+  const [y, m] = d.split('-');
+  return m ? { en: `${MONTHS[Number(m) - 1]} ${y}`, zh: `${y} 年 ${Number(m)} 月` } : { en: y, zh: `${y} 年` };
+};
+const self = (v: unknown) => JSON.stringify(v);
+---
+
+<section id="notes" class="relative py-28 md:py-40 scroll-mt-20">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal">
+      <div>
+        <span class="section-eyebrow" data-chapter="06" data-i18n="notes.eyebrow">Notes</span>
+        <h2 class="section-title mt-4 max-w-3xl">
+          <span data-i18n="notes.title.a">Thinking out loud,</span>
+          <span class="text-gradient italic font-display" data-i18n="notes.title.b">in public.</span>
+        </h2>
+        <p class="mt-5 text-ink-300 max-w-2xl" data-i18n="notes.intro">
+          Short posts from LinkedIn: the science I'm reading, the end of one chapter, and the places in between.
+        </p>
+      </div>
+      <a href={LINKEDIN_ACTIVITY} target="_blank" rel="noopener" class="group btn btn-ghost !py-2.5 !px-5 text-sm self-start md:self-auto">
+        <span data-i18n="notes.all">All posts on LinkedIn</span>
+        <span class="play-dot h-6 w-6">↗</span>
+      </a>
+    </div>
+
+    <ul class="notes-grid">
+      {
+        notes.map((n) => {
+          const film = n.film ? filmByBvid(n.film) : undefined;
+          const Tag = film ? 'button' : 'a';
+          const attrs = film
+            ? { type: 'button', 'data-film': film.bvid, 'aria-label': `Play: ${film.title.en}` }
+            : { href: n.href ?? LINKEDIN_ACTIVITY, target: '_blank', rel: 'noopener' };
+          const media = film?.featured ? film.featured.stillSm : n.photo;
+          return (
+            <li class="notes-item reveal">
+              <Tag {...attrs} class="group block w-full text-left glass rounded-2xl overflow-hidden card-hover">
+                {media && (
+                  <span class="relative block aspect-[16/9] overflow-hidden bg-ink-800">
+                    <img src={media} alt="" loading="lazy" decoding="async" class="media-img absolute inset-0 w-full h-full object-cover" />
+                    <span class="grain" aria-hidden="true" />
+                    {film && (
+                      <span class="absolute inset-x-4 bottom-3 flex items-center justify-between">
+                        <span class="meta-line !text-ink-100/80" data-i18n-self={self(filmLabel(film.bvid))}>{filmLabel(film.bvid).en}</span>
+                        <span class="play-dot h-9 w-9 bg-ink-950/40 backdrop-blur">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="ml-0.5"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
+                        </span>
+                      </span>
+                    )}
+                  </span>
+                )}
+                <span class="block p-5 md:p-6">
+                  <span class="meta-line">
+                    <span class="!text-sol-400/90" data-i18n-self={self(n.kind)}>{n.kind.en}</span>
+                    <i>·</i>
+                    <span data-i18n-self={self(dateLoc(n.date))}>{dateLoc(n.date).en}</span>
+                    <span class="ml-auto">LinkedIn</span>
+                  </span>
+                  <span class="rule-grow mt-4 mb-4" aria-hidden="true" />
+                  <span class:list={['block text-ink-200 leading-relaxed', n.text.length < 120 ? 'font-display italic text-xl md:text-2xl text-ink-100 !leading-snug' : 'text-[0.95rem]']}>
+                    {n.text}
+                  </span>
+                  {n.link && (
+                    <span class="mt-4 block rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
+                      <span class="meta-line !text-[9px]">{new URL(n.link.href).hostname.replace('www.', '')}</span>
+                      <span class="mt-1 block text-sm text-ink-300 leading-snug">{n.link.label}</span>
+                    </span>
+                  )}
+                  {n.tags && (
+                    <span class="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink-500 font-mono">
+                      {n.tags.map((t) => <span>#{t}</span>)}
+                    </span>
+                  )}
+                </span>
+              </Tag>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Masonry by columns: cards keep their natural height. */
+  .notes-grid { columns: 1; column-gap: 1.25rem; }
+  @media (min-width: 768px) { .notes-grid { columns: 2; } }
+  @media (min-width: 1152px) { .notes-grid { columns: 3; } }
+  .notes-item { break-inside: avoid; margin-bottom: 1.25rem; }
+</style>

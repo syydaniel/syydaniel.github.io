@@ -144,6 +144,15 @@ export const dict: Record<string, Record<Lang, string>> = {
   'about.now_showing': { en: 'Now showing', zh: '正在放映' },
   'journey.films': { en: 'Filmed in this chapter', zh: '这段时期拍的影片' },
   'places.frames': { en: 'frames', zh: '张照片' },
+  // Notes (LinkedIn)
+  'notes.eyebrow': { en: 'Notes', zh: '随笔' },
+  'notes.title.a': { en: 'Thinking out loud,', zh: '公开地' },
+  'notes.title.b': { en: 'in public.', zh: '想一想。' },
+  'notes.intro': {
+    en: "Short posts from LinkedIn: the science I'm reading, the end of one chapter, and the places in between.",
+    zh: '来自 LinkedIn 的短帖：我在读的科学、一段旅程的结束，以及途经的那些地方。'
+  },
+  'notes.all': { en: 'All posts on LinkedIn', zh: '在 LinkedIn 查看全部' },
   // Films
   'films.eyebrow': { en: 'Films', zh: '影像' },
   'films.title.a': { en: 'The same places,', zh: '同样的地方，' },
