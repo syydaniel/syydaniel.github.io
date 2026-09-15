@@ -120,16 +120,19 @@ const siteLd = {
     <script>
       import '../scripts/i18n-runtime';
 
+      // Reveal once 15% of an element is on screen, or once it fills a quarter of
+      // the viewport: very tall blocks (the photo timeline) never reach 15%.
       const revealObserver = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
-            if (entry.isIntersecting) {
+            const enough = entry.intersectionRatio >= 0.15 || entry.intersectionRect.height >= innerHeight * 0.25;
+            if (entry.isIntersecting && enough) {
               entry.target.classList.add('is-visible');
               revealObserver.unobserve(entry.target);
             }
           }
         },
-        { threshold: 0.15, rootMargin: '0px 0px -10% 0px' }
+        { threshold: [0, 0.02, 0.05, 0.1, 0.15], rootMargin: '0px 0px -10% 0px' }
       );
       document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
 

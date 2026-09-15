@@ -108,8 +108,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   'photo.title.b': { en: 'field notebook', zh: '野外笔记' },
   'photo.title.c': { en: 'in light and silver.', zh: '，以光与银盐写就。' },
   'photo.intro': {
-    en: "Every pin on the map is a place I've stood with a camera. Click one to open the frames. Drag the time slider to travel years, or switch to the timeline view, where the photographs and films share one chronological ribbon.",
-    zh: '地图上的每一个图钉，都是我曾举起相机的地方。点击图钉即可查看照片；拖动时间滑块穿越不同年份；也可以切换到时间线视图，照片和影片按时间顺序排在一起。'
+    en: "Every pin on the map is a place I've stood with a camera; the amber frames are films. Click one to open it. Drag the time range to travel through the months, or switch to the timeline view, where the photographs and films share one chronological ribbon.",
+    zh: '地图上的每一个图钉，都是我曾举起相机的地方，琥珀色的方框是影片。点击即可打开；拖动时间范围按月穿越；也可以切换到时间线视图，照片和影片按时间顺序排在一起。'
   },
   'photo.stat.frames': { en: 'Frames', zh: '张' },
   'photo.stat.countries': { en: 'Countries', zh: '国家' },
@@ -122,6 +122,7 @@ export const dict: Record<string, Record<Lang, string>> = {
     zh: '当前显示的是占位图钉。把照片放进 /photos/ 再运行 npm run photos:manifest 即可。'
   },
   'photo.time_range': { en: 'Time range', zh: '时间范围' },
+  'photo.reset': { en: 'Show everything', zh: '显示全部' },
   'photo.visible': { en: 'frames visible', zh: '张可见' },
   'photo.no_photos': { en: 'No photos in this time range.', zh: '这个时间段内没有照片。' },
 
@@ -172,6 +173,8 @@ export const dict: Record<string, Record<Lang, string>> = {
     en: "I'm open to research collaborations, photography licensing, and good conversations about water, cities, and forests. Pick whichever channel fits.",
     zh: '我欢迎科研合作、图片授权，也乐意聊聊关于水、城市与森林的一切。选一个你方便的方式就好。'
   },
+  'contact.channel.bilibili': { en: 'Bilibili', zh: '哔哩哔哩' },
+  'contact.channel.hint.bilibili': { en: 'The short films, in full quality. Follow for new ones.', zh: '我拍摄剪辑的短片，高清完整版。关注我看新片。' },
   'contact.channel.personal': { en: 'Personal', zh: '个人邮箱' },
   'contact.channel.linkedin': { en: 'LinkedIn', zh: 'LinkedIn' },
   'contact.channel.cv': { en: 'CV (PDF)', zh: '简历 (PDF)' },

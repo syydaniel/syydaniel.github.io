@@ -232,6 +232,7 @@ body {
   color: #6b7190;
 }
 .meta-line i { font-style: normal; color: #3a3f57; }
+.meta-line[hidden] { display: none; }
 
 /* Film grain over imagery. Put <span class="grain"></span> inside a positioned frame. */
 .grain {
@@ -319,8 +320,9 @@ body {
 .maplibregl-popup-tip { display: none !important; }
 
 /* ---------- Photo pin ---------- */
+/* No `position` here: MapLibre positions markers absolutely, and in the production
+   CSS order this rule loads after maplibre-gl.css and would stack every pin. */
 .photo-pin {
-  position: relative;
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -380,6 +382,48 @@ body {
   70% { box-shadow: 0 0 0 16px rgba(56, 228, 210, 0); }
   100% { box-shadow: 0 0 0 0 rgba(56, 228, 210, 0); }
 }
+
+/* ---------- Film pin (photo map) ---------- */
+.film-pin {
+  width: 40px;
+  height: 50px;
+  border-radius: 8px;
+  border: 2px solid #ffc46b;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), 0 0 0 5px rgba(255, 159, 67, 0.18);
+  background: #10121d center / cover no-repeat;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #05060a;
+}
+.film-pin::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #ffc46b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2305060a' d='M8 5v14l11-7z'/%3E%3C/svg%3E") 60% 50% / 11px no-repeat;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.film-pin::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #ffc46b;
+  color: #0a0b12;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #05060a;
+}
+.film-pin[data-count="1"]::after { display: none; }
 
 /* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 10px; height: 10px; }

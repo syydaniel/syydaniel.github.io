@@ -1,10 +1,12 @@
 ---
 import { profile } from '../data/profile';
+import { BILIBILI_SPACE } from '../data/films';
 
 const channels = [
   { key: 'cv', label: 'CV (PDF)', value: 'Yiyang_Shen_CV.pdf', href: '/Yiyang_Shen_CV.pdf', hint: 'Latest version, May 2026. Education, research, awards.' },
   { key: 'transcript', label: 'Transcript (PDF)', value: 'Yiyang_Shen_Transcript.pdf', href: '/Yiyang_Shen_Transcript.pdf', hint: 'WUR academic record, kept current as new grades land.' },
   { key: 'personal', label: 'Personal', value: profile.email.personal, href: `mailto:${profile.email.personal}`, hint: 'For collaborations, photo licensing, open talk.' },
+  { key: 'bilibili', label: 'Bilibili', value: 'space.bilibili.com/437321627', href: BILIBILI_SPACE, hint: 'The short films, in full quality. Follow for new ones.' },
   { key: 'linkedin', label: 'LinkedIn', value: 'linkedin.com/in/yiyang-shen-…', href: profile.socials[0].href, hint: 'The long-form version of my journey.' }
 ];
 ---
