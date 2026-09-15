@@ -24,6 +24,32 @@ export interface JourneyItem {
 
 export const journey: JourneyItem[] = [
   {
+    id: 'next-phd',
+    kind: 'education',
+    title: {
+      en: 'Next: a PhD in environmental modelling',
+      zh: '下一步：环境建模方向的博士'
+    },
+    org: {
+      en: 'Looking for a position',
+      zh: '正在寻找机会'
+    },
+    location: {
+      en: 'Europe',
+      zh: '欧洲'
+    },
+    coords: [5.6645, 51.9692],
+    start: '2026-06',
+    end: '2026-06',
+    ongoing: false,
+    summary: {
+      en: 'Large-scale modelling of how land use shapes the environment: the effect of agricultural practices on soil health and soil ecosystem services, and the non-CO₂ greenhouse gas emissions (N₂O, CH₄) of farming systems, building on my catchment-scale water and microplastic modelling.',
+      zh: '用大尺度模型研究土地利用如何塑造环境：农业管理方式对土壤健康与土壤生态系统服务的影响，以及农业系统的非二氧化碳温室气体（N₂O、CH₄）排放。这延续了我在流域尺度上做水与微塑料建模的经验。'
+    },
+    tags: ['Soil Ecosystem Services', 'Agricultural Practices', 'Non-CO₂ GHGs', 'Large-scale Modelling'],
+    status: 'upcoming'
+  },
+  {
     id: 'msc-wur',
     kind: 'education',
     title: {
@@ -317,7 +343,11 @@ export const tagT: Record<string, Loc> = {
   'Scholarships': { en: 'Scholarships', zh: '奖学金' },
   'Microbiology': { en: 'Microbiology', zh: '微生物学' },
   'Plant-Microbe': { en: 'Plant-Microbe', zh: '植物-微生物' },
-  'Team Lead': { en: 'Team Lead', zh: '团队负责人' }
+  'Team Lead': { en: 'Team Lead', zh: '团队负责人' },
+  'Soil Ecosystem Services': { en: 'Soil Ecosystem Services', zh: '土壤生态系统服务' },
+  'Agricultural Practices': { en: 'Agricultural Practices', zh: '农业管理方式' },
+  'Non-CO₂ GHGs': { en: 'Non-CO₂ GHGs', zh: '非 CO₂ 温室气体' },
+  'Large-scale Modelling': { en: 'Large-scale Modelling', zh: '大尺度建模' }
 };
 
 export interface ResearchCity {

@@ -13,7 +13,7 @@ const W = 1200;
 const H = 630;
 
 // Pick the background frame (override by editing this path).
-const SOURCE = join(root, 'public', 'photos', 'wildlife', 'DSC_0070.jpg');
+const SOURCE = join(root, 'public', 'photos', 'faroe-islands', 'DSC_1769.jpg');
 
 const esc = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -21,7 +21,7 @@ const esc = (s) =>
 const NAME = 'Yiyang Shen';
 const NAME_CN = '沈亦旸';
 const EYEBROW = 'PORTFOLIO · SYYDANIEL.GITHUB.IO';
-const SUBTITLE = 'MSc, Wageningen · Water, microplastics & photography';
+const SUBTITLE = 'MSc, Wageningen · Environmental modelling · Photography & film';
 
 // Foreground text + scrim as an SVG overlay.
 const overlay = Buffer.from(`

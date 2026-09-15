@@ -26,36 +26,42 @@ export const dict: Record<string, Record<Lang, string>> = {
 
   // Hero
   'hero.eyebrow': {
-    en: 'MSc graduate, May 2026 · Photographer',
-    zh: '硕士毕业（2026 年 5 月）· 摄影师'
+    en: 'MSc, Wageningen · Open to PhD positions · Photographer',
+    zh: '瓦大硕士 · 寻找博士机会 · 摄影师'
   },
   'hero.tagline': {
-    en: 'Water systems, global change, and the quiet choreography of light on landscapes.',
-    zh: '研究水，研究变化，也在光影落于大地的那一刻按下快门。'
+    en: 'Soils, water, climate, and the quiet choreography of light on landscapes.',
+    zh: '研究土壤、水与气候，也在光影落于大地的那一刻按下快门。'
   },
   'hero.subtitle': {
-    en: 'MSc in Urban Environmental Management from Wageningen University & Research. I study water and plastic, and I photograph the places I study.',
-    zh: '瓦赫宁根大学城市环境管理硕士。我研究水与塑料，也用镜头记录下我研究过的每一片土地。'
+    en: 'MSc in Urban Environmental Management from Wageningen University & Research. I model how human activity shapes water and soils, and I photograph the places I study.',
+    zh: '瓦赫宁根大学城市环境管理硕士。我用模型研究人类活动如何改变水与土壤，也用镜头记录我研究过的土地。'
   },
   'hero.cta.primary': { en: 'Explore journey', zh: '探索我的历程' },
   'hero.cta.secondary': { en: 'Photography map', zh: '摄影地图' },
   'hero.cta.cv': { en: 'Download CV (PDF)', zh: '下载简历 (PDF)' },
   'hero.docs.eyebrow': {
-    en: 'Application files: always latest',
-    zh: '申请材料：始终是最新版本'
+    en: 'CV and transcript: always the latest',
+    zh: '简历与成绩单：始终是最新版本'
   },
   'hero.docs.cv.label': { en: 'Curriculum Vitae', zh: '简历 (CV)' },
   'hero.docs.cv.title': { en: 'View latest CV', zh: '查看最新简历' },
-  'hero.docs.cv.meta': { en: 'PDF · Updated May 2026', zh: 'PDF · 2026 年 5 月更新' },
+  'hero.docs.cv.meta': {
+    en: 'PDF · Updated Sep 2026',
+    zh: 'PDF · 2026 年 9 月更新'
+  },
   'hero.docs.transcript.label': { en: 'Academic Transcript', zh: '成绩单' },
   'hero.docs.transcript.title': { en: 'View latest transcript', zh: '查看最新成绩单' },
   'hero.docs.transcript.meta': { en: 'PDF · WUR record · May 2026', zh: 'PDF · 瓦大成绩 · 2026 年 5 月' },
   'hero.docs.cadence': {
-    en: 'Reviewing my application? These files update on a daily-to-monthly cadence. Click through here for the latest version anytime.',
-    zh: '正在审阅我的申请吗？这两份文件会以每日到每月的频率持续更新，这里永远是最新版本，随时点开即可。'
+    en: 'Both files are kept current. These links always open the latest version.',
+    zh: '两份文件都会持续更新，这里的链接永远指向最新版本。'
   },
   'hero.scroll': { en: 'Scroll', zh: '下滑' },
-  'stat.countries': { en: 'Countries', zh: '国家' },
+  'stat.countries': {
+    en: 'Countries studied in',
+    zh: '求学国家'
+  },
   'stat.universities': { en: 'Universities', zh: '高校' },
   'stat.projects': { en: 'Research projects', zh: '科研项目' },
   'stat.photos': { en: 'Photographs', zh: '作品' },
@@ -69,12 +75,16 @@ export const dict: Record<string, Record<Lang, string>> = {
     zh: '却被我们视为理所当然的系统。'
   },
   'about.p1': {
-    en: "I've just graduated with an MSc in Urban Environmental Management from Wageningen (end of May 2026). My thesis estimates how much microplastic is retained in rivers, at the sub-basin scale worldwide, where water systems, global change, and machine learning meet.",
-    zh: '我刚从瓦赫宁根大学城市环境管理硕士毕业（2026 年 5 月底）。我的论文估算全球范围内、次流域尺度上河流对微塑料的截留量，正处在水系统、全球变化与机器学习的交汇处。'
+    en: "I graduated with an MSc in Urban Environmental Management from Wageningen in May 2026 and I'm now looking for a PhD position. My thesis estimated how much microplastic rivers retain, sub-basin by sub-basin worldwide, with machine learning benchmarked against the MARINA-Multi model.",
+    zh: '我于 2026 年 5 月从瓦赫宁根大学城市环境管理硕士毕业，目前正在寻找博士机会。我的硕士论文用机器学习估算全球每个次流域中河流对微塑料的截留量，并以 MARINA-Multi 模型为基准进行比较。'
   },
   'about.p2': {
-    en: "Before Wageningen, I studied forestry across Canada and China and interned with the University of Eastern Finland doing soil-water fieldwork in Lapland. I've been lucky to learn in four very different landscapes, and I carry a camera to each of them.",
-    zh: '来瓦大之前，我在加拿大和中国学习林学，还在东芬兰大学实习，到拉普兰做土壤与水的野外工作。我很幸运能在四种截然不同的地貌中求学，而每一次我都带着相机。'
+    en: "Before Wageningen, I studied forestry in China and Canada, where my first lab work was on soil microbes, and I monitored dissolved organic carbon in the wetland forests of Lapland with the University of Eastern Finland. I've been lucky to learn in four very different landscapes, and I carry a camera to each of them.",
+    zh: '来瓦大之前，我在中国和加拿大学习林学，最早的实验室工作就是研究土壤微生物；之后随东芬兰大学到拉普兰的湿地森林监测溶解性有机碳。我很幸运能在四种截然不同的地貌中求学，而每一次我都带着相机。'
+  },
+  'about.next': {
+    en: "Where I want to go next is the land side of global change: how farming practices shape soil health and the services soils provide, and how agriculture's non-CO₂ greenhouse gases, nitrous oxide and methane, can be quantified, modelled and reduced, from single fields up to the scale of Europe.",
+    zh: '接下来我最想深入的，是全球变化中“土地”的那一面：农业管理方式如何影响土壤健康及土壤提供的生态系统服务；农业排放的非二氧化碳温室气体（氧化亚氮与甲烷）如何被量化、建模并减少，从单块农田一直到欧洲尺度。'
   },
   'about.p3': {
     en: "This site is a working notebook: my research, the places I've stood in, and the photographs I've made there.",
@@ -86,8 +96,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   'journey.title.a': { en: 'Four countries. Four universities.', zh: '四个国家，四所高校。' },
   'journey.title.b': { en: 'One question', zh: '一个问题' },
   'journey.title.c': {
-    en: ': how do water and life co-evolve under pressure?',
-    zh: '：在压力之下，水与生命如何共同演化？'
+    en: ': how do land, water and climate respond to human pressure?',
+    zh: '：在人类活动的压力下，土地、水与气候如何回应？'
   },
   'journey.filter.all': { en: 'All', zh: '全部' },
   'journey.filter.education': { en: 'Education', zh: '教育' },
@@ -97,6 +107,7 @@ export const dict: Record<string, Record<Lang, string>> = {
   'journey.kind.experience': { en: 'experience', zh: '经历' },
   'journey.kind.project': { en: 'project', zh: '项目' },
   'journey.ongoing': { en: 'Ongoing', zh: '进行中' },
+  'journey.next': { en: 'Next chapter', zh: '下一章' },
   'journey.present': { en: 'present', zh: '至今' },
   'journey.supervisor': { en: 'Supervisor', zh: '导师' },
   'journey.places': { en: 'Places', zh: '地点' },
@@ -170,8 +181,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   'contact.title.a': { en: 'Say', zh: '说句' },
   'contact.title.b': { en: 'hello', zh: '你好' },
   'contact.intro': {
-    en: "I'm open to research collaborations, photography licensing, and good conversations about water, cities, and forests. Pick whichever channel fits.",
-    zh: '我欢迎科研合作、图片授权，也乐意聊聊关于水、城市与森林的一切。选一个你方便的方式就好。'
+    en: "I'm looking for a PhD position in environmental modelling, and I'm always glad to talk about research collaborations, photography licensing, or anything to do with soils, water and climate. Pick whichever channel fits.",
+    zh: '我正在寻找环境建模方向的博士机会，也欢迎科研合作、图片授权，或者聊聊土壤、水与气候。选一个你方便的方式就好。'
   },
   'contact.channel.bilibili': { en: 'Bilibili', zh: '哔哩哔哩' },
   'contact.channel.hint.bilibili': { en: 'The short films, in full quality. Follow for new ones.', zh: '我拍摄剪辑的短片，高清完整版。关注我看新片。' },
@@ -181,20 +192,26 @@ export const dict: Record<string, Record<Lang, string>> = {
   'contact.channel.transcript': { en: 'Transcript (PDF)', zh: '成绩单 (PDF)' },
   'contact.channel.hint.personal': { en: 'For collaborations, photo licensing, open talk.', zh: '合作、图片授权，或随意聊聊。' },
   'contact.channel.hint.linkedin': { en: 'The long-form version of my journey.', zh: '更完整的履历版本。' },
-  'contact.channel.hint.cv': { en: 'Latest version, May 2026. Education, research, awards.', zh: '最新版本，2026 年 5 月。教育、科研、奖项。' },
+  'contact.channel.hint.cv': {
+    en: 'Latest version, September 2026. Education, research, awards.',
+    zh: '最新版本，2026 年 9 月。教育、科研、奖项。'
+  },
   'contact.channel.hint.transcript': { en: 'WUR academic record, kept current as new grades land.', zh: '瓦大成绩记录，有新成绩会同步更新。' },
   'contact.based': { en: 'Based in', zh: '常驻' },
-  'contact.current': { en: 'MSc, Wageningen University · Graduated May 2026', zh: '瓦赫宁根大学硕士 · 2026 年 5 月毕业' },
+  'contact.current': {
+    en: 'MSc, Wageningen University · Looking for a PhD position',
+    zh: '瓦赫宁根大学硕士 · 正在寻找博士机会'
+  },
 
   // Footer
   'footer.title.a': { en: "Let's collaborate on", zh: '让我们一起探索' },
   'footer.title.b': {
-    en: 'water, change, and the world we photograph',
-    zh: '水、变化，以及我们用镜头凝视的世界'
+    en: 'soils, water, climate, and the world we photograph',
+    zh: '土壤、水、气候，以及我们用镜头凝视的世界'
   },
   'footer.location_hint': {
-    en: 'Available for research collaborations and editorial photo use.',
-    zh: '接受科研合作与编辑类图片授权。'
+    en: 'Open to PhD positions, research collaborations and editorial photo use.',
+    zh: '寻找博士机会，也接受科研合作与编辑类图片授权。'
   },
   'footer.rights': {
     en: '© {year} Yiyang Shen · Built with Astro',
@@ -215,7 +232,8 @@ export const dict: Record<string, Record<Lang, string>> = {
     en: "Microplastics", zh: "微塑料"
   },
   'about.skill.scenario': {
-    en: "Scenario Analysis", zh: "情景分析"
+    en: 'Environmental Modelling',
+    zh: '环境建模'
   },
   'about.skill.climate': {
     en: "Climate Change", zh: "气候变化"
@@ -227,10 +245,12 @@ export const dict: Record<string, Record<Lang, string>> = {
     en: "GIS Analysis", zh: "GIS 分析"
   },
   'about.skill.boreal': {
-    en: "Boreal Ecology", zh: "北方森林生态"
+    en: 'Carbon & Nutrient Cycles',
+    zh: '碳与养分循环'
   },
   'about.skill.urban': {
-    en: "Urban Forestry", zh: "城市林业"
+    en: 'Soils & Agriculture',
+    zh: '土壤与农业'
   },
   'footer.location': {
     en: "Wageningen, Netherlands", zh: "荷兰，瓦赫宁恩"

@@ -17,7 +17,9 @@ function fmtMonth(s: string, lang: Lang): string {
   if (lang === 'zh') return `${y} 年 ${mi + 1} 月`;
   return `${MONTHS_EN[mi] || ''} ${y}`;
 }
-function dateLoc(item: { start: string; end: string; ongoing?: boolean }): Loc {
+function dateLoc(item: { start: string; end: string; ongoing?: boolean; status?: string }): Loc {
+  // The next chapter has no dates yet.
+  if (item.status === 'upcoming') return { en: 'From 2026', zh: '2026 年起' };
   const out = {} as Loc;
   for (const code of LANG_CODES) {
     const start = fmtMonth(item.start, code);
@@ -41,7 +43,7 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
         <h2 class="section-title mt-4 max-w-2xl">
           <span data-i18n="journey.title.a">Four countries. Four universities.</span>
           <span class="text-gradient" data-i18n="journey.title.b">One question</span>
-          <span data-i18n="journey.title.c">: how do water and life co-evolve under pressure?</span>
+          <span data-i18n="journey.title.c">: how do land, water and climate respond to human pressure?</span>
         </h2>
       </div>
       <div class="flex gap-2 flex-wrap" id="journey-filters">
@@ -80,13 +82,19 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
                   <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div>
                       <div class="flex items-center gap-2 flex-wrap">
-                        <span
-                          class={`chip ${item.kind === 'education' ? 'chip-sol' : item.kind === 'experience' ? 'chip-moss' : ''}`}
-                          data-i18n={`journey.kind.${item.kind}`}
-                        >
-                          {item.kind}
-                        </span>
-                        {item.ongoing && <span class="chip" data-i18n="journey.ongoing">Ongoing</span>}
+                        {item.status === 'upcoming' ? (
+                          <span class="chip chip-sol" data-i18n="journey.next">Next chapter</span>
+                        ) : (
+                          <Fragment>
+                            <span
+                              class={`chip ${item.kind === 'education' ? 'chip-sol' : item.kind === 'experience' ? 'chip-moss' : ''}`}
+                              data-i18n={`journey.kind.${item.kind}`}
+                            >
+                              {item.kind}
+                            </span>
+                            {item.ongoing && <span class="chip" data-i18n="journey.ongoing">Ongoing</span>}
+                          </Fragment>
+                        )}
                       </div>
                       <h3 class="font-display text-xl md:text-2xl text-ink-100 mt-3 leading-snug" {...selfAttr(item.title)}>{txt(item.title)}</h3>
                       <p class="text-ink-300 text-sm mt-1"><span {...selfAttr(item.org)}>{txt(item.org)}</span> · <span {...selfAttr(item.location)}>{txt(item.location)}</span></p>

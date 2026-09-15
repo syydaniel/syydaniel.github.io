@@ -71,7 +71,14 @@ const label = { en: `New film: ${latest.title.en}`, zh: `新片：${latest.title
   .gc-toast.gc-show{transform:translate(-50%,0);opacity:1;}
   .gc-toast svg{width:18px;height:18px;fill:#ff5a5a;flex:none;}
   .gc-toast strong{font-variant-numeric:tabular-nums;}
-  @media (max-width:640px){.gc-ribbon{font-size:.78rem;padding:.42rem 1.1rem;gap:.5rem;}}
+  /* Phones: no drifting over the content; the ribbon docks at the bottom instead. */
+  @media (max-width:640px){
+    .gc-root{top:auto;bottom:14px;left:50%;transform:translateX(-50%)!important;max-width:calc(100vw - 24px);}
+    .gc-ribbon{font-size:.74rem;padding:.42rem 1.1rem;gap:.5rem;max-width:100%;animation:none;transform:rotate(-1.5deg);}
+    .gc-text{overflow:hidden;text-overflow:ellipsis;}
+    .gc-play{min-width:0;}
+    .gc-toast{bottom:4.5rem;}
+  }
   @media (prefers-reduced-motion:reduce){.gc-ribbon{animation:none;}}
 </style>
 
@@ -131,11 +138,12 @@ const label = { en: `New film: ${latest.title.en}`, zh: `新片：${latest.title
       root.style.transform = `translate(${x}px, ${y}px)`;
       raf = requestAnimationFrame(drift);
     };
+    const phone = matchMedia('(max-width: 640px)').matches;
     if (reduce) root.style.transform = 'translate(20px, 100px)';
-    else raf = requestAnimationFrame(drift);
+    else if (!phone) raf = requestAnimationFrame(drift);
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; }
-      else if (!reduce && !raf) raf = requestAnimationFrame(drift);
+      else if (!reduce && !phone && !raf) raf = requestAnimationFrame(drift);
     });
 
     // ---------- effects ----------

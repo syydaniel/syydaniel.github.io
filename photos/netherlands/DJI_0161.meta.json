@@ -1,0 +1,20 @@
+{
+  "id": "netherlands-dji_0161",
+  "location": {
+    "name": "Wageningen",
+    "country": "Netherlands",
+    "coords": [
+      5.6645,
+      51.9692
+    ]
+  },
+  "takenAt": "2026-05-11T19:01:40.000Z",
+  "caption": "Freshly worked fields on the edge of town, May.",
+  "camera": "DJI Mini 3 Pro",
+  "exposure": "6.72mm · f/1.7 · 1/725s · ISO100",
+  "tags": [
+    "aerial",
+    "land use"
+  ],
+  "thumb": "/photos/netherlands/_thumbs/DJI_0161.jpg"
+}
