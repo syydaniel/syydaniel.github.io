@@ -1,0 +1,20 @@
+{
+  "id": "netherlands-dji_0141-pano-2",
+  "location": {
+    "name": "Wageningen",
+    "country": "Netherlands",
+    "coords": [
+      5.6645,
+      51.9692
+    ]
+  },
+  "takenAt": "2026-04-18T18:35:26.000Z",
+  "caption": "Sunset over the polder.",
+  "camera": "DJI Mini 3 Pro",
+  "exposure": "6.72mm · f/1.7 · 1/200s · ISO150",
+  "tags": [
+    "aerial",
+    "landscape"
+  ],
+  "thumb": "/photos/netherlands/_thumbs/DJI_0141-Pano-2.jpg"
+}

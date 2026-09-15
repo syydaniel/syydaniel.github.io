@@ -1,0 +1,20 @@
+{
+  "id": "netherlands-dji_0150",
+  "location": {
+    "name": "Wageningen",
+    "country": "Netherlands",
+    "coords": [
+      5.6645,
+      51.9692
+    ]
+  },
+  "takenAt": "2026-04-29T04:17:27.000Z",
+  "caption": "Sunrise over Wageningen and the Rhine.",
+  "camera": "DJI Mini 3 Pro",
+  "exposure": "6.72mm · f/1.7 · 1/500s · ISO100",
+  "tags": [
+    "aerial",
+    "landscape"
+  ],
+  "thumb": "/photos/netherlands/_thumbs/DJI_0150.jpg"
+}
