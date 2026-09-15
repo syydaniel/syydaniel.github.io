@@ -9,7 +9,6 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
   { href: '/#photography', target: '#photography', label: 'Photography', i18n: 'nav.photography' },
   { href: '/#films', target: '#films', label: 'Films', i18n: 'nav.films' },
   { href: '/#nyalang', target: '#nyalang', label: 'Nya', i18n: 'nav.nyalang' },
-  { href: '/blog', label: 'Journal', i18n: 'nav.blog' },
   { href: '/#contact', target: '#contact', label: 'Contact', i18n: 'nav.contact' }
 ];
 ---
@@ -128,15 +127,6 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
 
   // Active section highlighting
   const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
-
-  // On blog pages there are no tracked sections, so highlight the Journal link.
-  if (location.pathname.startsWith('/blog')) {
-    navLinks.forEach((a) => {
-      const on = a.getAttribute('href') === '/blog';
-      a.classList.toggle('text-ink-100', on);
-      a.classList.toggle('bg-white/5', on);
-    });
-  }
 
   const sections = Array.from(navLinks)
     .map((a) => a.dataset.target)

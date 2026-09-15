@@ -1,0 +1,94 @@
+---
+// A slowly drifting strip of film frames made from the photo archive: sprocket
+// holes, frame numbers and a place/date slug under each frame. Used as a bridge
+// between sections and on Journal pages.
+import { photos } from '../data/photos-loader';
+
+interface Props {
+  /** i18n key for the label on the left. */
+  labelKey?: string;
+  label?: string;
+  /** Where the frames link to. */
+  href?: string;
+  /** How many frames (newest first, at most one per place-and-day). */
+  count?: number;
+}
+const { labelKey = 'strip.label', label = 'From the archive', href = '/#photography', count = 14 } = Astro.props;
+
+// Newest first, but skip near-duplicates so the strip has range.
+const seen = new Set<string>();
+const frames = [...photos]
+  .sort((a, b) => (a.takenAt < b.takenAt ? 1 : -1))
+  .filter((p) => {
+    const key = `${p.location.name}|${p.takenAt.slice(0, 10)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  })
+  .slice(0, count);
+const dot = (d: string) => d.slice(0, 10).replaceAll('-', '.');
+---
+
+<div class="filmstrip relative z-10 py-10 md:py-14" aria-label={label}>
+  <div class="mx-auto max-w-7xl px-6 mb-4 flex items-center gap-4">
+    <span class="meta-line !text-sol-400/90" data-i18n={labelKey}>{label}</span>
+    <span class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></span>
+    <a href={href} class="meta-line hover:!text-ink-100 transition-colors"><span data-i18n="strip.all">All frames</span>&nbsp;→</a>
+  </div>
+  <div class="strip-viewport overflow-hidden">
+    <ul class="strip-track flex w-max">
+      {
+        [0, 1].map((copy) =>
+          frames.map((p, i) => (
+            <li class="strip-cell shrink-0" aria-hidden={copy === 1 ? 'true' : undefined}>
+              <a href={href} class="group block" tabindex={copy === 1 ? -1 : undefined}>
+                <span class="strip-sprockets" aria-hidden="true"></span>
+                <span class="relative block h-36 md:h-44 aspect-[3/2] overflow-hidden bg-ink-800">
+                  <img src={p.thumb ?? p.src} alt={copy === 0 ? p.caption ?? p.location.name : ''} loading="lazy" decoding="async" class="media-img absolute inset-0 w-full h-full object-cover" />
+                  <span class="grain" aria-hidden="true"></span>
+                  <span class="absolute left-2 top-1.5 font-mono text-[9px] tracking-[0.2em] text-ink-100/60">{String(i + 1).padStart(2, '0')}A</span>
+                </span>
+                <span class="strip-sprockets" aria-hidden="true"></span>
+                <span class="meta-line !flex-nowrap mt-2 px-1 !text-[9px] truncate">
+                  <span class="truncate">{p.location.name.split(',')[0]}</span><i>·</i><span>{dot(p.takenAt)}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        )
+      }
+    </ul>
+  </div>
+</div>
+
+<style>
+  .strip-viewport {
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+  .strip-track {
+    animation: strip-drift 90s linear infinite;
+  }
+  .filmstrip:hover .strip-track { animation-play-state: paused; }
+  @keyframes strip-drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .strip-cell {
+    padding: 0 0.35rem;
+    background: #101219;
+  }
+  .strip-cell:first-child { padding-left: 0.7rem; }
+  /* Perforations along the film edge. */
+  .strip-sprockets {
+    display: block;
+    height: 14px;
+    background: linear-gradient(rgba(238, 240, 250, 0.16), rgba(238, 240, 250, 0.16)) 0 50% / 100% 6px no-repeat;
+    -webkit-mask: repeating-linear-gradient(to right, #000 0 7px, transparent 7px 16px);
+    mask: repeating-linear-gradient(to right, #000 0 7px, transparent 7px 16px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .strip-track { animation: none; }
+    .strip-viewport { overflow-x: auto; }
+  }
+</style>

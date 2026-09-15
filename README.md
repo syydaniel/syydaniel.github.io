@@ -31,55 +31,20 @@ npm run preview # serve /dist locally
 copies frames into `public/photos/`, and writes `src/data/photos.generated.json`.
 See [photos/README.md](photos/README.md) for adding photos.
 
-## Journal (blog)
+## Journal (unpublished)
 
-Posts live in `src/content/blog` as Markdown. Front matter schema is in
-[src/content.config.ts](src/content.config.ts):
+The Journal (`/blog`, RSS, post pages) was taken off the site in September 2026. The Markdown
+posts are still in `src/content/blog`; to bring the Journal back, revert the commit that removed
+`src/pages/blog`. `.github/workflows/notify-social.yml` only ran for Journal posts and is inert
+without its Bluesky secrets.
 
-```md
----
-title: "Post title"
-description: "One sentence shown in lists, RSS, and link previews."
-pubDate: 2026-05-29
-lang: en            # en or zh
-slug: my-post       # the URL becomes /blog/my-post (keep it unique)
-tags: ["water"]
-cover: /photos/wildlife/DSC_0057.jpg   # optional, used as the card + share image
-draft: false        # true hides it everywhere and from RSS
-translationKey: my-post   # optional: give an EN and a ZH post the SAME key to link them
----
-
-Body in Markdown.
-```
-
-- The blog index at `/blog` filters to the visitor's current language, and falls back to
-  showing everything if there are none in that language.
-- Two posts that share a `translationKey` cross-link with a "Read in English / 阅读中文版" button.
-- Reading time is estimated automatically.
-
-To add a post: drop a new `.md` file in `src/content/blog`, commit, and push. The deploy and
-the RSS feed update on their own.
-
-## Auto-push when a post goes live
-
-- **RSS** at [`/rss.xml`](https://syydaniel.github.io/rss.xml) regenerates on every build, so
-  anyone subscribed sees new posts immediately. Linked from every page's `<head>`.
 - **Sitemap** at `/sitemap.xml` plus `public/robots.txt` for search engines.
-- **Bluesky (optional, off by default)**: `.github/workflows/notify-social.yml` runs
-  `scripts/notify-bluesky.mjs` to announce newly added posts. It stays inert until you add two
-  repo secrets (Settings, Secrets and variables, Actions):
-  - `BLUESKY_HANDLE` (e.g. `yiyang.bsky.social`)
-  - `BLUESKY_APP_PASSWORD` (Bluesky Settings, App Passwords)
 
-## Comments and reactions
+## Films
 
-- **Per-post like**: a cross-visitor counter (the free, no-auth Abacus API, the same one the
-  graduation ribbon uses). Works out of the box, no setup.
-- **Comments via Giscus** (GitHub Discussions, free, no backend). Off until you configure
-  [src/data/giscus.ts](src/data/giscus.ts): enable Discussions on the repo, install the
-  [giscus app](https://github.com/apps/giscus), then paste the repo and category IDs from
-  [giscus.app](https://giscus.app) and set `enabled: true`. Until then, posts show a small
-  "comments coming soon" note.
+`src/components/Films.astro` embeds Yiyang's Bilibili uploads (`src/data/films.ts`). Any element
+with `data-film="<bvid>"` opens the shared player in `FilmPlayer.astro`, so films can be linked
+from any section.
 
 ## Places (footprint map)
 
@@ -122,17 +87,17 @@ settings, Pages, Source: **GitHub Actions**.
 
 ```
 src/
-├── components/     # Nav, Footer, Hero, About, Journey, Photography, Contact,
-│                   # Comments, PostReactions, PostCard, Globe, Arcade, ...
-├── content/blog/   # journal posts (Markdown, EN + ZH)
+├── components/     # Nav, Footer, Hero, About, Journey, Places, Photography, Films,
+│                   # FilmPlayer, FilmPoster, Filmstrip, Contact, Globe, Arcade, ...
+├── content/blog/   # unpublished journal posts (Markdown, EN + ZH)
 ├── content.config.ts
-├── data/           # profile, journey, photos, i18n, giscus, reading-time
-├── layouts/        # Base, PostLayout
-├── pages/          # index.astro, blog/, rss.xml.ts, sitemap.xml.ts
+├── data/           # profile, journey, photos, films, travel, i18n
+├── layouts/        # Base
+├── pages/          # index.astro, nya-translator.astro, sitemap.xml.ts
 └── styles/         # global.css
 scripts/
 ├── build-photo-manifest.mjs   # EXIF -> photos.generated.json + copies to public/photos
 ├── build-og-image.mjs         # branded social share card
-└── notify-bluesky.mjs         # optional new-post announcer
+└── notify-bluesky.mjs         # new-post announcer (Journal is unpublished)
 public/             # favicon, og-image.jpg, robots.txt, copied photos, CV/transcript PDFs
 ```

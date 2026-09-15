@@ -7,6 +7,8 @@
   --ink-950: 5 6 10;
   --aqua-glow: 56 228 210;
   --sol-glow: 255 159 67;
+  /* Shared motion curve: the slow-out ease the Films section introduced. */
+  --ease-film: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: dark;
 }
 
@@ -38,7 +40,7 @@ body {
   pointer-events: none;
   z-index: 1;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.12  0 0 0 0.08 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
-  opacity: 0.55;
+  opacity: 0.7;
   mix-blend-mode: overlay;
 }
 
@@ -143,7 +145,7 @@ body {
   border-radius: 999px;
   font-weight: 500;
   font-size: 0.95rem;
-  transition: transform 180ms ease, box-shadow 240ms ease, background 240ms ease;
+  transition: transform 0.5s var(--ease-film), box-shadow 240ms ease, background 240ms ease, border-color 240ms ease;
   position: relative;
   overflow: hidden;
   isolation: isolate;
@@ -168,6 +170,7 @@ body {
 
 .btn-ghost:hover {
   background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 196, 107, 0.35);
   transform: translateY(-2px);
 }
 
@@ -198,6 +201,94 @@ body {
   height: 1px;
   background: #38e4d2;
   opacity: 0.6;
+}
+
+/* Chapter numbers, like a film's reel marks: <span class="section-eyebrow" data-chapter="03">. */
+.section-eyebrow[data-chapter]::before {
+  content: 'N° ' attr(data-chapter);
+  width: auto;
+  height: auto;
+  padding-right: 2.6rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  color: #6b7190;
+  opacity: 1;
+  background: linear-gradient(rgba(56, 228, 210, 0.6), rgba(56, 228, 210, 0.6)) no-repeat right center / 2rem 1px;
+}
+
+/* ---------- Film language (shared across sections) ---------- */
+/* Mono metadata line: dates, places, runtimes. Separate items with <i>·</i>. */
+.meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.55rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #6b7190;
+}
+.meta-line i { font-style: normal; color: #3a3f57; }
+
+/* Film grain over imagery. Put <span class="grain"></span> inside a positioned frame. */
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Image frame: slow push-in and a lift in colour on hover of the surrounding .group. */
+.media-img {
+  transform: scale(1.03);
+  filter: saturate(0.9) brightness(0.94);
+  transition: transform 1.2s var(--ease-film), filter 0.7s ease;
+}
+.group:hover .media-img,
+.group:focus-visible .media-img {
+  transform: scale(1.08);
+  filter: saturate(1.05) brightness(1);
+}
+
+/* Cards: one hover language everywhere (amber edge, slight lift). */
+.card-hover {
+  transition: border-color 0.4s ease, transform 0.6s var(--ease-film), box-shadow 0.6s var(--ease-film);
+}
+.card-hover:hover {
+  border-color: rgba(255, 196, 107, 0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 24px 50px -30px rgba(255, 159, 67, 0.35);
+}
+
+/* Short rule that stretches on hover. */
+.rule-grow {
+  display: block;
+  height: 1px;
+  width: 2rem;
+  background: rgba(238, 240, 250, 0.4);
+  transition: width 0.5s var(--ease-film), background 0.3s ease;
+}
+.group:hover .rule-grow { width: 3.5rem; background: #ffc46b; }
+
+/* Round play/arrow button that turns amber on hover. */
+.play-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: #eef0fa;
+  box-shadow: inset 0 0 0 1px rgba(238, 240, 250, 0.35);
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.4s var(--ease-film);
+}
+.group:hover .play-dot,
+.group:focus-visible .play-dot {
+  background: #ffc46b;
+  color: #05060a;
+  box-shadow: inset 0 0 0 1px #ffc46b;
 }
 
 /* ---------- Reveal animations (JS-driven) ---------- */
@@ -328,7 +419,8 @@ html[data-lang='cat'] body,
 html[data-lang='cat'] .font-display,
 html[data-lang='cat'] .section-title,
 html[data-lang='cat'] .font-mono,
-html[data-lang='cat'] .btn {
+html[data-lang='cat'] .btn,
+html[data-lang='cat'] .meta-line {
   font-family: 'NyaGlyph', 'Baloo 2', 'Inter', system-ui, sans-serif !important;
   font-variation-settings: normal !important;
   letter-spacing: 0.08em;

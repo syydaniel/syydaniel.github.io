@@ -3,8 +3,9 @@
 // stills of the 4K masters; the rest form a year-filterable archive. Nothing
 // loads from Bilibili until a film is played (covers aside), and every player
 // is Bilibili's own embed.
-import { films, BILIBILI_SPACE } from '../data/films';
+import { films, filmNumber, BILIBILI_SPACE } from '../data/films';
 import type { Loc } from '../data/journey';
+import FilmPoster from './FilmPoster.astro';
 
 const featured = films.filter((f) => f.featured);
 const archive = films.filter((f) => !f.featured);
@@ -20,17 +21,13 @@ const ARCHIVE_PREVIEW = 8;
 
 const self = (v: Loc) => JSON.stringify(v);
 const dot = (d: string) => d.replaceAll('-', '.');
-// Bilibili serves resized covers via an @ suffix; covers only load without a Referer.
-const thumb = (url: string) => `${url}@640w_360h_1c.webp`;
-// Number films in upload order, the way a filmography would.
-const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid === bvid);
 ---
 
 <section id="films" class="relative py-28 md:py-40 scroll-mt-20">
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal">
       <div>
-        <span class="section-eyebrow" data-i18n="films.eyebrow">Films</span>
+        <span class="section-eyebrow" data-chapter="05" data-i18n="films.eyebrow">Films</span>
         <h2 class="section-title mt-4 max-w-3xl">
           <span data-i18n="films.title.a">The same places,</span>
           <span class="text-gradient italic font-display" data-i18n="films.title.b">in motion.</span>
@@ -74,10 +71,10 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
                   style={`object-position:${f.featured!.focus ?? '50% 50%'}`}
                 />
                 <span class="film-shade absolute inset-0" aria-hidden="true" />
-                <span class="film-grain absolute inset-0" aria-hidden="true" />
+                <span class="grain" aria-hidden="true" />
 
                 <span class="absolute left-5 right-5 top-5 md:left-9 md:right-9 md:top-8 flex items-center justify-between text-[10px] md:text-[11px] font-mono uppercase tracking-[0.3em] text-ink-100/70">
-                  <span>N° {String(numberOf(f.bvid)).padStart(2, '0')}</span>
+                  <span>N° {filmNumber(f.bvid)}</span>
                   <span>{dot(f.date)}</span>
                 </span>
 
@@ -130,54 +127,7 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
         {
           archive.map((f, i) => (
             <li class="film-card" data-year={f.date.slice(0, 4)} data-rank={i} hidden={i >= ARCHIVE_PREVIEW}>
-              <button
-                type="button"
-                class="film-open group block w-full text-left"
-                data-bvid={f.bvid}
-                data-title={f.title.en}
-                data-title-loc={self(f.title)}
-                data-meta={`${dot(f.date)} · ${f.duration}`}
-              >
-                <span class="film-poster relative block aspect-[4/5] overflow-hidden rounded-2xl bg-ink-900 ring-1 ring-white/10">
-                  <img
-                    src={thumb(f.cover)}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    referrerpolicy="no-referrer"
-                    class="film-wash absolute inset-0 w-full h-full object-cover"
-                  />
-                  <span class="film-poster-shade absolute inset-0" aria-hidden="true" />
-                  <span class="film-grain absolute inset-0" aria-hidden="true" />
-
-                  <span class="absolute inset-x-3 sm:inset-x-4 top-3 sm:top-4 flex items-center justify-between text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.28em] text-ink-100/65">
-                    <span>N° {String(numberOf(f.bvid)).padStart(2, '0')}</span>
-                    <span>{f.date.slice(0, 4)}</span>
-                  </span>
-
-                  <span class="absolute inset-x-3 sm:inset-x-4 bottom-3 sm:bottom-4 flex flex-col">
-                    <span class="film-rule h-px w-8 bg-ink-100/40 mb-3" aria-hidden="true" />
-                    {f.place && (
-                      <span class="mb-2 text-[10px] font-mono uppercase tracking-[0.28em] text-sol-400/90 truncate" data-i18n-self={self(f.place)}>
-                        {f.place.en}
-                      </span>
-                    )}
-                    <span class="film-poster-title font-display italic text-ink-100 text-[1.3rem] sm:text-[1.75rem] leading-[1.05]" data-i18n-self={self(f.poster ?? f.title)}>
-                      {(f.poster ?? f.title).en}
-                    </span>
-                    <span class="mt-4 flex items-center justify-between">
-                      <span class="font-mono text-[11px] text-ink-100/75">{f.duration}</span>
-                      <span class="film-mini-play flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-ink-100/40 text-ink-100" aria-hidden="true">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="ml-0.5"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
-                      </span>
-                    </span>
-                  </span>
-                </span>
-                <span class="mt-3 block text-[0.9rem] leading-snug text-ink-300 group-hover:text-ink-100 transition-colors line-clamp-2" data-i18n-self={self(f.title)}>
-                  {f.title.en}
-                </span>
-                <span class="mt-1.5 block text-[10px] font-mono uppercase tracking-[0.2em] text-ink-400">{dot(f.date)}</span>
-              </button>
+              <FilmPoster bvid={f.bvid} caption />
             </li>
           ))
         }
@@ -188,37 +138,19 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
           <span data-i18n="films.more">Show all films</span>
           <span class="font-mono text-ink-400 ml-1.5">{archive.length}</span>
         </button>
-        <a href={BILIBILI_SPACE} target="_blank" rel="noopener" class="text-sm text-ink-400 hover:text-aqua-400 transition-colors px-3 py-2">
+        <a href={BILIBILI_SPACE} target="_blank" rel="noopener" class="text-sm text-ink-400 hover:text-sol-400 transition-colors px-3 py-2">
           <span data-i18n="films.channel">Follow on Bilibili</span> ↗
         </a>
       </div>
     </div>
   </div>
 
-  <!-- archive player -->
-  <dialog id="film-dialog" class="film-dialog w-[min(1100px,calc(100vw-2rem))] max-w-none bg-transparent p-0 text-ink-100">
-    <div class="rounded-2xl overflow-hidden bg-ink-950 ring-1 ring-white/10 shadow-2xl">
-      <div class="relative aspect-video bg-black" id="film-dialog-frame"></div>
-      <div class="flex items-center gap-4 px-5 py-4">
-        <div class="min-w-0">
-          <div id="film-dialog-title" class="font-display text-lg leading-snug truncate"></div>
-          <div id="film-dialog-meta" class="mt-0.5 text-xs font-mono text-ink-400"></div>
-        </div>
-        <a id="film-dialog-link" href="#" target="_blank" rel="noopener" class="ml-auto shrink-0 text-xs uppercase tracking-[0.2em] text-ink-400 hover:text-aqua-400 transition-colors">
-          <span data-i18n="films.on_bilibili">Bilibili</span> ↗
-        </a>
-        <button id="film-dialog-close" type="button" class="shrink-0 h-9 w-9 rounded-full glass-soft flex items-center justify-center text-ink-200 hover:text-ink-100" aria-label="Close">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
-      </div>
-    </div>
-  </dialog>
 </section>
 
 <style>
   .film-stage {
     aspect-ratio: 4 / 5;
-    transition: aspect-ratio 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: aspect-ratio 0.6s var(--ease-film);
   }
   @media (min-width: 640px) {
     .film-stage { aspect-ratio: 16 / 9; }
@@ -230,7 +162,7 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
 
   .film-still {
     transform: scale(1.04);
-    transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), filter 0.8s ease;
+    transition: transform 1.6s var(--ease-film), filter 0.8s ease;
     filter: saturate(1) contrast(1.05) brightness(1.04);
   }
   .film-stage:hover .film-still {
@@ -253,19 +185,12 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
     }
   }
 
-  .film-grain {
-    opacity: 0.1;
-    mix-blend-mode: overlay;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
   .film-title { text-wrap: balance; letter-spacing: -0.01em; }
 
   .film-play {
     color: #05060a;
     background: rgba(238, 240, 250, 0.94);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
+    transition: transform 0.4s var(--ease-film), background 0.3s ease;
   }
   .film-play::after {
     content: '';
@@ -273,58 +198,22 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
     inset: -7px;
     border-radius: 9999px;
     border: 1px solid rgba(238, 240, 250, 0.35);
-    transition: inset 0.4s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease;
+    transition: inset 0.4s var(--ease-film), border-color 0.3s ease;
   }
   .film-stage:hover .film-play { transform: scale(1.06); background: #ffc46b; }
   .film-stage:hover .film-play::after { inset: -12px; border-color: rgba(255, 196, 107, 0.5); }
-
-  /* Archive posters: the Bilibili cover becomes a blurred colour field (its baked-in
-     text and faces dissolve), with the typography set on top. */
-  .film-wash {
-    transform: scale(1.45);
-    filter: blur(22px) saturate(1.5) brightness(0.7);
-    transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1), filter 0.8s ease;
-  }
-  .film-open:hover .film-wash,
-  .film-open:focus-visible .film-wash {
-    transform: scale(1.6);
-    filter: blur(18px) saturate(1.7) brightness(0.78);
-  }
-  .film-poster-shade {
-    background:
-      radial-gradient(120% 70% at 20% 0%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 60%),
-      linear-gradient(to top, rgba(5, 6, 10, 0.82) 0%, rgba(5, 6, 10, 0.25) 55%, rgba(5, 6, 10, 0.35) 100%);
-  }
-  .film-poster-title { text-wrap: balance; letter-spacing: -0.01em; }
-  .film-rule { transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
-  .film-open:hover .film-rule { width: 3.5rem; }
-  .film-mini-play { transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
-  .film-open:hover .film-mini-play,
-  .film-open:focus-visible .film-mini-play {
-    background: #ffc46b;
-    color: #05060a;
-    box-shadow: 0 0 0 1px #ffc46b;
-  }
 
   .film-year { color: #a0a5c0; transition: color 0.2s ease, background 0.2s ease; }
   .film-year:hover { color: #eef0fa; }
   .film-year.active { background: rgba(238, 240, 250, 0.1); color: #eef0fa; }
 
-  .film-dialog::backdrop { background: rgba(5, 6, 10, 0.82); backdrop-filter: blur(6px); }
-  .film-dialog[open] { animation: film-in 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
-  @keyframes film-in {
-    from { opacity: 0; transform: translateY(12px) scale(0.98); }
-    to { opacity: 1; transform: none; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .film-stage, .film-still, .film-wash, .film-rule, .film-play, .film-play::after { transition: none; }
-    .film-dialog[open] { animation: none; }
+    .film-stage, .film-still, .film-play, .film-play::after { transition: none; }
   }
 </style>
 
 <script>
-  import { bilibiliPlayer, bilibiliPage } from '../data/films';
+  import { bilibiliPlayer } from '../data/films';
 
   const makeFrame = (bvid: string) => {
     const iframe = document.createElement('iframe');
@@ -332,7 +221,6 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
     iframe.title = 'Bilibili video player';
     iframe.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
     iframe.allowFullscreen = true;
-    iframe.referrerPolicy = 'no-referrer-when-downgrade';
     iframe.className = 'absolute inset-0 w-full h-full border-0';
     return iframe;
   };
@@ -374,35 +262,4 @@ const numberOf = (bvid: string) => films.length - films.findIndex((f) => f.bvid 
     render();
   });
 
-  // Archive: play in a dialog.
-  const dialog = document.getElementById('film-dialog') as HTMLDialogElement | null;
-  const frame = document.getElementById('film-dialog-frame');
-  const title = document.getElementById('film-dialog-title');
-  const meta = document.getElementById('film-dialog-meta');
-  const link = document.getElementById('film-dialog-link') as HTMLAnchorElement | null;
-  const close = () => dialog?.close();
-
-  document.querySelectorAll<HTMLButtonElement>('.film-open').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      if (!dialog || !frame) return;
-      const bvid = btn.dataset.bvid!;
-      frame.replaceChildren(makeFrame(bvid));
-      const lang = document.documentElement.dataset.lang;
-      let t = btn.dataset.title || '';
-      try {
-        const loc = JSON.parse(btn.dataset.titleLoc || '{}');
-        if (lang === 'zh' && loc.zh) t = loc.zh;
-      } catch {}
-      if (title) title.textContent = t;
-      if (meta) meta.textContent = btn.dataset.meta || '';
-      if (link) link.href = bilibiliPage(bvid);
-      dialog.showModal();
-    });
-  });
-  document.getElementById('film-dialog-close')?.addEventListener('click', close);
-  dialog?.addEventListener('click', (e) => {
-    if (e.target === dialog) close();
-  });
-  // Stop playback when the dialog closes.
-  dialog?.addEventListener('close', () => frame?.replaceChildren());
 </script>

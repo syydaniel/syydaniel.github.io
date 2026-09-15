@@ -19,7 +19,6 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.journey': { en: 'Journey', zh: '历程' },
   'nav.photography': { en: 'Photography', zh: '摄影' },
   'nav.contact': { en: 'Contact', zh: '联系' },
-  'nav.blog': { en: 'Journal', zh: '笔记' },
   'nav.cta': { en: "Let's talk", zh: '聊聊' },
   'nav.cv': { en: 'CV', zh: '简历' },
   'nav.places': { en: 'Places', zh: '足迹' },
@@ -131,6 +130,12 @@ export const dict: Record<string, Record<Lang, string>> = {
   'photo.no_photos': { en: 'No photos in this time range.', zh: '这个时间段内没有照片。' },
 
   // Places (GPX footprint map)
+  // Shared film language
+  'strip.label': { en: 'From the archive', zh: '胶片档案' },
+  'strip.all': { en: 'All frames', zh: '全部照片' },
+  'about.now_showing': { en: 'Now showing', zh: '正在放映' },
+  'journey.films': { en: 'Filmed in this chapter', zh: '这段时期拍的影片' },
+  'places.frames': { en: 'frames', zh: '张照片' },
   // Films
   'films.eyebrow': { en: 'Films', zh: '影像' },
   'films.title.a': { en: 'The same places,', zh: '同样的地方，' },
@@ -183,24 +188,6 @@ export const dict: Record<string, Record<Lang, string>> = {
   'contact.channel.hint.transcript': { en: 'WUR academic record, kept current as new grades land.', zh: '瓦大成绩记录，有新成绩会同步更新。' },
   'contact.based': { en: 'Based in', zh: '常驻' },
   'contact.current': { en: 'MSc, Wageningen University · Graduated May 2026', zh: '瓦赫宁根大学硕士 · 2026 年 5 月毕业' },
-
-  // Blog / Journal
-  'blog.eyebrow': { en: 'Journal', zh: '笔记' },
-  'blog.title': { en: 'Field notes & essays', zh: '野外随记与随笔' },
-  'blog.intro': {
-    en: 'Short notes from the water and microplastics work, the occasional photo essay, and things I am still thinking about. Written in English and 中文.',
-    zh: '关于水与微塑料研究的短记、偶尔的图片随笔，以及我仍在琢磨的一些问题。以中英文写作。'
-  },
-  'blog.minread': { en: 'min read', zh: '分钟阅读' },
-  'blog.back': { en: 'All posts', zh: '所有文章' },
-  'blog.backhome': { en: 'Home', zh: '首页' },
-  'blog.published': { en: 'Published', zh: '发表于' },
-  'blog.updated': { en: 'updated', zh: '更新' },
-  'blog.empty': { en: 'No posts in this language yet. Showing everything.', zh: '这个语言下还没有文章，先显示全部。' },
-  'blog.none': { en: 'No posts yet. Check back soon.', zh: '还没有文章，敬请期待。' },
-  'blog.like_hint': { en: 'Like this if it resonated.', zh: '如果有共鸣，点个赞。' },
-  'blog.comments': { en: 'Comments', zh: '评论' },
-  'blog.comments_soon': { en: 'Comments are coming soon.', zh: '评论功能即将开放。' },
 
   // Footer
   'footer.title.a': { en: "Let's collaborate on", zh: '让我们一起探索' },

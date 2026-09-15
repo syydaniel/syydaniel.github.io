@@ -14,7 +14,7 @@ const channels = [
   <div class="mx-auto max-w-6xl px-6">
     <div class="grid lg:grid-cols-[1fr_1.1fr] gap-16">
       <div class="reveal">
-        <span class="section-eyebrow" data-i18n="contact.eyebrow">Contact</span>
+        <span class="section-eyebrow" data-chapter="07" data-i18n="contact.eyebrow">Contact</span>
         <h2 class="section-title mt-4">
           <span data-i18n="contact.title.a">Say</span> <span class="text-gradient italic font-display" data-i18n="contact.title.b">hello</span>.
         </h2>
@@ -40,15 +40,15 @@ const channels = [
               href={c.href}
               target={c.href.startsWith('mailto:') ? '_self' : '_blank'}
               rel="noreferrer"
-              class="group block glass rounded-2xl p-5 md:p-6 hover:border-aqua-400/30 transition-colors"
+              class="group block glass rounded-2xl p-5 md:p-6 card-hover"
             >
               <div class="flex items-center justify-between gap-4">
                 <div>
-                  <div class="text-[10px] uppercase tracking-[0.28em] text-aqua-400 mb-2" data-i18n={`contact.channel.${c.key}`}>{c.label}</div>
+                  <div class="text-[10px] font-mono uppercase tracking-[0.28em] text-sol-400/90 mb-2" data-i18n={`contact.channel.${c.key}`}>{c.label}</div>
                   <div class="font-display text-xl md:text-2xl text-ink-100 break-all">{c.value}</div>
                   <div class="text-ink-400 text-sm mt-1" data-i18n={`contact.channel.hint.${c.key}`}>{c.hint}</div>
                 </div>
-                <div class="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center text-ink-200 group-hover:bg-aqua-400/15 group-hover:text-aqua-400 transition-all shrink-0">
+                <div class="w-11 h-11 play-dot shrink-0">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                     <path d="M7 17L17 7"/><path d="M7 7h10v10"/>
                   </svg>

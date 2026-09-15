@@ -1,0 +1,74 @@
+---
+// One Bilibili player for the whole site. Any element with data-film="<bvid>"
+// opens it (Films archive, Journey chapters, Places, About, the Journal).
+---
+
+<dialog id="film-dialog" class="film-dialog w-[min(1100px,calc(100vw-2rem))] max-w-none bg-transparent p-0 text-ink-100">
+  <div class="rounded-2xl overflow-hidden bg-ink-950 ring-1 ring-white/10 shadow-2xl">
+    <div class="relative aspect-video bg-black" id="film-dialog-frame"></div>
+    <div class="flex items-center gap-4 px-5 py-4">
+      <div class="min-w-0">
+        <div id="film-dialog-title" class="font-display text-lg leading-snug truncate"></div>
+        <div id="film-dialog-meta" class="meta-line mt-1"></div>
+      </div>
+      <a id="film-dialog-link" href="#" target="_blank" rel="noopener" class="ml-auto shrink-0 text-xs uppercase tracking-[0.2em] text-ink-400 hover:text-sol-400 transition-colors">
+        <span data-i18n="films.on_bilibili">Bilibili</span> ↗
+      </a>
+      <button id="film-dialog-close" type="button" class="group shrink-0 h-9 w-9 play-dot" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .film-dialog::backdrop { background: rgba(5, 6, 10, 0.82); backdrop-filter: blur(6px); }
+  .film-dialog[open] { animation: film-in 0.35s var(--ease-film); }
+  @keyframes film-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .film-dialog[open] { animation: none; }
+  }
+</style>
+
+<script>
+  import { filmByBvid, bilibiliPlayer, bilibiliPage } from '../data/films';
+
+  const dialog = document.getElementById('film-dialog') as HTMLDialogElement | null;
+  const frame = document.getElementById('film-dialog-frame');
+  const title = document.getElementById('film-dialog-title');
+  const meta = document.getElementById('film-dialog-meta');
+  const link = document.getElementById('film-dialog-link') as HTMLAnchorElement | null;
+
+  const open = (bvid: string) => {
+    if (!dialog || !frame) return;
+    const film = filmByBvid(bvid);
+    const iframe = document.createElement('iframe');
+    iframe.src = bilibiliPlayer(bvid);
+    iframe.title = 'Bilibili video player';
+    iframe.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
+    iframe.allowFullscreen = true;
+    iframe.className = 'absolute inset-0 w-full h-full border-0';
+    frame.replaceChildren(iframe);
+    const lang = document.documentElement.dataset.lang === 'zh' ? 'zh' : 'en';
+    if (title) title.textContent = film ? film.title[lang] : '';
+    if (meta) meta.innerHTML = film ? `<span>${film.date.replaceAll('-', '.')}</span><i>·</i><span>${film.duration}</span>` : '';
+    if (link) link.href = bilibiliPage(bvid);
+    dialog.showModal();
+  };
+
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as HTMLElement)?.closest<HTMLElement>('[data-film]');
+    if (!trigger) return;
+    e.preventDefault();
+    open(trigger.dataset.film!);
+  });
+  document.getElementById('film-dialog-close')?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+  // Stop playback when the dialog closes.
+  dialog?.addEventListener('close', () => frame?.replaceChildren());
+</script>

@@ -3,18 +3,22 @@
 // Tracks are snapped to ~10 km cells before they reach the repo, so the map
 // shows regions, never routes.
 import travel from '../data/travel.generated.json';
+import { photos } from '../data/photos-loader';
+import { films } from '../data/films';
 
 const { stats, countries } = travel;
 const CITY_PREVIEW = 8;
 const years = stats.firstYear && stats.lastYear ? stats.lastYear - stats.firstYear + 1 : null;
 const loc = (en: string, zh: string) => JSON.stringify({ en, zh });
+const framesIn = (country: string) => photos.filter((p) => p.location.country === country).length;
+const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
 ---
 
 <section id="places" class="relative py-28 md:py-40 scroll-mt-20">
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
       <div>
-        <span class="section-eyebrow" data-i18n="places.eyebrow">Places</span>
+        <span class="section-eyebrow" data-chapter="03" data-i18n="places.eyebrow">Places</span>
         <h2 class="section-title mt-4 max-w-3xl">
           <span data-i18n="places.title.a">Everywhere my</span>
           <span class="text-gradient italic font-display" data-i18n="places.title.b">footsteps</span>
@@ -76,6 +80,24 @@ const loc = (en: string, zh: string) => JSON.stringify({ en, zh });
                       </Fragment>
                     ))}
                     {c.cities.length > CITY_PREVIEW && <span class="text-ink-500"> +{c.cities.length - CITY_PREVIEW}</span>}
+                  </p>
+                )}
+                {(framesIn(c.en) > 0 || filmsIn(c.a3).length > 0) && (
+                  <p class="mt-2 pl-8 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                    {framesIn(c.en) > 0 && (
+                      <a href="#photography" class="meta-line !text-[9px] hover:!text-ink-100 transition-colors">
+                        <span class="text-ink-300">{framesIn(c.en)}</span> <span data-i18n="places.frames">frames</span>
+                      </a>
+                    )}
+                    {filmsIn(c.a3).slice(0, 2).map((f) => (
+                      <button type="button" class="group inline-flex items-center gap-1.5 text-[12.5px] text-ink-300 hover:text-sol-400 transition-colors" data-film={f.bvid}>
+                        <span class="play-dot h-5 w-5 shrink-0"><svg width="7" height="7" viewBox="0 0 24 24" fill="currentColor" class="ml-px"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg></span>
+                        <span class="font-display italic" data-i18n-self={JSON.stringify(f.poster ?? f.title)}>{(f.poster ?? f.title).en}</span>
+                      </button>
+                    ))}
+                    {filmsIn(c.a3).length > 2 && (
+                      <a href="#films" class="meta-line !text-[9px] hover:!text-ink-100">+{filmsIn(c.a3).length - 2}</a>
+                    )}
                   </p>
                 )}
               </li>

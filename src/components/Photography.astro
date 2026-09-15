@@ -16,7 +16,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
       <div>
-        <span class="section-eyebrow" data-i18n="photo.eyebrow">Photography</span>
+        <span class="section-eyebrow" data-chapter="04" data-i18n="photo.eyebrow">Photography</span>
         <h2 class="section-title mt-4 max-w-3xl">
           <span data-i18n="photo.title.a">A</span> <span class="text-gradient italic font-display" data-i18n="photo.title.b">field notebook</span> <span data-i18n="photo.title.c">in light and silver.</span>
         </h2>
@@ -116,17 +116,17 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
 
   <!-- Lightbox -->
   <div id="lightbox" class="fixed inset-0 z-[100] bg-black/92 backdrop-blur-md hidden items-center justify-center p-4" aria-hidden="true">
-    <button id="lightbox-close" aria-label="Close" class="absolute top-5 right-5 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 hover:scale-110 transition-transform">
+    <button id="lightbox-close" aria-label="Close" class="absolute top-5 right-5 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 lightbox-btn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
-    <button id="lightbox-prev" aria-label="Previous" class="absolute left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 hover:scale-110 transition-transform">
+    <button id="lightbox-prev" aria-label="Previous" class="absolute left-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 lightbox-btn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg>
     </button>
-    <button id="lightbox-next" aria-label="Next" class="absolute right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 hover:scale-110 transition-transform">
+    <button id="lightbox-next" aria-label="Next" class="absolute right-5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink-100 lightbox-btn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
     </button>
     <figure id="lightbox-figure" class="max-w-6xl w-full flex flex-col gap-4 items-center">
-      <img id="lightbox-img" alt="" class="max-h-[78vh] w-auto rounded-xl shadow-2xl bg-ink-800" />
+      <span class="relative inline-block rounded-xl overflow-hidden shadow-2xl"><img id="lightbox-img" alt="" class="block max-h-[78vh] w-auto bg-ink-800" /><span class="grain"></span></span>
       <figcaption id="lightbox-meta" class="text-center text-ink-300 text-sm"></figcaption>
     </figure>
   </div>
@@ -392,7 +392,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       section.innerHTML = `
         <div class="flex items-baseline gap-4 mb-4">
           <span class="font-display text-4xl md:text-5xl text-ink-100">${year}</span>
-          <span class="h-px flex-1 bg-gradient-to-r from-aqua-400/40 to-transparent"></span>
+          <span class="h-px flex-1 bg-gradient-to-r from-sol-400/40 via-aqua-400/20 to-transparent"></span>
           <span class="font-mono text-xs text-ink-400">${group.length} <span data-i18n="photo.frames">frames</span></span>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
@@ -400,13 +400,17 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       const grid = section.querySelector('.grid') as HTMLElement;
       group.forEach((p, i) => {
         const tile = document.createElement('button');
-        tile.className = 'group relative aspect-[4/3] overflow-hidden rounded-xl bg-ink-800 border border-white/5 hover:border-aqua-400/40 transition-all';
+        tile.className = 'group relative aspect-[4/3] overflow-hidden rounded-xl bg-ink-800 border border-white/5 card-hover';
         const bg = p.thumb || p.src;
+        const place = p.location.name.split(',')[0];
         tile.innerHTML = `
-          ${bg ? `<img src="${bg}" alt="${escapeHtml(p.location.name)}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>` : `<div class="w-full h-full bg-gradient-to-br from-ink-700 to-ink-800 flex items-center justify-center"><span class="text-ink-500 text-xs">${escapeHtml(p.location.name)}</span></div>`}
-          <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent text-left">
-            <div class="text-ink-100 text-xs font-medium truncate">${escapeHtml(p.location.name)}</div>
-            <div class="text-ink-400 text-[10px] font-mono">${new Date(p.takenAt).toISOString().slice(0, 10)}</div>
+          ${bg ? `<img src="${bg}" alt="${escapeHtml(p.location.name)}" loading="lazy" class="media-img w-full h-full object-cover"/>` : `<div class="w-full h-full bg-gradient-to-br from-ink-700 to-ink-800 flex items-center justify-center"><span class="text-ink-500 text-xs">${escapeHtml(p.location.name)}</span></div>`}
+          <span class="grain"></span>
+          <span class="absolute top-2.5 left-3 font-mono text-[9px] tracking-[0.24em] text-ink-100/60">N° ${String(i + 1).padStart(2, '0')}</span>
+          <div class="absolute inset-x-0 bottom-0 p-3 pt-8 bg-gradient-to-t from-black/85 to-transparent text-left">
+            <span class="rule-grow mb-2"></span>
+            <div class="text-ink-100 text-xs font-medium truncate">${escapeHtml(place)}</div>
+            <div class="meta-line mt-0.5 !text-[9px]">${new Date(p.takenAt).toISOString().slice(0, 10).replaceAll('-', '.')}</div>
           </div>
         `;
         tile.addEventListener('click', () => openLightbox(group, i));
@@ -457,7 +461,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       lbImg.style.display = 'none';
     }
     const parts = [
-      `<strong class="text-ink-100">${escapeHtml(p.location.name)}</strong>`,
+      `<strong class="text-ink-100 font-normal font-display italic text-base">${escapeHtml(p.location.name)}</strong>`,
       `<span>${escapeHtml(p.location.country)}</span>`,
       `<span class="font-mono">${new Date(p.takenAt).toISOString().slice(0, 10)}</span>`
     ];
@@ -465,7 +469,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     if (p.caption) parts.push(`<em class="text-ink-200">${escapeHtml(p.caption)}</em>`);
     lbMeta.innerHTML =
       parts.join(' · ') +
-      `<div class="mt-2 text-ink-500 text-[11px] font-mono">${lbIndex + 1} / ${lbGroup.length}</div>`;
+      `<div class="mt-2 text-ink-500 text-[10px] font-mono tracking-[0.24em]">N° ${String(lbIndex + 1).padStart(2, '0')} / ${String(lbGroup.length).padStart(2, '0')}</div>`;
   }
   document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
   document.getElementById('lightbox-prev')?.addEventListener('click', () => {
@@ -495,6 +499,8 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
 </script>
 
 <style>
+  .lightbox-btn { transition: background 0.3s ease, color 0.3s ease, transform 0.4s var(--ease-film); }
+  .lightbox-btn:hover { background: #ffc46b; color: #05060a; transform: scale(1.06); }
   .view-toggle {
     color: #6b7190;
   }
