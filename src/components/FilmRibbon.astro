@@ -1,19 +1,26 @@
 ---
-// Global floating graduation-celebration ribbon with a like counter.
-// The ribbon drifts freely across the page (kept below the fixed nav so it is
-// never occluded). Clicking it "likes" the milestone: the count persists in
-// localStorage, with a rising "+1", a heart/confetti particle burst, a count
-// pop, and a toast that shows the accumulating total. Bilingual via i18n.
+// Global floating ribbon announcing the newest film (the first entry in
+// src/data/films.ts, so it updates itself when a film is added). The ribbon
+// drifts across the page below the fixed nav. Its title opens the film in the
+// site-wide player; the heart "likes" the film, with a rising "+1", a particle
+// burst, a count pop and a toast. Each film keeps its own shared counter.
+import { films } from '../data/films';
+
+const latest = [...films].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+const label = { en: `New film: ${latest.title.en}`, zh: `新片：${latest.title.zh}` };
 ---
 
 <div class="gc-root" id="gc-root" aria-live="off">
-  <button class="gc-ribbon" id="gc-ribbon" type="button" aria-label="Celebrate this graduation">
-    <span class="gc-text" data-i18n="hero.gradbanner">Celebrating my MSc graduation!</span>
-    <span class="gc-like">
+  <div class="gc-ribbon" id="gc-ribbon" role="group" data-film-id={latest.bvid}>
+    <button type="button" class="gc-play" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
+      <svg class="gc-play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
+      <span class="gc-text" data-i18n-self={JSON.stringify(label)}>{label.en}</span>
+    </button>
+    <button type="button" class="gc-like" id="gc-like" aria-label="Like this film">
       <svg class="gc-heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
       <span class="gc-num" id="gc-num">0</span>
-    </span>
-  </button>
+    </button>
+  </div>
 </div>
 <div class="gc-fx" id="gc-fx" aria-hidden="true"></div>
 <div class="gc-toast" id="gc-toast" role="status" aria-hidden="true"></div>
@@ -22,7 +29,7 @@
   .gc-root{position:fixed;top:0;left:0;z-index:45;width:max-content;pointer-events:none;will-change:transform;}
   .gc-ribbon{
     pointer-events:auto;display:inline-flex;align-items:center;gap:.7rem;
-    padding:.5rem 1.5rem;border:0;cursor:pointer;font-family:inherit;font-weight:700;
+    padding:.5rem 1.5rem;border:0;font-family:inherit;font-weight:700;
     font-size:.92rem;letter-spacing:.03em;color:#fff;white-space:nowrap;
     background:linear-gradient(135deg,#ff4646 0%,#e01b2b 48%,#a8101b 100%);
     clip-path:polygon(0 0,100% 0,calc(100% - 13px) 50%,100% 100%,0 100%,13px 50%);
@@ -31,14 +38,19 @@
     animation:gc-flutter 3.8s ease-in-out infinite;transition:filter .2s ease;
   }
   .gc-ribbon:hover{filter:brightness(1.08) saturate(1.08);}
-  .gc-ribbon:focus-visible{outline:2px solid #fff;outline-offset:3px;}
+  .gc-play,.gc-like{all:unset;cursor:pointer;display:inline-flex;align-items:center;}
+  .gc-play{gap:.5rem;}
+  .gc-play-icon{width:13px;height:13px;fill:#fff;flex:none;transition:transform .3s ease;}
+  .gc-play:hover .gc-play-icon{transform:scale(1.25);}
+  .gc-play:hover .gc-text{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;}
+  .gc-play:focus-visible,.gc-like:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:4px;}
   @keyframes gc-flutter{
     0%,100%{transform:rotate(-2.4deg) skewX(0) translateY(0);}
     25%{transform:rotate(-1.1deg) skewX(2deg) translateY(-3px);}
     50%{transform:rotate(-2.4deg) skewX(0) translateY(2px);}
     75%{transform:rotate(-3.7deg) skewX(-2deg) translateY(-2px);}
   }
-  .gc-like{display:inline-flex;align-items:center;gap:.3rem;padding-left:.65rem;border-left:1px solid rgba(255,255,255,.4);}
+  .gc-like{gap:.3rem;padding-left:.65rem;border-left:1px solid rgba(255,255,255,.4);}
   .gc-heart{width:15px;height:15px;fill:#fff;filter:drop-shadow(0 0 4px rgba(255,255,255,.55));}
   .gc-num{font-variant-numeric:tabular-nums;min-width:1ch;display:inline-block;}
   .gc-num.gc-pop{animation:gc-pop .45s cubic-bezier(.2,1.5,.4,1);}
@@ -69,18 +81,20 @@
 
   const root = document.getElementById('gc-root');
   const ribbon = document.getElementById('gc-ribbon');
+  const likeBtn = document.getElementById('gc-like');
   const numEl = document.getElementById('gc-num');
   const fx = document.getElementById('gc-fx');
   const toast = document.getElementById('gc-toast');
 
-  if (root && ribbon && numEl && fx && toast) {
+  if (root && ribbon && likeBtn && numEl && fx && toast) {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     // Shared cross-visitor counter via the Abacus free counter API (no auth,
     // CORS-enabled), cached in localStorage for instant paint + offline fallback.
     const API = 'https://abacus.jasoncameron.dev';
     const NS = 'syydaniel-portfolio';
-    const COUNTER = 'grad-likes';
-    const CACHE = 'gc_grad_likes_v2';
+    const filmId = ribbon.dataset.filmId || 'latest';
+    const COUNTER = `film-likes-${filmId}`;
+    const CACHE = `gc_film_likes_${filmId}`;
     const fmt = (n) => n.toLocaleString();
     let likes = parseInt(localStorage.getItem(CACHE) || '0', 10);
     if (!Number.isFinite(likes) || likes < 0) likes = 0;
@@ -165,7 +179,7 @@
     let toastTimer = 0;
     const showToast = () => {
       const lang = ((window).__getLang && (window).__getLang()) || localStorage.getItem('site-lang') || 'en';
-      const label = lang === 'zh' ? '次庆祝' : (likes === 1 ? 'celebration' : 'celebrations');
+      const label = lang === 'zh' ? '个喜欢' : (likes === 1 ? 'like' : 'likes');
       toast.innerHTML = svg() + `<strong>${fmt(likes)}</strong> <span>${label}</span>`;
       toast.classList.add('gc-show');
       clearTimeout(toastTimer);
@@ -177,13 +191,13 @@
       try { localStorage.setItem(CACHE, String(likes)); } catch (e) {}
       numEl.textContent = fmt(likes);
       numEl.classList.remove('gc-pop'); void numEl.offsetWidth; numEl.classList.add('gc-pop');
-      const r = ribbon.getBoundingClientRect();
+      const r = likeBtn.getBoundingClientRect();
       const x = (ev && ev.clientX) ? ev.clientX : r.left + r.width / 2;
       const y = (ev && ev.clientY) ? ev.clientY : r.top + r.height / 2;
       if (!reduce) { floatPlus(x, y - 12); burst(x, y); }
       showToast();
       sendHit();
     };
-    ribbon.addEventListener('click', like);
+    likeBtn.addEventListener('click', like);
   }
 </script>
