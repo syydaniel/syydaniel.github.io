@@ -1,13 +1,28 @@
 ---
 import { photos as photosInitial, isUsingSeedPhotos } from '../data/photos-loader';
+import { films, filmNumber, coverThumb } from '../data/films';
 
 const photos = photosInitial;
 const total = photos.length;
 const countries = new Set(photos.map((p) => p.location.country)).size;
 const hasCoords = photos.filter((p) => Array.isArray(p.location?.coords) && p.location.coords.length === 2);
 
-// year range
-const years = photos.map((p) => new Date(p.takenAt).getFullYear()).filter((n) => !isNaN(n));
+// Films share the timeline with the photographs (but not the map: they have no pins).
+const timelineFilms = films.map((f) => ({
+  bvid: f.bvid,
+  date: f.date,
+  duration: f.duration,
+  number: filmNumber(f.bvid),
+  title: f.poster ?? f.title,
+  place: f.place ?? null,
+  cover: f.featured ? f.featured.stillSm : coverThumb(f.cover, 480, 270),
+  still: !!f.featured
+}));
+
+// year range across photos and films
+const years = [...photos.map((p) => p.takenAt), ...films.map((f) => f.date)]
+  .map((d) => new Date(d).getFullYear())
+  .filter((n) => !isNaN(n));
 const yearMin = years.length ? Math.min(...years) : new Date().getFullYear();
 const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
 ---
@@ -22,13 +37,17 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
         </h2>
         <p class="mt-5 text-ink-300 max-w-2xl" data-i18n="photo.intro">
           Every pin on the map is a place I've stood with a camera. Click one to open the frames.
-          Drag the time slider to travel years, or switch to the timeline view for a chronological ribbon.
+          Drag the time slider to travel years, or switch to the timeline view, where the photographs and films share one chronological ribbon.
         </p>
       </div>
-      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-3 gap-6 min-w-[260px]">
+      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-4 gap-5 min-w-[300px]">
         <div>
           <div class="font-display text-2xl text-ink-100">{total}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="photo.stat.frames">Frames</div>
+        </div>
+        <div>
+          <div class="font-display text-2xl text-ink-100">{films.length}</div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="films.stat.films">Films</div>
         </div>
         <div>
           <div class="font-display text-2xl text-ink-100">{countries}</div>
@@ -59,7 +78,10 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
           Timeline
         </button>
       </div>
-      <div class="text-xs text-ink-400 font-mono"><span id="photo-count">{total}</span> <span data-i18n="photo.frames_visible">frames visible</span></div>
+      <div class="text-xs text-ink-400 font-mono">
+        <span id="photo-count">{total}</span> <span data-i18n="photo.frames_visible">frames visible</span>
+        <span id="film-count-wrap" class="hidden"> · <span id="film-count">{films.length}</span> <span data-i18n="photo.films_visible">films</span></span>
+      </div>
     </div>
 
     <!-- MAP VIEW -->
@@ -132,8 +154,9 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
   </div>
 </section>
 
-<script is:inline define:vars={{ initialPhotos: photos, yearMin, yearMax }}>
+<script is:inline define:vars={{ initialPhotos: photos, timelineFilms, yearMin, yearMax }}>
   window.__SITE_PHOTOS__ = initialPhotos;
+  window.__TIMELINE_FILMS__ = timelineFilms;
   window.__YEAR_MIN__ = yearMin;
   window.__YEAR_MAX__ = yearMax;
 </script>
@@ -159,6 +182,17 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
   const allPhotos: Photo[] = ((window as unknown as { __SITE_PHOTOS__: Photo[] }).__SITE_PHOTOS__ ?? []).filter(
     (p) => Array.isArray(p.location?.coords) && p.location.coords.length === 2
   );
+  type TimelineFilm = {
+    bvid: string;
+    date: string;
+    duration: string;
+    number: string;
+    title: { en: string; zh: string };
+    place: { en: string; zh: string } | null;
+    cover: string;
+    still: boolean;
+  };
+  const allFilms: TimelineFilm[] = (window as unknown as { __TIMELINE_FILMS__: TimelineFilm[] }).__TIMELINE_FILMS__ ?? [];
   const yearMin = (window as unknown as { __YEAR_MIN__: number }).__YEAR_MIN__;
   const yearMax = (window as unknown as { __YEAR_MAX__: number }).__YEAR_MAX__;
 
@@ -177,6 +211,13 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
   function visiblePhotos(): Photo[] {
     return allPhotos.filter((p) => {
       const y = photoYear(p);
+      return y >= startYear && y <= endYear;
+    });
+  }
+
+  function visibleFilms(): TimelineFilm[] {
+    return allFilms.filter((f) => {
+      const y = Number(f.date.slice(0, 4));
       return y >= startYear && y <= endYear;
     });
   }
@@ -206,6 +247,8 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       const shown = visiblePhotos().length;
       countEl.textContent = String(shown);
     }
+    const filmCount = document.getElementById('film-count');
+    if (filmCount) filmCount.textContent = String(visibleFilms().length);
   }
 
   function renderMarkers() {
@@ -362,64 +405,107 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
       if (btn.dataset.view === 'map') {
         mapView.classList.remove('hidden');
         timelineView.classList.add('hidden');
+        document.getElementById('film-count-wrap')?.classList.add('hidden');
         initMap();
         if (map) setTimeout(() => map.resize(), 60);
       } else {
         timelineView.classList.remove('hidden');
         mapView.classList.add('hidden');
+        document.getElementById('film-count-wrap')?.classList.remove('hidden');
         renderTimeline();
       }
     });
   });
 
   // ---------- TIMELINE ----------
+  // Film titles are set per language, so redraw when the language changes.
+  window.addEventListener('lang:change', () => renderTimeline());
+
   function renderTimeline() {
     const container = document.getElementById('timeline-groups');
     if (!container) return;
 
     const list = visiblePhotos().slice().sort((a, b) => (a.takenAt < b.takenAt ? 1 : -1));
+    const filmList = visibleFilms();
+    const lang = document.documentElement.dataset.lang === 'zh' ? 'zh' : 'en';
 
-    // group by year
-    const byYear = new Map<number, Photo[]>();
-    for (const p of list) {
-      const y = photoYear(p);
-      byYear.set(y, [...(byYear.get(y) ?? []), p]);
-    }
+    // One ribbon: photos and films together, newest first, grouped by year.
+    type Entry = { kind: 'photo'; date: string; photo: Photo } | { kind: 'film'; date: string; film: TimelineFilm };
+    const byYear = new Map<number, Entry[]>();
+    const push = (y: number, e: Entry) => byYear.set(y, [...(byYear.get(y) ?? []), e]);
+    for (const p of list) push(photoYear(p), { kind: 'photo', date: p.takenAt.slice(0, 10), photo: p });
+    for (const f of filmList) push(Number(f.date.slice(0, 4)), { kind: 'film', date: f.date, film: f });
 
     container.innerHTML = '';
-    for (const [year, group] of [...byYear.entries()].sort((a, b) => b[0] - a[0])) {
+    for (const [year, entries] of [...byYear.entries()].sort((a, b) => b[0] - a[0])) {
+      entries.sort((a, b) => (a.date < b.date ? 1 : -1));
+      const photosInYear = entries.flatMap((e) => (e.kind === 'photo' ? [e.photo] : []));
+      const filmsInYear = entries.length - photosInYear.length;
+      const counts = [
+        photosInYear.length ? `${photosInYear.length} <span data-i18n="photo.frames">frames</span>` : '',
+        filmsInYear ? `${filmsInYear} <span data-i18n="photo.films_visible">films</span>` : ''
+      ].filter(Boolean).join(' · ');
       const section = document.createElement('div');
       section.innerHTML = `
         <div class="flex items-baseline gap-4 mb-4">
           <span class="font-display text-4xl md:text-5xl text-ink-100">${year}</span>
           <span class="h-px flex-1 bg-gradient-to-r from-sol-400/40 via-aqua-400/20 to-transparent"></span>
-          <span class="font-mono text-xs text-ink-400">${group.length} <span data-i18n="photo.frames">frames</span></span>
+          <span class="font-mono text-xs text-ink-400">${counts}</span>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
       `;
       const grid = section.querySelector('.grid') as HTMLElement;
-      group.forEach((p, i) => {
+      entries.forEach((e) => {
         const tile = document.createElement('button');
+        tile.type = 'button';
         tile.className = 'group relative aspect-[4/3] overflow-hidden rounded-xl bg-ink-800 border border-white/5 card-hover';
-        const bg = p.thumb || p.src;
-        const place = p.location.name.split(',')[0];
-        tile.innerHTML = `
-          ${bg ? `<img src="${bg}" alt="${escapeHtml(p.location.name)}" loading="lazy" class="media-img w-full h-full object-cover"/>` : `<div class="w-full h-full bg-gradient-to-br from-ink-700 to-ink-800 flex items-center justify-center"><span class="text-ink-500 text-xs">${escapeHtml(p.location.name)}</span></div>`}
-          <span class="grain"></span>
-          <span class="absolute top-2.5 left-3 font-mono text-[9px] tracking-[0.24em] text-ink-100/60">N° ${String(i + 1).padStart(2, '0')}</span>
-          <div class="absolute inset-x-0 bottom-0 p-3 pt-8 bg-gradient-to-t from-black/85 to-transparent text-left">
-            <span class="rule-grow mb-2"></span>
-            <div class="text-ink-100 text-xs font-medium truncate">${escapeHtml(place)}</div>
-            <div class="meta-line mt-0.5 !text-[9px]">${new Date(p.takenAt).toISOString().slice(0, 10).replaceAll('-', '.')}</div>
-          </div>
-        `;
-        tile.addEventListener('click', () => openLightbox(group, i));
+        if (e.kind === 'film') {
+          const f = e.film;
+          // Featured films have a real still; the rest use their Bilibili cover blurred into colour.
+          const img = f.still
+            ? `<img src="${f.cover}" alt="" loading="lazy" class="media-img w-full h-full object-cover"/>`
+            : `<img src="${f.cover}" alt="" loading="lazy" referrerpolicy="no-referrer" class="absolute inset-0 w-full h-full object-cover scale-[1.5] blur-[20px] saturate-150 brightness-[.7] transition duration-700 group-hover:scale-[1.65] group-hover:brightness-[.8]"/>`;
+          tile.dataset.film = f.bvid;
+          tile.setAttribute('aria-label', `Play: ${f.title.en}`);
+          tile.innerHTML = `
+            ${img}
+            <span class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30"></span>
+            <span class="grain"></span>
+            <span class="absolute top-2.5 inset-x-3 flex justify-between font-mono text-[9px] tracking-[0.24em] text-ink-100/70 uppercase">
+              <span>N° ${f.number}</span><span class="text-sol-400/90">${lang === 'zh' ? '影片' : 'Film'}</span>
+            </span>
+            <div class="absolute inset-x-0 bottom-0 p-3 text-left flex items-end justify-between gap-2">
+              <div class="min-w-0">
+                <span class="rule-grow mb-2"></span>
+                <div class="font-display italic text-ink-100 text-base md:text-lg leading-tight line-clamp-2">${escapeHtml(f.title[lang])}</div>
+                <div class="meta-line mt-1 !text-[9px] !flex-nowrap"><span>${f.date.replaceAll('-', '.')}</span><i>·</i><span>${f.duration}</span></div>
+              </div>
+              <span class="play-dot h-8 w-8 shrink-0"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="ml-0.5"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg></span>
+            </div>
+          `;
+        } else {
+          const p = e.photo;
+          const i = photosInYear.indexOf(p);
+          const bg = p.thumb || p.src;
+          const place = p.location.name.split(',')[0];
+          tile.innerHTML = `
+            ${bg ? `<img src="${bg}" alt="${escapeHtml(p.location.name)}" loading="lazy" class="media-img w-full h-full object-cover"/>` : `<div class="w-full h-full bg-gradient-to-br from-ink-700 to-ink-800 flex items-center justify-center"><span class="text-ink-500 text-xs">${escapeHtml(p.location.name)}</span></div>`}
+            <span class="grain"></span>
+            <span class="absolute top-2.5 left-3 font-mono text-[9px] tracking-[0.24em] text-ink-100/60">N° ${String(i + 1).padStart(2, '0')}</span>
+            <div class="absolute inset-x-0 bottom-0 p-3 pt-8 bg-gradient-to-t from-black/85 to-transparent text-left">
+              <span class="rule-grow mb-2"></span>
+              <div class="text-ink-100 text-xs font-medium truncate">${escapeHtml(place)}</div>
+              <div class="meta-line mt-0.5 !text-[9px]">${e.date.replaceAll('-', '.')}</div>
+            </div>
+          `;
+          tile.addEventListener('click', () => openLightbox(photosInYear, i));
+        }
         grid.appendChild(tile);
       });
       container.appendChild(section);
     }
 
-    if (!list.length) {
+    if (!list.length && !filmList.length) {
       container.innerHTML = `<p class="text-ink-400 text-center py-12" data-i18n="photo.empty">No photos in this time range.</p>`;
     }
     (window as any).__applyI18n?.();

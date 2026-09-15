@@ -112,8 +112,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   'photo.title.b': { en: 'field notebook', zh: '野外笔记' },
   'photo.title.c': { en: 'in light and silver.', zh: '，以光与银盐写就。' },
   'photo.intro': {
-    en: "Every pin on the map is a place I've stood with a camera. Click one to open the frames. Drag the time slider to travel years, or switch to the timeline view for a chronological ribbon.",
-    zh: '地图上的每一个图钉，都是我曾举起相机的地方。点击图钉即可查看照片；拖动时间滑块穿越不同年份；也可以切换到时间线视图，按时间顺序浏览。'
+    en: "Every pin on the map is a place I've stood with a camera. Click one to open the frames. Drag the time slider to travel years, or switch to the timeline view, where the photographs and films share one chronological ribbon.",
+    zh: '地图上的每一个图钉，都是我曾举起相机的地方。点击图钉即可查看照片；拖动时间滑块穿越不同年份；也可以切换到时间线视图，照片和影片按时间顺序排在一起。'
   },
   'photo.stat.frames': { en: 'Frames', zh: '张' },
   'photo.stat.countries': { en: 'Countries', zh: '国家' },
@@ -240,6 +240,9 @@ export const dict: Record<string, Record<Lang, string>> = {
   },
   'photo.frames_visible': {
     en: "frames visible", zh: "张可见"
+  },
+  'photo.films_visible': {
+    en: "films", zh: "部影片"
   },
   'photo.frames': {
     en: "frames", zh: "张"
