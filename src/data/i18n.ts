@@ -23,6 +23,7 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.cta': { en: "Let's talk", zh: '聊聊' },
   'nav.cv': { en: 'CV', zh: '简历' },
   'nav.places': { en: 'Places', zh: '足迹' },
+  'nav.films': { en: 'Films', zh: '影像' },
 
   // Hero
   'hero.eyebrow': {
@@ -130,6 +131,25 @@ export const dict: Record<string, Record<Lang, string>> = {
   'photo.no_photos': { en: 'No photos in this time range.', zh: '这个时间段内没有照片。' },
 
   // Places (GPX footprint map)
+  // Films
+  'films.eyebrow': { en: 'Films', zh: '影像' },
+  'films.title.a': { en: 'The same places,', zh: '同样的地方，' },
+  'films.title.b': { en: 'in motion.', zh: '动起来。' },
+  'films.intro': {
+    en: 'Short films I shoot, edit and grade myself, from the Arctic to the southern tip of Africa. They live on Bilibili; press play to watch them here.',
+    zh: '从北极圈到非洲南端，由我自己拍摄、剪辑和调色的短片。视频放在哔哩哔哩，点击播放即可在这里观看。'
+  },
+  'films.stat.films': { en: 'Films', zh: '部作品' },
+  'films.stat.minutes': { en: 'Minutes', zh: '分钟' },
+  'films.stat.since': { en: 'Since', zh: '始于' },
+  'films.watch': { en: 'Watch the film', zh: '观看影片' },
+  'films.archive.title': { en: 'The archive', zh: '全部作品' },
+  'films.archive.intro': { en: "Everything else I've put on Bilibili, newest first.", zh: '我在哔哩哔哩发布的其他视频，按时间从新到旧。' },
+  'films.all': { en: 'All', zh: '全部' },
+  'films.more': { en: 'Show all films', zh: '显示全部' },
+  'films.channel': { en: 'Follow on Bilibili', zh: '在哔哩哔哩关注我' },
+  'films.on_bilibili': { en: 'Bilibili', zh: '哔哩哔哩' },
+
   'places.eyebrow': { en: 'Places', zh: '足迹' },
   'places.title.a': { en: 'Everywhere my', zh: '我的' },
   'places.title.b': { en: 'footsteps', zh: '脚步' },
