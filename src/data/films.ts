@@ -270,9 +270,14 @@ export const journeyFilms: Record<string, string[]> = {
 };
 
 export const filmByBvid = (bvid: string) => films.find((f) => f.bvid === bvid);
-// Filmography number: upload order, oldest is N° 01.
+// Filmography number: upload order, oldest is 01.
 export const filmNumber = (bvid: string) => String(films.length - films.findIndex((f) => f.bvid === bvid)).padStart(2, '0');
 // Bilibili serves resized covers via an @ suffix; covers only load without a Referer.
+// Label for a film's number. Never "N° 34": on a travel site that reads as a latitude.
+export const filmLabel = (bvid: string) => {
+  const n = String(Number(filmNumber(bvid)));
+  return { en: `Film ${n}`, zh: `第 ${n} 部` };
+};
 export const coverThumb = (url: string, w = 640, h = 360) => `${url}@${w}w_${h}h_1c.webp`;
 
 export const bilibiliPlayer = (bvid: string, autoplay = true) =>

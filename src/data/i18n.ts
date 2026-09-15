@@ -173,12 +173,10 @@ export const dict: Record<string, Record<Lang, string>> = {
     zh: '我欢迎科研合作、图片授权，也乐意聊聊关于水、城市与森林的一切。选一个你方便的方式就好。'
   },
   'contact.channel.personal': { en: 'Personal', zh: '个人邮箱' },
-  'contact.channel.academic': { en: 'Academic', zh: '学术邮箱' },
   'contact.channel.linkedin': { en: 'LinkedIn', zh: 'LinkedIn' },
   'contact.channel.cv': { en: 'CV (PDF)', zh: '简历 (PDF)' },
   'contact.channel.transcript': { en: 'Transcript (PDF)', zh: '成绩单 (PDF)' },
   'contact.channel.hint.personal': { en: 'For collaborations, photo licensing, open talk.', zh: '合作、图片授权，或随意聊聊。' },
-  'contact.channel.hint.academic': { en: 'For research & WUR-related correspondence.', zh: '科研相关、瓦大事务。' },
   'contact.channel.hint.linkedin': { en: 'The long-form version of my journey.', zh: '更完整的履历版本。' },
   'contact.channel.hint.cv': { en: 'Latest version, May 2026. Education, research, awards.', zh: '最新版本，2026 年 5 月。教育、科研、奖项。' },
   'contact.channel.hint.transcript': { en: 'WUR academic record, kept current as new grades land.', zh: '瓦大成绩记录，有新成绩会同步更新。' },

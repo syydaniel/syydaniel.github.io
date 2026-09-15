@@ -1,6 +1,6 @@
 ---
 import { profile } from '../data/profile';
-import { films, filmNumber } from '../data/films';
+import { films, filmLabel } from '../data/films';
 import { photos } from '../data/photos-loader';
 
 // Newest featured film and three recent frames from different places.
@@ -42,7 +42,7 @@ const skills = [
               <span class="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/20 to-ink-950/30"></span>
               <span class="grain"></span>
               <span class="absolute inset-x-4 top-3 flex justify-between font-mono text-[9px] tracking-[0.28em] text-ink-100/65 uppercase">
-                <span data-i18n="about.now_showing">Now showing</span><span>N° {filmNumber(latest.bvid)}</span>
+                <span data-i18n="about.now_showing">Now showing</span><span data-i18n-self={JSON.stringify(filmLabel(latest.bvid))}>{filmLabel(latest.bvid).en}</span>
               </span>
               <span class="absolute inset-x-4 bottom-4 flex items-end justify-between gap-4">
                 <span>

@@ -203,9 +203,10 @@ body {
   opacity: 0.6;
 }
 
-/* Chapter numbers, like a film's reel marks: <span class="section-eyebrow" data-chapter="03">. */
+/* Chapter numbers, like a film's reel marks: <span class="section-eyebrow" data-chapter="03">.
+   Plain digits only: "N° 03" reads as a latitude. */
 .section-eyebrow[data-chapter]::before {
-  content: 'N° ' attr(data-chapter);
+  content: attr(data-chapter);
   width: auto;
   height: auto;
   padding-right: 2.6rem;

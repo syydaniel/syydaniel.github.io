@@ -1,6 +1,6 @@
 ---
 import { photos as photosInitial, isUsingSeedPhotos } from '../data/photos-loader';
-import { films, filmNumber, coverThumb } from '../data/films';
+import { films, filmLabel, coverThumb } from '../data/films';
 
 const photos = photosInitial;
 const total = photos.length;
@@ -12,7 +12,7 @@ const timelineFilms = films.map((f) => ({
   bvid: f.bvid,
   date: f.date,
   duration: f.duration,
-  number: filmNumber(f.bvid),
+  label: filmLabel(f.bvid),
   title: f.poster ?? f.title,
   place: f.place ?? null,
   cover: f.featured ? f.featured.stillSm : coverThumb(f.cover, 480, 270),
@@ -186,7 +186,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     bvid: string;
     date: string;
     duration: string;
-    number: string;
+    label: { en: string; zh: string };
     title: { en: string; zh: string };
     place: { en: string; zh: string } | null;
     cover: string;
@@ -472,7 +472,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
             <span class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30"></span>
             <span class="grain"></span>
             <span class="absolute top-2.5 inset-x-3 flex justify-between font-mono text-[9px] tracking-[0.24em] text-ink-100/70 uppercase">
-              <span>N° ${f.number}</span><span class="text-sol-400/90">${lang === 'zh' ? '影片' : 'Film'}</span>
+              <span class="text-sol-400/90">${f.label[lang]}</span><span>${f.date.slice(0, 4)}</span>
             </span>
             <div class="absolute inset-x-0 bottom-0 p-3 text-left flex items-end justify-between gap-2">
               <div class="min-w-0">
@@ -491,7 +491,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
           tile.innerHTML = `
             ${bg ? `<img src="${bg}" alt="${escapeHtml(p.location.name)}" loading="lazy" class="media-img w-full h-full object-cover"/>` : `<div class="w-full h-full bg-gradient-to-br from-ink-700 to-ink-800 flex items-center justify-center"><span class="text-ink-500 text-xs">${escapeHtml(p.location.name)}</span></div>`}
             <span class="grain"></span>
-            <span class="absolute top-2.5 left-3 font-mono text-[9px] tracking-[0.24em] text-ink-100/60">N° ${String(i + 1).padStart(2, '0')}</span>
+            <span class="absolute top-2.5 left-3 font-mono text-[9px] tracking-[0.24em] text-ink-100/60">${String(i + 1).padStart(2, '0')}A</span>
             <div class="absolute inset-x-0 bottom-0 p-3 pt-8 bg-gradient-to-t from-black/85 to-transparent text-left">
               <span class="rule-grow mb-2"></span>
               <div class="text-ink-100 text-xs font-medium truncate">${escapeHtml(place)}</div>
@@ -555,7 +555,7 @@ const yearMax = years.length ? Math.max(...years) : new Date().getFullYear();
     if (p.caption) parts.push(`<em class="text-ink-200">${escapeHtml(p.caption)}</em>`);
     lbMeta.innerHTML =
       parts.join(' · ') +
-      `<div class="mt-2 text-ink-500 text-[10px] font-mono tracking-[0.24em]">N° ${String(lbIndex + 1).padStart(2, '0')} / ${String(lbGroup.length).padStart(2, '0')}</div>`;
+      `<div class="mt-2 text-ink-500 text-[10px] font-mono tracking-[0.24em]">${String(lbIndex + 1).padStart(2, '0')} / ${String(lbGroup.length).padStart(2, '0')}</div>`;
   }
   document.getElementById('lightbox-close')?.addEventListener('click', closeLightbox);
   document.getElementById('lightbox-prev')?.addEventListener('click', () => {

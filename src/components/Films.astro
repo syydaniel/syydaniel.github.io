@@ -3,7 +3,7 @@
 // stills of the 4K masters; the rest form a year-filterable archive. Nothing
 // loads from Bilibili until a film is played (covers aside), and every player
 // is Bilibili's own embed.
-import { films, filmNumber, BILIBILI_SPACE } from '../data/films';
+import { films, filmLabel, BILIBILI_SPACE } from '../data/films';
 import type { Loc } from '../data/journey';
 import FilmPoster from './FilmPoster.astro';
 
@@ -74,7 +74,7 @@ const dot = (d: string) => d.replaceAll('-', '.');
                 <span class="grain" aria-hidden="true" />
 
                 <span class="absolute left-5 right-5 top-5 md:left-9 md:right-9 md:top-8 flex items-center justify-between text-[10px] md:text-[11px] font-mono uppercase tracking-[0.3em] text-ink-100/70">
-                  <span>N° {filmNumber(f.bvid)}</span>
+                  <span data-i18n-self={JSON.stringify(filmLabel(f.bvid))}>{filmLabel(f.bvid).en}</span>
                   <span>{dot(f.date)}</span>
                 </span>
 

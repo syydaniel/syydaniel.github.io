@@ -2,7 +2,7 @@
 // A film as a poster: the Bilibili cover blurred into a colour field (its baked-in
 // text and faces dissolve) under the film's number, place, short title and runtime.
 // Clicking opens the site-wide player (FilmPlayer.astro).
-import { filmByBvid, filmNumber, coverThumb } from '../data/films';
+import { filmByBvid, filmLabel, coverThumb } from '../data/films';
 
 interface Props {
   bvid: string;
@@ -32,7 +32,7 @@ const sm = size === 'sm';
     <span class="grain" aria-hidden="true"></span>
 
     <span class:list={['absolute flex items-center justify-between font-mono uppercase tracking-[0.28em] text-ink-100/65', sm ? 'inset-x-3 top-3 text-[9px]' : 'inset-x-3 sm:inset-x-4 top-3 sm:top-4 text-[9px] sm:text-[10px]']}>
-      <span>N° {filmNumber(f.bvid)}</span>
+      <span data-i18n-self={JSON.stringify(filmLabel(f.bvid))}>{filmLabel(f.bvid).en}</span>
       <span>{f.date.slice(0, 4)}</span>
     </span>
 

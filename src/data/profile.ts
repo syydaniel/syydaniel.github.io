@@ -10,8 +10,7 @@ export const profile = {
     "MSc in Urban Environmental Management from Wageningen University & Research. I study water and plastic, and I photograph the places I study.",
   location: 'Wageningen, Netherlands',
   email: {
-    personal: 'syydaniel@gmail.com',
-    academic: 'yiyang.shen@wur.nl'
+    personal: 'syydaniel@gmail.com'
   },
   socials: [
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/yiyang-shen-%E6%B2%88%E4%BA%A6%E6%97%B8-05502821b/', icon: 'linkedin' },
