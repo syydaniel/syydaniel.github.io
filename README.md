@@ -9,7 +9,7 @@ Personal site of Yiyang Shen (Daniel, 沈亦旸): environmental researcher and p
 - [Astro 5](https://astro.build): static site generator
 - [Tailwind CSS](https://tailwindcss.com)
 - [MapLibre GL JS](https://maplibre.org): interactive maps (no API key, lazy loaded)
-- [Three.js](https://threejs.org): hero globe
+- [Three.js](https://threejs.org): interactive hero globe and a separate particle atmosphere
 - [exifr](https://github.com/MikeKovarik/exifr): EXIF extraction for photos
 - [sharp](https://sharp.pixelplumbing.com): builds the social share card
 
@@ -71,6 +71,24 @@ npm run og:image   # scripts/build-og-image.mjs
 ```
 
 Per-post previews use the post's `cover` automatically.
+
+## Visual interactions
+
+The hero retains the original interactive globe, visited-country colors, research locations,
+and orbiting photo previews. The Places and Photography maps keep their existing controls.
+`ParticleScene.astro` adds a separate decorative particle atmosphere behind the globe; its
+Terrain / Orbit / Flow controls do not change the globe or either map.
+
+Glass panels share translucent surfaces, a soft edge light, and pointer illumination on links
+and cards. The native cursor stays visible, and the mobile navigation supports Escape and
+reports its open state to assistive technology. Content remains readable without JavaScript.
+
+The particle system interpolates its three forms in a shader. It initializes when visible,
+shares the site's existing Three.js dependency, caps pixel density and particle count on small or lower-powered devices, suspends rendering
+outside the viewport and in hidden tabs, and provides a pause control. Reduced-motion users
+get a still composition by default; a static SVG remains available if this particle renderer
+cannot initialize. These lifecycle controls apply to the new particle layer; the original
+globe component is preserved.
 
 ## Performance note
 

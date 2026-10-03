@@ -24,6 +24,18 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.places': { en: 'Places', zh: '足迹' },
   'nav.films': { en: 'Films', zh: '影像' },
 
+  // Particle artwork
+  'scene.eyebrow': { en: 'A study in quiet motion', zh: '静默之中，万物流动' },
+  'scene.forms': { en: 'Particle form', zh: '粒子形态' },
+  'scene.terrain': { en: 'Terrain', zh: '地形' },
+  'scene.orbit': { en: 'Orbit', zh: '轨道' },
+  'scene.flow': { en: 'Flow', zh: '流动' },
+  'scene.resume': { en: 'Resume particle atmosphere', zh: '继续粒子背景动画' },
+  'scene.pause': { en: 'Pause particle atmosphere', zh: '暂停粒子背景动画' },
+  'scene.hint': { en: 'Choose an atmosphere. Drag the globe to explore.', zh: '切换粒子氛围，拖动地球探索。' },
+  'nav.menu': { en: 'Navigation menu', zh: '导航菜单' },
+  'nav.skip': { en: 'Skip to content', zh: '跳至正文' },
+
   // Hero
   'hero.eyebrow': {
     en: 'MSc, Wageningen · Open to PhD positions · Photographer',

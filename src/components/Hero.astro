@@ -1,309 +1,139 @@
 ---
 import { profile } from '../data/profile';
+import { films } from '../data/films';
+import ParticleScene from './ParticleScene.astro';
 import Globe from './Globe.astro';
+const latest = films.find(film => film.featured);
+const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.photos'];
 ---
 
-<section id="hero" class="relative min-h-[100vh] flex items-center overflow-hidden">
-  <canvas
-    id="hero-canvas"
-    class="absolute inset-0 w-full h-full"
-    aria-hidden="true"
-  ></canvas>
-  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950 pointer-events-none"></div>
-  <div class="absolute inset-0 bg-grid-fade bg-[size:60px_60px] opacity-30 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]"></div>
-
-  <div class="relative z-10 mx-auto max-w-6xl px-6 w-full pt-32 pb-20">
-    <div class="grid lg:grid-cols-[1.3fr_1fr] gap-16 items-center">
-      <div>
-        <div class="section-eyebrow reveal" style="transition-delay: 60ms;">
+<section id="hero" class="hero-section">
+  <div class="hero-topography" aria-hidden="true"></div>
+  <div class="hero-shell">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="hero-eyebrow">
+          <span class="status-dot" aria-hidden="true"></span>
           <span data-i18n="hero.eyebrow">MSc, Wageningen · Open to PhD positions · Photographer</span>
         </div>
-
-        <h1 class="mt-6 font-display text-[clamp(3rem,9vw,7rem)] leading-[0.95] text-ink-100 reveal" style="transition-delay: 120ms;">
-          <span
-            id="hero-name"
-            data-names={JSON.stringify([profile.name.en, profile.name.nickname, profile.name.cn])}
-            class="text-gradient inline-block"
-          >{profile.name.en}</span>
+        <h1 class="hero-title">
+          <span>Yiyang</span>
+          <span class="hero-surname">Shen<span class="hero-alias">沈亦旸 <i aria-hidden="true">/</i> Daniel</span></span>
         </h1>
-
-        <p
-          class="mt-8 max-w-xl text-lg md:text-xl text-ink-300 leading-relaxed reveal"
-          style="transition-delay: 240ms;"
-          data-i18n="hero.tagline"
-        >
-          {profile.tagline}
-        </p>
-
-        <p
-          class="mt-4 max-w-xl text-sm text-ink-400 reveal"
-          style="transition-delay: 300ms;"
-          data-i18n="hero.subtitle"
-        >
-          {profile.subtitle}
-        </p>
-
-        <div class="mt-10 flex flex-wrap gap-3 reveal" style="transition-delay: 380ms;">
+        <p class="hero-tagline" data-i18n="hero.tagline">{profile.tagline}</p>
+        <p class="hero-description" data-i18n="hero.subtitle">{profile.subtitle}</p>
+        <div class="hero-actions">
           <a href="#journey" class="btn btn-primary">
             <span data-i18n="hero.cta.primary">Explore journey</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
           </a>
           <a href="#photography" class="btn btn-ghost">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
             <span data-i18n="hero.cta.secondary">Photography map</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
           </a>
         </div>
-
-        <div class="mt-12 reveal" style="transition-delay: 420ms;">
-          <div class="flex items-center gap-2 mb-3">
-            <span class="relative flex h-2 w-2">
-              <span class="absolute inline-flex h-full w-full rounded-full bg-aqua-400 opacity-75 animate-ping"></span>
-              <span class="relative inline-flex h-2 w-2 rounded-full bg-aqua-400"></span>
-            </span>
-            <span class="text-[10px] uppercase tracking-[0.28em] text-aqua-400" data-i18n="hero.docs.eyebrow">CV and transcript: always the latest</span>
-          </div>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <a
-              href="/Yiyang_Shen_CV_2026.pdf"
-              target="_blank"
-              rel="noopener"
-              class="group relative overflow-hidden rounded-2xl glass p-6 md:p-7 hover:border-aqua-400/50 transition-all"
-            >
-              <div class="absolute inset-0 bg-gradient-to-br from-aqua-400/0 via-aqua-400/0 to-aqua-400/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              <div class="relative flex items-start justify-between gap-4">
-                <div class="min-w-0">
-                  <div class="text-[10px] uppercase tracking-[0.28em] text-aqua-400 mb-2.5" data-i18n="hero.docs.cv.label">Curriculum Vitae</div>
-                  <div class="font-display text-2xl md:text-[1.65rem] leading-tight text-ink-100 group-hover:text-gradient" data-i18n="hero.docs.cv.title">View latest CV</div>
-                  <div class="text-ink-400 text-xs mt-2" data-i18n="hero.docs.cv.meta">PDF · Updated Sep 2026</div>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-aqua-400/10 border border-aqua-400/20 flex items-center justify-center text-aqua-400 group-hover:bg-aqua-400/20 group-hover:scale-110 transition-all shrink-0">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                </div>
-              </div>
-            </a>
-            <a
-              href="/Yiyang_Shen_Transcript.pdf"
-              target="_blank"
-              rel="noopener"
-              class="group relative overflow-hidden rounded-2xl glass p-6 md:p-7 hover:border-sol-400/50 transition-all"
-            >
-              <div class="absolute inset-0 bg-gradient-to-br from-sol-400/0 via-sol-400/0 to-sol-400/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              <div class="relative flex items-start justify-between gap-4">
-                <div class="min-w-0">
-                  <div class="text-[10px] uppercase tracking-[0.28em] text-sol-400 mb-2.5" data-i18n="hero.docs.transcript.label">Academic Transcript</div>
-                  <div class="font-display text-2xl md:text-[1.65rem] leading-tight text-ink-100 group-hover:text-gradient" data-i18n="hero.docs.transcript.title">View latest transcript</div>
-                  <div class="text-ink-400 text-xs mt-2" data-i18n="hero.docs.transcript.meta">PDF · WUR record · May 2026</div>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-sol-400/10 border border-sol-400/20 flex items-center justify-center text-sol-400 group-hover:bg-sol-400/20 group-hover:scale-110 transition-all shrink-0">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>
-                </div>
-              </div>
-            </a>
-          </div>
-          <p class="mt-3 text-xs text-ink-400 leading-relaxed max-w-xl" data-i18n="hero.docs.cadence">
-            Both files are kept current. These links always open the latest version.
-          </p>
-        </div>
-
-        <div class="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-lg reveal" style="transition-delay: 460ms;">
-          {
-            profile.stats.map((stat, i) => {
-              const keys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.photos'];
-              return (
-                <div class="glass-soft rounded-xl px-4 py-3">
-                  <div class="font-display text-3xl text-ink-100">{stat.value}</div>
-                  <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400 mt-0.5" data-i18n={keys[i]}>
-                    {stat.label}
-                  </div>
-                </div>
-              );
-            })
-          }
+        <div class="hero-documents">
+          <a href="/Yiyang_Shen_CV_2026.pdf" target="_blank" rel="noopener" class="hero-document glass card-hover">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"/></svg>
+            <span><strong data-i18n="hero.docs.cv.label">Curriculum Vitae</strong><small data-i18n="hero.docs.cv.meta">PDF · Updated Sep 2026</small></span>
+            <span class="document-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a href="/Yiyang_Shen_Transcript.pdf" target="_blank" rel="noopener" class="hero-document glass card-hover">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            <span><strong data-i18n="hero.docs.transcript.label">Academic Transcript</strong><small data-i18n="hero.docs.transcript.meta">PDF · WUR record · May 2026</small></span>
+            <span class="document-arrow" aria-hidden="true">↗</span>
+          </a>
         </div>
       </div>
-
-      <div class="relative hidden lg:block reveal" style="transition-delay: 540ms;">
-        <Globe />
+      <div class="hero-art">
+        <div class="hero-orbit">
+          <ParticleScene ambient />
+          <div class="hero-globe"><Globe /></div>
+        </div>
+        {latest?.featured && (
+          <button type="button" class="hero-film glass card-hover group" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
+            <span class="hero-film-frame"><img src={latest.featured.stillSm} alt="" width="84" height="62" loading="lazy" decoding="async" class="media-img" /><span class="hero-film-play" aria-hidden="true">▶</span></span>
+            <span class="hero-film-copy"><span class="hero-film-label" data-i18n="about.now_showing">Now showing</span><span class="hero-film-title" data-i18n-self={JSON.stringify(latest.title)}>{latest.title.en}</span></span>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
+          </button>
+        )}
       </div>
     </div>
-
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-ink-400 text-xs tracking-[0.3em] uppercase">
-      <span data-i18n="hero.scroll">Scroll</span>
-      <div class="w-px h-10 bg-gradient-to-b from-ink-400 to-transparent"></div>
+    <div class="hero-footer">
+      <div class="hero-stats">
+        {profile.stats.map((stat, i) => (
+          <div class="hero-stat"><span>{stat.value}</span><small data-i18n={statKeys[i]}>{stat.label}</small></div>
+        ))}
+      </div>
+      <a href="#about" class="hero-scroll"><span data-i18n="hero.scroll">Scroll</span><span class="scroll-line" aria-hidden="true"></span><span aria-hidden="true">↓</span></a>
     </div>
   </div>
 </section>
 
-<script>
-  import * as THREE from 'three';
-
-  const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (canvas && !prefersReduced) {
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
-    camera.position.z = 6;
-
-    // particle field — evokes water + pollen drift
-    const count = 1800;
-    const positions = new Float32Array(count * 3);
-    const speeds = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 16;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
-      speeds[i] = Math.random() * 0.003 + 0.0008;
-    }
-    const geom = new THREE.BufferGeometry();
-    geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    const tex = new THREE.CanvasTexture(createCircleSprite());
-    const mat = new THREE.PointsMaterial({
-      map: tex,
-      color: 0x38e4d2,
-      size: 0.055,
-      transparent: true,
-      opacity: 0.7,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
-
-    const points = new THREE.Points(geom, mat);
-    scene.add(points);
-
-    // second layer — warmer, slower
-    const warmCount = 400;
-    const warmPositions = new Float32Array(warmCount * 3);
-    for (let i = 0; i < warmCount; i++) {
-      warmPositions[i * 3] = (Math.random() - 0.5) * 14;
-      warmPositions[i * 3 + 1] = (Math.random() - 0.5) * 8;
-      warmPositions[i * 3 + 2] = (Math.random() - 0.5) * 6;
-    }
-    const warmGeom = new THREE.BufferGeometry();
-    warmGeom.setAttribute('position', new THREE.BufferAttribute(warmPositions, 3));
-    const warmMat = new THREE.PointsMaterial({
-      map: tex,
-      color: 0xffc46b,
-      size: 0.085,
-      transparent: true,
-      opacity: 0.55,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
-    });
-    const warmPoints = new THREE.Points(warmGeom, warmMat);
-    scene.add(warmPoints);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-    window.addEventListener('mousemove', (e) => {
-      targetX = (e.clientX / window.innerWidth - 0.5) * 1.2;
-      targetY = (e.clientY / window.innerHeight - 0.5) * 0.8;
-    });
-
-    let running = true;
-    const clock = new THREE.Clock();
-
-    function resize() {
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    function animate() {
-      if (!running) return;
-      const t = clock.getElapsedTime();
-      mouseX += (targetX - mouseX) * 0.04;
-      mouseY += (targetY - mouseY) * 0.04;
-
-      const arr = geom.attributes.position.array as Float32Array;
-      for (let i = 0; i < count; i++) {
-        arr[i * 3 + 1] += speeds[i];
-        arr[i * 3] += Math.sin(t * 0.25 + i * 0.01) * 0.0015;
-        if (arr[i * 3 + 1] > 5) arr[i * 3 + 1] = -5;
-      }
-      geom.attributes.position.needsUpdate = true;
-
-      points.rotation.y = mouseX * 0.4 + t * 0.02;
-      points.rotation.x = mouseY * 0.3;
-      warmPoints.rotation.y = -mouseX * 0.2 - t * 0.015;
-      warmPoints.rotation.x = -mouseY * 0.15;
-
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    }
-    animate();
-
-    document.addEventListener('visibilitychange', () => {
-      running = !document.hidden;
-      if (running) animate();
-    });
-
-    function createCircleSprite() {
-      const c = document.createElement('canvas');
-      c.width = 64;
-      c.height = 64;
-      const ctx = c.getContext('2d')!;
-      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-      g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(0.4, 'rgba(255,255,255,0.5)');
-      g.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 64, 64);
-      return c;
-    }
+<style>
+  .hero-section { position: relative; overflow: hidden; min-height: 100svh; }
+  .hero-topography { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 75% 42%, #91c9b50d 0%, transparent 55%); }
+  .hero-topography::after { content: ''; position: absolute; width: 650px; height: 650px; top: 12%; right: -300px; border: 1px solid #c9dfcd06; border-radius: 50%; box-shadow: 0 0 0 70px #c9dfcd03, 0 0 0 140px #c9dfcd02; }
+  .hero-shell { max-width: 1280px; margin: 0 auto; padding: 145px 48px 40px; position: relative; }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 56px; }
+  .hero-copy { min-width: 0; animation: hero-arrive 900ms cubic-bezier(.22,1,.36,1) both; }
+  @keyframes hero-arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .hero-eyebrow { display: flex; align-items: center; gap: .75rem; color: #a8c5b5; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; line-height: 1.8; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #b7dab6; box-shadow: 0 0 0 4px #b7dab60d; flex-shrink: 0; }
+  .hero-title { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: clamp(5rem, 8.7vw, 8rem); line-height: .95; letter-spacing: -.065em; color: #f0f3e9; margin-top: 30px; }
+  .hero-title > span { display: block; }
+  .hero-surname { font-style: italic; color: #c3dbc7; }
+  .hero-alias { display: inline-block; font-family: 'Inter', sans-serif; font-size: 11px; font-style: normal; letter-spacing: .12em; color: #9caf9f; margin-left: 24px; vertical-align: middle; white-space: nowrap; }
+  .hero-alias i { padding: 0 .45rem; color: #5a7266; font-style: normal; }
+  .hero-tagline { font-family: 'Fraunces', Georgia, serif; margin-top: 32px; font-size: 21px; line-height: 1.5; color: #d4dfd6; max-width: 465px; font-weight: 300; }
+  .hero-description { margin-top: 16px; max-width: 460px; font-size: 12px; line-height: 1.9; color: #a2b1aa; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .hero-actions .btn { font-size: 12px; padding: 14px 22px; gap: 1rem; }
+  .hero-documents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px; max-width: 510px; }
+  .hero-document { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 16px; color: #b6cbbb; }
+  .hero-document > svg { flex-shrink: 0; }
+  .hero-document > span { min-width: 0; }
+  .hero-document strong { display: block; font-size: 10px; font-weight: 500; color: #d8e5da; }
+  .hero-document small { display: block; margin-top: 5px; font-size: 8px; line-height: 1.6; color: #9cab9f; }
+  .hero-document .document-arrow { margin-left: auto; color: #9ab9a7; font-size: 15px; flex-shrink: 0; }
+  .hero-art { position: relative; min-width: 0; padding-top: 20px; }
+  .hero-orbit { position: relative; padding: 28px 0 110px; }
+  .hero-globe { position: relative; z-index: 2; }
+  .hero-film { display: flex; align-items: center; text-align: left; gap: 16px; border-radius: 18px; padding: 9px 16px 9px 9px; width: min(100%, 330px); margin: 28px 0 0 auto; }
+  .hero-film-frame { position: relative; width: 76px; height: 56px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+  .hero-film-frame img { width: 100%; height: 100%; object-fit: cover; }
+  .hero-film-play { position: absolute; inset: 0; display: grid; place-items: center; color: white; background: #00000026; font-size: 10px; }
+  .hero-film-copy { flex: 1; min-width: 0; }
+  .hero-film-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: .16em; text-transform: uppercase; color: #a7bcad; }
+  .hero-film-title { display: block; font-family: 'Fraunces', Georgia, serif; font-size: 14px; color: #dce5d9; line-height: 1.3; margin-top: 5px; }
+  .hero-film > svg { color: #aecab6; flex-shrink: 0; }
+  .hero-footer { margin-top: 44px; padding-top: 24px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #d9e8d412; }
+  .hero-stats { display: flex; gap: 40px; }
+  .hero-stat { display: flex; align-items: center; gap: 12px; }
+  .hero-stat > span { font-family: 'Fraunces', Georgia, serif; font-size: 28px; font-weight: 300; color: #d6e5d3; }
+  .hero-stat small { max-width: 90px; font-size: 8px; color: #94a59b; line-height: 1.7; letter-spacing: .1em; text-transform: uppercase; }
+  .hero-scroll { display: flex; align-items: center; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .13em; text-transform: uppercase; color: #a1b1a5; }
+  .scroll-line { width: 55px; height: 1px; background: #99b6a538; }
+  @media (min-width: 1600px) { .hero-shell { padding-top: max(160px, calc((100svh - 650px) / 2)); } }
+  @media (max-width: 1100px) { .hero-shell { padding-inline: 32px; } .hero-grid { gap: 28px; } .hero-alias { display: block; margin: 18px 0 0 4px; } .hero-title { font-size: 100px; } }
+  @media (max-width: 767px) {
+    .hero-shell { padding: 120px 24px 32px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 50px; }
+    .hero-title { font-size: clamp(85px, 18vw, 120px); }
+    .hero-alias { display: inline-block; margin: 0 0 0 20px; font-size: 10px; }
+    .hero-eyebrow { font-size: 8px; letter-spacing: .09em; }
+    .hero-tagline { font-size: 21px; margin-top: 26px; }
+    .hero-description { font-size: 12px; }
+    .hero-actions .btn { font-size: 11px; padding: 13px 16px; gap: 12px; }
+    .hero-art { max-width: 510px; width: 100%; margin: 0 auto; padding-top: 0; }
+    .hero-orbit { position: relative; padding: 28px 0 110px; }
+  .hero-globe { position: relative; z-index: 2; }
+  .hero-film { margin: 25px auto 0; }
+    .hero-footer { margin-top: 40px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 35px; }
+    .hero-scroll { gap: 10px; } .scroll-line { display: none; }
+    .hero-document { padding: 13px 10px; gap: 8px; }
+    .hero-document strong { font-size: 9px; } .hero-document small { font-size: 8px; }
   }
-
-  // Name morph (cycles Yiyang Shen / Daniel / 沈亦旸). In 猫语 mode the Latin
-  // forms render as cat-sigils; the Chinese form stays as characters.
-  const nameEl = document.getElementById('hero-name');
-  if (nameEl) {
-    const raw = nameEl.dataset.names;
-    if (raw) {
-      try {
-        const names = JSON.parse(raw) as string[];
-        let idx = 0;
-        let current = names[0];
-        const w = window as any;
-        const setName = (txt: string) => {
-          current = txt;
-          if (document.documentElement.dataset.lang === 'cat' && w.__nyaCat && /[A-Za-z]/.test(txt)) {
-            nameEl.innerHTML = w.__nyaCat(txt, 60);
-          } else {
-            nameEl.textContent = txt;
-          }
-        };
-        setName(names[0]);
-        window.addEventListener('lang:change', () => setName(current));
-        setInterval(() => {
-          idx = (idx + 1) % names.length;
-          nameEl.animate(
-            [
-              { opacity: 1, transform: 'translateY(0) skewY(0)' },
-              { opacity: 0, transform: 'translateY(-12px) skewY(-6deg)' }
-            ],
-            { duration: 380, easing: 'cubic-bezier(0.7,0,0.2,1)', fill: 'forwards' }
-          ).onfinish = () => {
-            setName(names[idx]);
-            nameEl.animate(
-              [
-                { opacity: 0, transform: 'translateY(12px) skewY(6deg)' },
-                { opacity: 1, transform: 'translateY(0) skewY(0)' }
-              ],
-              { duration: 420, easing: 'cubic-bezier(0.2,0.8,0.2,1)', fill: 'forwards' }
-            );
-          };
-        }, 3600);
-      } catch {}
-    }
-  }
-</script>
+  @media (max-width: 359px) { .hero-title { font-size: 80px; } .hero-alias { margin-left: 14px; font-size: 8px; } .hero-documents { grid-template-columns: 1fr; } }
+</style>
