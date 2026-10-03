@@ -27,6 +27,10 @@ body {
   overflow-x: hidden;
 }
 
+/* Keep decorative glyphs and particle halos inside the content viewport.
+   Clip does not introduce a new scroll container for the existing maps. */
+main { overflow-x: clip; }
+
 ::selection {
   background: rgba(56, 228, 210, 0.25);
   color: #eef0fa;
