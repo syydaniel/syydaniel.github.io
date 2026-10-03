@@ -10,6 +10,8 @@ const revealObserver = new IntersectionObserver(entries => {
   }
 }, {rootMargin: '0px 0px -30px 0px', threshold: 0});
 reveals.forEach(element => {
+  const surface = element.querySelector('canvas, [id$="-map"]');
+  element.classList.add(surface ? 'reveal-surface' : element.querySelector('.media-img') ? 'reveal-image' : 'reveal-text');
   if (reducedMotion.matches || element.getBoundingClientRect().top < innerHeight) element.classList.add('is-visible');
   else {
     element.classList.add('will-reveal');
@@ -47,6 +49,7 @@ function clearCard() {
   if (!activeCard) return;
   activeCard.style.removeProperty('--glass-x');
   activeCard.style.removeProperty('--glass-y');
+  activeCard.style.removeProperty('--glass-angle');
   activeCard.style.removeProperty('--tilt-x');
   activeCard.style.removeProperty('--tilt-y');
   activeCard.removeAttribute('data-glass-active');
@@ -56,7 +59,7 @@ function clearCard() {
 }
 document.addEventListener('pointermove', event => {
   if (!pointerMedia.matches || reducedMotion.matches) return;
-  const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('a.glass.card-hover, button.glass.card-hover');
+  const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('a.glass.card-hover, button.glass.card-hover, .site-nav-panel, .scene-console');
   if (!card) { clearCard(); return; }
   if (activeCard !== card) {
     clearCard();
@@ -74,6 +77,7 @@ document.addEventListener('pointermove', event => {
     const y = Math.max(0, Math.min(1, (pointerY - rect.top) / rect.height));
     activeCard.style.setProperty('--glass-x', `${x * 100}%`);
     activeCard.style.setProperty('--glass-y', `${y * 100}%`);
+    activeCard.style.setProperty('--glass-angle', `${Math.atan2(y - .5, x - .5) * 180 / Math.PI + 90}deg`);
     activeCard.style.setProperty('--tilt-x', `${(.5 - y) * 2}deg`);
     activeCard.style.setProperty('--tilt-y', `${(x - .5) * 2}deg`);
   });

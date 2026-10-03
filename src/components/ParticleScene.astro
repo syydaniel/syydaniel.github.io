@@ -37,7 +37,7 @@ const modes = [
     <span class="stage-cross stage-cross-bottom" aria-hidden="true">+</span>
     <span class="stage-coordinate" aria-hidden="true">SOIL · WATER · LIGHT</span>
   </div>
-  <div class="scene-console glass">
+  <div class="scene-console glass liquid-glass" data-refract>
     <div class="particle-modes" role="group" aria-label="Particle form" data-i18n-attr='{"aria-label":"scene.forms"}'>
       {modes.map((mode, i) => (
         <button type="button" data-particle-mode={i} aria-pressed={i === initialMode ? 'true' : 'false'}>

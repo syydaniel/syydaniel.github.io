@@ -79,9 +79,19 @@ and orbiting photo previews. The Places and Photography maps keep their existing
 `ParticleScene.astro` adds a separate decorative particle atmosphere behind the globe; its
 Terrain / Orbit / Flow controls do not change the globe or either map.
 
-Glass panels share translucent surfaces, a soft edge light, and pointer illumination on links
-and cards. The native cursor stays visible, and the mobile navigation supports Escape and
-reports its open state to assistive technology. Content remains readable without JavaScript.
+The Liquid Glass inspired control surfaces use transparent fills, moving edge reflections,
+and shared spring-animated selection capsules. Navigation and particle controls also use a
+shallow SVG backdrop lens in Blink; Safari/WebKit and other engines retain the blur and
+reflection material. SVG filters never distort foreground text or change hit targets. The
+native cursor stays visible, menus support Escape and report their open state, and content
+remains readable without JavaScript.
+
+Same-page chapter links use the native View Transition API for a photographic aperture
+reveal. Only the scroll position and URL hash change, so the globe and maps retain their
+DOM, state and event handlers. Native cross-document transitions handle the translator
+page. Unsupported browsers and reduced-motion users keep normal anchor navigation.
+Photography and text have separate entrance treatments; map surfaces only fade. The
+existing photo lightboxes gain a soft opening animation without changing their controls.
 
 The particle system interpolates its three forms in a shader. It initializes when visible,
 shares the site's existing Three.js dependency, caps pixel density and particle count on small or lower-powered devices, suspends rendering

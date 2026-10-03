@@ -112,6 +112,8 @@ main { overflow-x: clip; }
   background:
     radial-gradient(ellipse at var(--glass-x, 50%) var(--glass-y, 50%), rgba(214, 244, 218, .11), transparent 65%),
     linear-gradient(135deg, rgba(216, 237, 222, .075), rgba(7, 13, 14, .4));
+}
+.glass.card-hover[data-glass-active] {
   transform: perspective(900px) translateY(-3px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
 }
 
@@ -318,7 +320,7 @@ main { overflow-x: clip; }
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal.will-reveal:not(.is-visible) { opacity: 1; transform: none; }
-  .card-hover:hover, .glass[data-glass-active] { transform: none; }
+  .card-hover:hover, .glass.card-hover[data-glass-active] { transform: none; }
 }
 
 /* ---------- MapLibre overrides ---------- */

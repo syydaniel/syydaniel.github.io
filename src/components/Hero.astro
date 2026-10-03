@@ -33,12 +33,12 @@ const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.
           </a>
         </div>
         <div class="hero-documents">
-          <a href="/Yiyang_Shen_CV_2026.pdf" target="_blank" rel="noopener" class="hero-document glass card-hover">
+          <a href="/Yiyang_Shen_CV_2026.pdf" target="_blank" rel="noopener" class="hero-document glass liquid-glass card-hover">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"/></svg>
             <span><strong data-i18n="hero.docs.cv.label">Curriculum Vitae</strong><small data-i18n="hero.docs.cv.meta">PDF · Updated Sep 2026</small></span>
             <span class="document-arrow" aria-hidden="true">↗</span>
           </a>
-          <a href="/Yiyang_Shen_Transcript.pdf" target="_blank" rel="noopener" class="hero-document glass card-hover">
+          <a href="/Yiyang_Shen_Transcript.pdf" target="_blank" rel="noopener" class="hero-document glass liquid-glass card-hover">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
             <span><strong data-i18n="hero.docs.transcript.label">Academic Transcript</strong><small data-i18n="hero.docs.transcript.meta">PDF · WUR record · May 2026</small></span>
             <span class="document-arrow" aria-hidden="true">↗</span>
@@ -51,7 +51,7 @@ const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.
           <div class="hero-globe"><Globe /></div>
         </div>
         {latest?.featured && (
-          <button type="button" class="hero-film glass card-hover group" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
+          <button type="button" class="hero-film glass liquid-glass card-hover group" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
             <span class="hero-film-frame"><img src={latest.featured.stillSm} alt="" width="84" height="62" loading="lazy" decoding="async" class="media-img" /><span class="hero-film-play" aria-hidden="true">▶</span></span>
             <span class="hero-film-copy"><span class="hero-film-label" data-i18n="about.now_showing">Now showing</span><span class="hero-film-title" data-i18n-self={JSON.stringify(latest.title)}>{latest.title.en}</span></span>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>

@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import '../styles/liquid-glass.css';
+import GlassEffects from '../components/GlassEffects.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import Arcade from '../components/Arcade.astro';
@@ -104,6 +106,7 @@ const siteLd = {
     <script type="application/ld+json" set:html={JSON.stringify(siteLd)} />
   </head>
   <body class="ambient-noise min-h-screen">
+    <GlassEffects />
     <div class="aurora" aria-hidden="true"></div>
     <a href="#main-content" class="skip-link" data-i18n="nav.skip">Skip to content</a>
     <div id="reading-progress" aria-hidden="true"></div>
@@ -119,6 +122,7 @@ const siteLd = {
       import '../scripts/i18n-runtime';
 
       import '../scripts/site-interactions';
+      import '../scripts/liquid-motion';
     </script>
   </body>
 </html>
