@@ -542,3 +542,16 @@ html[data-lang='cat'] .meta-line {
 #lightbox .glass-soft, #globe-lightbox .glass-soft, #arcade-modal .glass, #arcade-modal .glass-soft { background: color-mix(in srgb, var(--ink) 78%, transparent); border-color: color-mix(in srgb, var(--hi) 14%, transparent); color: var(--paper-2); }
 #lightbox .meta-line, #globe-lightbox .meta-line { color: var(--ink-5); }
 #globe-label { background: color-mix(in srgb, var(--ink) 82%, transparent); color: var(--paper-2); border-color: color-mix(in srgb, var(--hi) 12%, transparent); }
+
+/* ---------- On paper: the text and the cards, without the sky, the ink or the controls ---------- */
+@media print {
+  #atmosphere, .aurora, .skylight, #spotlight, #ink-trail, #cursor-badge, #intro, .chapter-rail, .chapter-slip, .chapter-watermark,
+  .footer-ridges, .marquee, .hero-ticker, .sky-cluster, .sky-card, .hero-live, .theme-toggle, .nav-cta, #nav-toggle, canvas { display: none !important; }
+  html, body { background: #fff !important; color: #111 !important; }
+  body::before, body::after { display: none !important; }
+  main, section { position: static !important; }
+  section { break-inside: avoid-page; }
+  .glass, .liquid-glass, .glass-soft { background: #fff !important; box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+  a { color: #111 !important; text-decoration: underline; }
+  .reveal, [data-rise] > span, .section-title > span { opacity: 1 !important; transform: none !important; filter: none !important; }
+}

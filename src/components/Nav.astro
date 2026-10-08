@@ -43,18 +43,21 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
         }
       </ul>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 relative">
         <!-- The sky over Wageningen, as a chip: its glyph and temperature, and a card with the rest (scripts/sky.ts). -->
         <div class="sky-cluster max-md:hidden">
-          <button type="button" class="sky-chip" id="sky-chip" data-sky-chip hidden aria-expanded="false" aria-controls="sky-card" data-i18n-attr='{"aria-label":"sky.chip","title":"sky.chip"}' aria-label="The sky over Wageningen, and what it does to the page" title="The sky over Wageningen, and what it does to the page"></button>
-          <div class="sky-card" id="sky-card" hidden>
-            <p class="sky-card-title" data-i18n="sky.card.title">Wageningen right now</p>
-            <p class="sky-row"><span data-i18n="sky.card.weather">Weather</span><b data-sky-weather></b></p>
-            <p class="sky-row"><span data-i18n="sky.card.sun">Sun</span><b data-sky-sun></b></p>
-            <p class="sky-row"><span data-i18n="sky.card.moon">Moon</span><b><i class="moon" data-moon></i></b></p>
-            <p class="sky-row"><span data-i18n="sky.card.theme">Ink</span><b data-sky-theme></b></p>
-            <p class="sky-card-note" data-sky-note></p>
-          </div>
+          <button type="button" class="sky-chip" id="sky-chip" data-sky-chip data-sky-open hidden aria-expanded="false" aria-controls="sky-card" data-i18n-attr='{"aria-label":"sky.chip","title":"sky.chip"}' aria-label="The sky over Wageningen, and what it does to the page" title="The sky over Wageningen, and what it does to the page"></button>
+        </div>
+        <!-- The card sits outside the chip's cluster so a phone, which has no chip, can open it from the hero's live line. -->
+        <div class="sky-card" id="sky-card" hidden>
+          <p class="sky-card-title" data-i18n="sky.card.title">Wageningen right now</p>
+          <p class="sky-row"><span data-i18n="sky.card.weather">Weather</span><b data-sky-weather></b></p>
+          <p class="sky-row" hidden><span data-i18n="sky.card.air">Air</span><b data-sky-humidity></b></p>
+          <p class="sky-row"><span data-i18n="sky.card.sun">Sun</span><b data-sky-sun></b></p>
+          <p class="sky-row" hidden><span data-i18n="sky.card.daylight">Daylight</span><b data-sky-daylight></b></p>
+          <p class="sky-row"><span data-i18n="sky.card.moon">Moon</span><b><i class="moon" data-moon></i></b></p>
+          <p class="sky-row"><span data-i18n="sky.card.theme">Ink</span><b data-sky-theme></b></p>
+          <p class="sky-card-note" data-sky-note></p>
         </div>
         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to night ink">
           <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
@@ -144,15 +147,17 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
   }
 
   // The sky card opens under its chip and closes on a click elsewhere or Escape.
-  const chip = document.getElementById('sky-chip');
   const card = document.getElementById('sky-card');
-  const closeCard = () => { card?.setAttribute('hidden', ''); chip?.setAttribute('aria-expanded', 'false'); };
-  chip?.addEventListener('click', () => {
-    const open = card?.hasAttribute('hidden');
-    if (open) { card?.removeAttribute('hidden'); chip.setAttribute('aria-expanded', 'true'); } else closeCard();
+  const openers = () => Array.from(document.querySelectorAll<HTMLElement>('[data-sky-open]'));
+  const setCard = (open: boolean) => { card?.toggleAttribute('hidden', !open); openers().forEach(b => b.setAttribute('aria-expanded', String(open))); };
+  const closeCard = () => setCard(false);
+  document.addEventListener('click', e => {
+    const t = e.target instanceof Element ? e.target : null;
+    const opener = t?.closest('[data-sky-open]');
+    if (opener) { setCard(!!card?.hasAttribute('hidden')); return; }
+    if (card && !card.hasAttribute('hidden') && !(t && card.contains(t))) closeCard();
   });
-  document.addEventListener('click', e => { if (card && !card.hasAttribute('hidden') && !(e.target instanceof Node && (card.contains(e.target) || chip?.contains(e.target)))) closeCard(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && card && !card.hasAttribute('hidden')) { closeCard(); chip?.focus(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && card && !card.hasAttribute('hidden')) { closeCard(); openers()[0]?.focus(); } });
 
   const toggle = document.getElementById('nav-toggle');
   const menu = document.getElementById('mobile-menu');

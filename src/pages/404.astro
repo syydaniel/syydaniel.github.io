@@ -1,0 +1,29 @@
+---
+// The page for a path that is not on any of the maps. GitHub Pages serves
+// 404.html for every unknown address; it keeps the site's paper, ink and sky.
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Not on the map · Yiyang Shen" description="This address is not on any of my maps." noindex>
+  <section class="lost" aria-labelledby="lost-title">
+    <div class="lost-inner">
+      <span class="section-eyebrow" data-i18n="lost.eyebrow">404</span>
+      <h1 id="lost-title" class="section-title mt-4" data-i18n-flush>
+        <span data-i18n="lost.title.a">This path is not on</span>
+        <span class="text-gradient italic font-display" data-i18n="lost.title.b">any of my maps.</span>
+      </h1>
+      <p class="mt-5 text-ink-300 max-w-xl" data-i18n="lost.body">
+        The address may have moved, or it was never here. The places I have been are all one page back.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/" class="btn btn-primary"><span data-i18n="lost.home">Back to the start</span></a>
+        <a href="/#places" class="btn btn-ghost"><span data-i18n="lost.places">See the map</span></a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost { position: relative; z-index: 1; min-height: calc(100vh - 160px); display: grid; place-items: center; padding: 8rem 24px 6rem; }
+  .lost-inner { max-width: 720px; }
+</style>

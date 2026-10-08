@@ -20,10 +20,10 @@ import Ticker from './Ticker.astro';
           <span data-i18n="hero.eyebrow">{profile.title}</span>
         </div>
         <!-- The second line is live: the weather and the light in Wageningen right now (scripts/sky.ts). -->
-        <p class="hero-eyebrow hero-live" hidden>
+        <button type="button" class="hero-eyebrow hero-live" data-sky-open hidden aria-controls="sky-card" aria-expanded="false">
           <span class="live-dot" aria-hidden="true"></span>
           <span data-sky-live></span>
-        </p>
+        </button>
         <h1 class="hero-title">
           <span class="hero-line"><span class="hero-word">Yiyang</span></span>
           <span class="hero-line hero-surname"><span class="hero-word">Shen</span></span>
@@ -60,7 +60,8 @@ import Ticker from './Ticker.astro';
   .hero-copy { min-width: 0; animation: hero-arrive 900ms cubic-bezier(.22,1,.36,1) both; }
   @keyframes hero-arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
   .hero-eyebrow { display: flex; align-items: center; gap: .75rem; color: var(--ink-3); font-size: 10px; letter-spacing: .2em; font-family: 'JetBrains Mono', ui-monospace, monospace; text-transform: uppercase; line-height: 1.8; }
-  .hero-live { margin-top: 6px; color: var(--ink-4); animation: hero-live-in 900ms var(--ease-out-expo) both; }
+  .hero-live { margin-top: 6px; color: var(--ink-4); animation: hero-live-in 900ms var(--ease-out-expo) both; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; transition: color 300ms ease; }
+  .hero-live:hover, .hero-live[aria-expanded='true'] { color: var(--ink-2); }
   .hero-live[hidden] { display: none; }
   .hero-live .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sky-dot, var(--daiqing)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sky-dot, var(--daiqing)) 14%, transparent); flex-shrink: 0; transition: background 2.4s ease, box-shadow 2.4s ease; }
   .hero-live [lang="zh"] { font-family: var(--font-cjk); letter-spacing: .12em; }

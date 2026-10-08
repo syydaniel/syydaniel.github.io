@@ -124,7 +124,13 @@ from Google on demand for its headings.
   cloud; the Nya translator's sentence is today's weather until someone types; the Contact card
   gives the time and weather where the mail lands; rain makes the chapter watermarks run and fog
   fades them; snow lies on the footer's near ridge, fog softens the hills, a storm darkens them;
-  and the browser's own bar (meta theme-color) takes the paper's cast. The hero's live line opens with the hour's word (morning, afternoon,
+  and the browser's own bar (meta theme-color) takes the paper's cast. The card also gives the
+  day's length and how it compares with yesterday, what the air feels like and its humidity; the
+  hero's live line opens the same card, so a phone has it too; the Contact line opens with the
+  hour's word; the footer's hills take the season's colour (moss in spring, blue-green in summer,
+  ochre in autumn, grey in winter); the Nya translator offers a way back to today's weather once
+  someone has typed; a print stylesheet leaves the text and cards on white paper without the sky
+  or the controls; and `404.astro` is the page for a path that is not on any of the maps. The hero's live line opens with the hour's word (morning, afternoon,
   evening, night, in Wageningen's own time), a strong wind shows an arrow pointing where it blows,
   and the footer's note says what the sky is doing to the page right now (raining in the ink, snow
   on the heights, a storm lighting the paper, fog closing in, or the night ink until sunrise). To see a state the sky is not in, add `?sky=night`
