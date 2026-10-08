@@ -50,7 +50,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
   .filter((t) => t.i < monthCount);
 ---
 
-<section id="photography" class="relative py-28 md:py-40 scroll-mt-20">
+<section id="photography" class="chapter relative">
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
       <div>
@@ -136,13 +136,13 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
           }
         </div>
         <!-- track -->
-        <div class="absolute inset-x-0 top-[3.25rem] h-[2px] bg-white/10 rounded-full"></div>
+        <div class="absolute inset-x-0 top-[3.25rem] h-[2px] bg-ink-100/10 rounded-full"></div>
         <div id="scrubber-fill" class="absolute top-[3.25rem] h-[2px] bg-gradient-to-r from-aqua-400 to-sol-400 rounded-full" style="left:0%; right:0%;"></div>
         <!-- year ticks -->
         {
           yearTicks.map((t) => (
             <span class="absolute top-[3.25rem] flex flex-col items-center -translate-x-1/2 pointer-events-none" style={`left:${pctOf(t.i)}%`} aria-hidden="true">
-              <span class="block w-px h-2 bg-white/20"></span>
+              <span class="block w-px h-2 bg-ink-100/20"></span>
               <span class="mt-1 font-mono text-[10px] text-ink-400">{t.y}</span>
             </span>
           ))
@@ -208,7 +208,8 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
 </script>
 
 <script>
-  // MapLibre is heavy (~800 KB). Load it lazily, only when the map nears view.
+  // The atlas (and MapLibre, ~800 KB) load lazily, only when the map nears view.
+  import { createAtlas } from '../scripts/atlas';
   let maplibregl: any = null;
   let map: any = null;
 
@@ -322,7 +323,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
       if (thumb) {
         el.style.backgroundImage = `url(${thumb})`;
       } else {
-        el.style.background = 'linear-gradient(135deg, #2f5e5a, #a52c18)';
+        el.style.background = 'linear-gradient(135deg, var(--daiqing), var(--seal-2))';
       }
       el.addEventListener('click', () => openLightbox(g.photos, 0));
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(g.coords).addTo(map);
@@ -345,7 +346,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
       const lead = group[0];
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `Play: ${lead.fullTitle.en}`);
-      el.style.backgroundImage = `linear-gradient(rgba(243, 239, 230,.25), rgba(243, 239, 230,.25)), url(${lead.cover})`;
+      el.style.backgroundImage = `linear-gradient(color-mix(in srgb, var(--paper) 25%, transparent), color-mix(in srgb, var(--paper) 25%, transparent)), url(${lead.cover})`;
       let popup: any = null;
       if (group.length === 1) {
         el.dataset.film = lead.bvid;
@@ -375,35 +376,11 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
   async function initMap() {
     if (mapStarted || !mapEl) return;
     mapStarted = true;
-    await import('maplibre-gl/dist/maplibre-gl.css');
-    maplibregl = (await import('maplibre-gl')).default;
-
-    map = new maplibregl.Map({
-      container: mapEl,
-      style: {
-        version: 8,
-        sources: {
-          basemap: {
-            type: 'raster',
-            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
-            tileSize: 256,
-            maxzoom: 16,
-            attribution: 'Tiles © Esri, HERE, Garmin, © OpenStreetMap contributors'
-          }
-        },
-        layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
-      },
-      center: [20, 30],
-      zoom: 1.3,
-      attributionControl: true,
-      dragRotate: false
-    });
-
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-
-    map.on('load', () => {
+    const atlas = await createAtlas(mapEl, { center: [20, 30], zoom: 1.3, maxZoom: 11, detail: true });
+    map = atlas.map;
+    maplibregl = atlas.maplibregl;
+    atlas.ready.then(() => {
       renderMarkers();
-      // fit bounds to initial photos
       const pts = visiblePhotos();
       if (pts.length) {
         const bounds = new maplibregl.LngLatBounds();
@@ -598,12 +575,12 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
           lastMonth = month;
           const divider = document.createElement('div');
           divider.className = 'col-span-full flex items-center gap-3 pt-2';
-          divider.innerHTML = `<span class="meta-line !text-sol-400/90">${document.documentElement.dataset.lang === 'zh' ? `${Number(month)} 月` : MONTHS_EN[Number(month) - 1]}</span><span class="h-px flex-1 bg-white/5"></span>`;
+          divider.innerHTML = `<span class="meta-line !text-aqua-500">${document.documentElement.dataset.lang === 'zh' ? `${Number(month)} 月` : MONTHS_EN[Number(month) - 1]}</span><span class="h-px flex-1 bg-ink-100/5"></span>`;
           grid.appendChild(divider);
         }
         const tile = document.createElement('button');
         tile.type = 'button';
-        tile.className = 'group relative aspect-[4/3] overflow-hidden rounded-xl bg-ink-800 border border-white/5 card-hover';
+        tile.className = 'group relative aspect-[4/3] overflow-hidden rounded-xl bg-ink-800 border border-line card-hover';
         if (e.kind === 'film') {
           const f = e.film;
           // Featured films have a real still; the rest use their Bilibili cover blurred into colour.
@@ -614,10 +591,10 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
           tile.setAttribute('aria-label', `Play: ${f.title.en}`);
           tile.innerHTML = `
             ${img}
-            <span class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30"></span>
+            <span class="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/25 to-ink-950/35"></span>
             <span class="grain"></span>
             <span class="absolute top-2.5 inset-x-3 flex justify-between font-mono text-[9px] tracking-[0.24em] text-ink-100/70 uppercase">
-              <span class="text-sol-400/90">${f.label[lang]}</span><span>${f.date.slice(0, 4)}</span>
+              <span class="text-aqua-500">${f.label[lang]}</span><span>${f.date.slice(0, 4)}</span>
             </span>
             <div class="absolute inset-x-0 bottom-0 p-3 text-left flex items-end justify-between gap-2">
               <div class="min-w-0">
@@ -637,7 +614,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
             ${bg ? `<img src="${bg}" alt="${escapeHtml(p.location.name)}" loading="lazy" class="media-img w-full h-full object-cover"/>` : `<div class="w-full h-full bg-gradient-to-br from-ink-700 to-ink-800 flex items-center justify-center"><span class="text-ink-500 text-xs">${escapeHtml(p.location.name)}</span></div>`}
             <span class="grain"></span>
             <span class="absolute top-2.5 left-3 font-mono text-[9px] tracking-[0.24em] text-ink-100/60">${String(i + 1).padStart(2, '0')}A</span>
-            <div class="absolute inset-x-0 bottom-0 p-3 pt-8 bg-gradient-to-t from-black/85 to-transparent text-left">
+            <div class="absolute inset-x-0 bottom-0 p-3 pt-8 bg-gradient-to-t from-ink-950/90 to-transparent text-left">
               <span class="rule-grow mb-2"></span>
               <div class="text-ink-100 text-xs font-medium truncate">${escapeHtml(place)}</div>
               <div class="meta-line mt-0.5 !text-[9px]">${e.date.replaceAll('-', '.')}</div>
@@ -731,19 +708,19 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
 
 <style>
   .lightbox-btn { transition: background 0.3s ease, color 0.3s ease, transform 0.4s var(--ease-film); }
-  .lightbox-btn:hover { background: #b8341f; color: #f3efe6; transform: scale(1.06); }
+  .lightbox-btn:hover { background: var(--zhusha); color: var(--paper); transform: scale(1.06); }
   .view-toggle {
-    color: #7f8a86;
+    color: var(--ink-4);
   }
   .view-toggle.active {
-    background: rgba(47, 94, 90, 0.15);
-    color: #3f7570;
+    background: color-mix(in srgb, var(--daiqing) 15%, transparent);
+    color: var(--daiqing-2);
   }
   .scrubber-thumb {
     transition: transform 160ms ease;
     touch-action: none;
   }
-  .scrubber-thumb:focus-visible { outline: 2px solid #b8341f; outline-offset: 2px; }
+  .scrubber-thumb:focus-visible { outline: 2px solid var(--zhusha); outline-offset: 2px; }
   .scrub-bar { opacity: 0.9; transition: opacity 0.3s ease, filter 0.3s ease; cursor: pointer; }
   .scrub-bar:hover { filter: brightness(1.3); }
   .scrub-bar.is-out { opacity: 0.18; }

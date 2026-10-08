@@ -109,6 +109,11 @@ from Google on demand for its headings.
   leisure seal 水土 (朱文); press one and it stamps again. The clocks show the time in
   Wageningen, the current solar term 节气 from the Sun's ecliptic longitude, and the lunar date
   农历 from the browser's Chinese calendar. Chapters are numbered 壹 贰 叁 on 题签 slips.
+- **Wayfinding**: every chapter opens the same way (number and name, title, one paragraph, the
+  work) just under the navigation; a chapter rail on the left (书签) shows where you are, fills
+  with the scroll and jumps on click; a "Next" cue closes every chapter; one accent, 朱砂, marks
+  the thing to look at. Blocks settle onto the page in depth as they arrive, posters and the film
+  stage tilt under the pointer, and the seals press in perspective.
 - **Mechanics**: `Ticker.astro`, an instrument readout along the hero's foot; inertial wheel
   scrolling on desktop (`src/scripts/inertia.ts`, never over maps, the globe, the gallery or
   anything that scrolls on its own); a cursor badge that names what a frame does; magnetic buttons
@@ -116,10 +121,39 @@ from Google on demand for its headings.
   that slips away while reading. Everything is skipped or static under `prefers-reduced-motion`,
   and the text is simply visible without JavaScript.
 
-## Visual interactions
+## Two inks (light and dark)
 
-The interactive globe (visited-country colors, research locations, orbiting photo previews)
-now opens the Places section. The Places and Photography maps keep their existing controls.
+The page follows the system colour scheme and can be pinned from the toggle in the navigation
+(choosing the scheme the system already uses lets the page follow the system again; the choice
+is remembered per browser). Every colour on the site is a token in `src/styles/theme.css`, a
+`light-dark()` pair: 纸上墨, ink on 宣纸 by day, and 夜里墨, the same ink on lamp-black at night.
+Transparencies are `color-mix()`es of those tokens and the Tailwind palette reads them too, so
+every utility and `/opacity` modifier follows the theme. The toggle wipes the new ink out from
+the button with a View Transition. The fluid ink, the catchment and the globe carry a theme
+uniform and repaint on `themechange`; the maps repaint their layers. Text tokens are checked
+against the surfaces they sit on in both schemes by `node scripts/check-contrast.mjs` (AA for
+body-size text). The seal paste and the primary button keep the deep cinnabar in both inks.
+
+## The atlas and the globe
+
+The three maps share one ink-wash base (`src/scripts/atlas.ts`): Natural Earth 1:50m country
+shapes, simplified and kept as TopoJSON (`npm run atlas` → `scripts/build-atlas.mjs` →
+`public/atlas/countries.json`, ~350 KB, ~105 KB gzipped), decoded in the browser into paper
+land on a washed sea, a hairline coast, dashed borders and a 10° graticule, in the page's two
+inks. Beyond zoom 5 the Photography map fades a desaturated raster base (Esri light or dark
+grey, by theme) in under the lines for street-level detail; the other maps never zoom that far.
+The Places map is a pitched table: the 10 km squares of the GPS tracks rise as columns by time
+spent (summed into 1° squares at world zoom, the squares themselves close up), and the country
+list, the map and the globe stay in step through one focus.
+
+`Globe.astro` is a paper 浑仪: a sphere shaded with ink at the limb, continents stippled in
+ink, the countries walked in 黛青 with the GPS footprints in 朱砂, the research cities joined by
+dashed arcs, and three hairline rings turning on their own axes around it. The beads on the
+outer ring are photographs (hover for the frame, press to open). Drag to turn, and it keeps
+turning for a moment; the scroll turns it too; pressing a footprint focuses that country on the
+map below.
+
+## Visual interactions
 
 The Liquid Glass inspired control surfaces use transparent fills, moving edge reflections,
 and shared spring-animated selection capsules. Navigation and particle controls also use a

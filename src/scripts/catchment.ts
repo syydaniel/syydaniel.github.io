@@ -63,6 +63,7 @@ precision highp float;
 uniform float uWater;
 uniform float uLevels;
 uniform float uTime;
+uniform float uDark;
 varying float vH;
 varying float vFog;
 varying vec2 vXZ;
@@ -87,10 +88,12 @@ void main() {
   float shoreW = max(fwidth(vH), 1e-4) * 2.2;
   float shore = 1.0 - smoothstep(0.0, shoreW, abs(vH - uWater));
   float ripple = 0.5 + 0.5 * sin(vXZ.x * 7.0 + vXZ.y * 3.0 + uTime * 0.9);
-  vec3 ink = vec3(0.09, 0.11, 0.11);
-  vec3 wet = vec3(0.24, 0.30, 0.30);
-  vec3 water = vec3(0.18, 0.37, 0.35);
-  vec3 cinnabar = vec3(0.74, 0.21, 0.13);
+  // By night the same drawing is mist and lamplight on lamp-black paper.
+  vec3 ink = mix(vec3(0.09, 0.11, 0.11), vec3(0.80, 0.84, 0.82), uDark);
+  vec3 wet = mix(vec3(0.24, 0.30, 0.30), vec3(0.48, 0.58, 0.56), uDark);
+  vec3 water = mix(vec3(0.18, 0.37, 0.35), vec3(0.34, 0.62, 0.58), uDark);
+  vec3 cinnabar = mix(vec3(0.74, 0.21, 0.13), vec3(0.90, 0.42, 0.30), uDark);
+  wash *= mix(1.0, 0.75, uDark);
   // Wash and shadow in ink, then the water, the lines, the shore. Mist is paper showing through.
   vec3 color = mix(wet, ink, shadow / max(wash + shadow, 1e-4));
   float alpha = wash + shadow;
@@ -116,12 +119,14 @@ void main() {
 }`;
 const DROP_FRAG = `
 precision mediump float;
+uniform float uDark;
 varying float vLife;
 void main() {
   float d = length(gl_PointCoord - 0.5);
   if (d > 0.5) discard;
   float core = 1.0 - smoothstep(0.08, 0.5, d);
-  gl_FragColor = vec4(vec3(0.18, 0.37, 0.35), core * (0.35 + vLife * 0.65));
+  vec3 tint = mix(vec3(0.18, 0.37, 0.35), vec3(0.56, 0.84, 0.80), uDark);
+  gl_FragColor = vec4(tint, core * (0.35 + vLife * 0.65));
 }`;
 
 export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement): Promise<void> {
@@ -140,8 +145,10 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     uSpeed: { value: WAVES.map(w => w[4]) },
     uCamera: { value: new THREE.Vector3() },
     uWater: { value: WATER },
-    uLevels: { value: 11 }
+    uLevels: { value: 11 },
+    uDark: { value: document.documentElement.dataset.theme === 'dark' ? 1 : 0 }
   };
+  addEventListener('themechange', () => { uniforms.uDark.value = document.documentElement.dataset.theme === 'dark' ? 1 : 0; wake(); });
   const segments = mobile ? [120, 84] : [220, 150];
   const geometry = new THREE.PlaneGeometry(11, 7.6, segments[0], segments[1]);
   geometry.rotateX(-Math.PI / 2);
@@ -157,7 +164,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   const dropGeometry = new THREE.BufferGeometry();
   dropGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
   dropGeometry.setAttribute('aLife', new THREE.BufferAttribute(lives, 1).setUsage(THREE.DynamicDrawUsage));
-  const dropUniforms = { uPixelRatio: { value: 1 } };
+  const dropUniforms = { uPixelRatio: { value: 1 }, uDark: uniforms.uDark };
   const drops = new THREE.Points(dropGeometry, new THREE.ShaderMaterial({ uniforms: dropUniforms, vertexShader: DROP_VERT, fragmentShader: DROP_FRAG, transparent: true, depthWrite: false, blending: THREE.NormalBlending }));
   drops.frustumCulled = false;
   scene.add(drops);

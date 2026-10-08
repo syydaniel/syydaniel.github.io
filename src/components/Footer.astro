@@ -4,22 +4,26 @@ import Seal from './Seal.astro';
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative z-10 mt-32 border-t border-white/5 bg-gradient-to-b from-transparent to-ink-950/60">
+<footer class="relative z-10 mt-10 border-t border-line bg-gradient-to-b from-transparent to-ink-950/60">
   <!-- 远山: distant ridges in mist behind the name, drifting a little with the scroll. -->
   <svg class="footer-ridges" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
     <defs>
-      <linearGradient id="ridge-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f5e5a" stop-opacity="0.12" /><stop offset="1" stop-color="#2f5e5a" stop-opacity="0" /></linearGradient>
-      <linearGradient id="ridge-fade-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#214744" stop-opacity="0.16" /><stop offset="1" stop-color="#214744" stop-opacity="0" /></linearGradient>
+      <linearGradient id="ridge-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--daiqing)" stop-opacity="0.12" /><stop offset="1" stop-color="var(--daiqing)" stop-opacity="0" /></linearGradient>
+      <linearGradient id="ridge-fade-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--daiqing-3)" stop-opacity="0.16" /><stop offset="1" stop-color="var(--daiqing-3)" stop-opacity="0" /></linearGradient>
     </defs>
     <path class="ridge ridge-far" fill="url(#ridge-fade)" d="M0 210 C 90 170, 150 120, 240 140 C 320 158, 360 90, 450 96 C 530 102, 580 150, 660 132 C 740 114, 790 60, 880 72 C 960 82, 1010 140, 1100 120 C 1180 102, 1230 50, 1320 70 C 1380 84, 1410 120, 1440 110 L 1440 320 L 0 320 Z" />
     <path class="ridge ridge-near" fill="url(#ridge-fade-near)" d="M0 268 C 110 240, 170 200, 260 214 C 350 228, 400 180, 500 186 C 590 192, 640 240, 740 226 C 830 214, 880 160, 980 176 C 1070 190, 1120 236, 1220 222 C 1310 210, 1360 180, 1440 196 L 1440 320 L 0 320 Z" />
   </svg>
   <div class="footer-giant" aria-hidden="true">
     <span class="footer-giant-en">Yiyang <em>Shen</em></span>
-    <span class="footer-giant-cn"><span>沈亦旸</span><Seal size={48} class="footer-seal" /><Seal size={52} class="footer-leisure" variant="zhuwen" chars={['水', '土']} label="水土 (leisure seal)" /></span>
+    <!-- 落款: the signature column of a painting, the name written downward with the seals beneath it. -->
+    <span class="footer-kuan">
+      <span class="footer-kuan-name">沈亦旸</span>
+      <span class="footer-kuan-seals"><Seal size={44} class="footer-seal" /><Seal size={48} class="footer-leisure" variant="zhuwen" chars={['水', '土']} label="水土 (leisure seal)" /></span>
+    </span>
   </div>
   <div class="mx-auto max-w-6xl px-6 pb-12 pt-10">
-    <div class="flex flex-wrap items-center justify-between gap-4 pb-10 mb-10 border-b border-white/5">
+    <div class="flex flex-wrap items-center justify-between gap-4 pb-10 mb-10 border-b border-line">
       <div class="footer-meta">
         <p class="footer-clock"><span data-i18n="footer.local_time">Local time, Wageningen</span><b>--<i>:</i>--</b></p>
         <p class="footer-clock footer-term"><span data-i18n="footer.term">Solar term</span><b data-solar-term></b></p>

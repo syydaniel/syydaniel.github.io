@@ -19,8 +19,8 @@ const { size = 44, class: className = '', stamp = true, variant = 'baiwen', char
 const tall = chars.length === 2;
 // Below 44px the fine filters only blur: keep the hand-cut edge, drop the rest.
 const fine = size >= 44;
-const ground = '#bd3620';
-const ink = '#f4e8d4';
+const ground = 'var(--seal)';
+const ink = 'var(--on-seal)';
 // Hand-cut outlines: nothing here is a straight line.
 const outline = tall
   ? 'M8 7 C 22 4, 40 4, 53 6 C 56 30, 56 66, 53 94 C 38 97, 22 96, 7 93 C 4 66, 4 32, 8 7 Z'
@@ -47,19 +47,18 @@ const width = tall ? Math.round(size * 0.6) : size;
   text-rendering="geometricPrecision"
 >
   <g class="seal-ghost" opacity="0.14" transform="translate(1.6 1.1)" filter="url(#seal-bleed)">
-    {variant === 'baiwen' ? <path d={outline} fill={ground} /> : <path d={outline} fill="none" stroke={ground} stroke-width="4.5" />}
+    {variant === 'baiwen' ? <path d={outline} style={`fill:${ground}`} /> : <path d={outline} fill="none" style={`stroke:${ground}`} stroke-width="4.5" />}
   </g>
   <g filter={fine ? 'url(#seal-density)' : undefined}>
     <g filter={fine ? 'url(#seal-edge)' : 'url(#seal-edge-fine)'}>
-      {variant === 'baiwen' ? <path d={outline} fill={ground} /> : <path d={outline} fill="none" stroke={ground} stroke-width="4.5" />}
+      {variant === 'baiwen' ? <path d={outline} style={`fill:${ground}`} /> : <path d={outline} fill="none" style={`stroke:${ground}`} stroke-width="4.5" />}
     </g>
     <g filter={fine ? 'url(#seal-glyph)' : undefined}>
       <text
         font-family="'Noto Serif SC', 'Songti SC', 'SimSun', serif"
         font-weight="900"
         font-size={fontSize}
-        fill={variant === 'baiwen' ? ink : ground}
-        stroke={variant === 'baiwen' ? ink : ground}
+        style={`fill:${variant === 'baiwen' ? ink : ground};stroke:${variant === 'baiwen' ? ink : ground}`}
         stroke-width="1.2"
         stroke-linejoin="miter"
         paint-order="stroke"

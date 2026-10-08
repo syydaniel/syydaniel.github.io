@@ -28,7 +28,7 @@
   </button>
 
   <div class="glass rounded-3xl w-full max-w-2xl overflow-hidden">
-    <div class="p-6 border-b border-white/5">
+    <div class="p-6 border-b border-line">
       <div class="flex items-center justify-between">
         <div>
           <p class="section-eyebrow !tracking-[0.3em]" data-i18n="arcade.eyebrow">Secret arcade</p>
@@ -56,7 +56,7 @@
           <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400"><span data-i18n="arcade.score_best">Score · best</span> <span id="snake-best">0</span></div>
         </div>
       </div>
-      <div class="bg-ink-900 rounded-2xl overflow-hidden border border-white/5 aspect-square max-w-md mx-auto relative">
+      <div class="bg-ink-900 rounded-2xl overflow-hidden border border-line aspect-square max-w-md mx-auto relative">
         <canvas id="snake-canvas" class="w-full h-full"></canvas>
         <div id="snake-overlay" class="absolute inset-0 bg-ink-950/70 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
           <p class="font-display text-2xl text-ink-100" data-i18n="arcade.ready">Ready?</p>
@@ -81,10 +81,10 @@
             <div class="font-display text-2xl text-sol-400"><span id="n2048-best">0</span></div>
             <div class="text-[10px] uppercase tracking-[0.24em] text-ink-400" data-i18n="arcade.best">Best</div>
           </div>
-          <button id="n2048-restart" class="ml-3 px-3 py-1.5 rounded-full text-xs bg-white/5 hover:bg-white/10 transition-colors text-ink-200" data-i18n="arcade.new">New</button>
+          <button id="n2048-restart" class="ml-3 px-3 py-1.5 rounded-full text-xs bg-ink-100/5 hover:bg-ink-100/10 transition-colors text-ink-200" data-i18n="arcade.new">New</button>
         </div>
       </div>
-      <div class="bg-ink-900 rounded-2xl border border-white/5 p-3 max-w-md mx-auto relative">
+      <div class="bg-ink-900 rounded-2xl border border-line p-3 max-w-md mx-auto relative">
         <div id="n2048-board" class="grid grid-cols-4 gap-2 aspect-square"></div>
         <div id="n2048-overlay" class="hidden absolute inset-0 rounded-2xl bg-ink-950/80 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
           <p id="n2048-msg" class="font-display text-3xl text-ink-100" data-i18n="arcade.win">You win!</p>
@@ -230,7 +230,7 @@
     // bg grid (subtle)
     sCtx.fillStyle = '#efebe2';
     sCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-    sCtx.strokeStyle = 'rgba(47, 94, 90,0.05)';
+    sCtx.strokeStyle = 'color-mix(in srgb, var(--daiqing) 5%, transparent)';
     sCtx.lineWidth = 1;
     for (let i = 1; i < GRID; i++) {
       sCtx.beginPath();
@@ -248,7 +248,7 @@
     sCtx.beginPath();
     sCtx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.3, 0, Math.PI * 2);
     sCtx.fill();
-    sCtx.shadowColor = '#b8341f';
+    sCtx.shadowColor = '#bd3620';
     sCtx.shadowBlur = 12;
     sCtx.beginPath();
     sCtx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.2, 0, Math.PI * 2);
@@ -258,7 +258,7 @@
     // snake (water drop body)
     snakeBody.forEach((seg, i) => {
       const alpha = 1 - (i / snakeBody.length) * 0.55;
-      sCtx.fillStyle = i === 0 ? `rgba(47, 94, 90,1)` : `rgba(47, 94, 90,${alpha})`;
+      sCtx.fillStyle = i === 0 ? `color-mix(in srgb, var(--daiqing) 100%, transparent)` : `rgba(47, 94, 90,${alpha})`;
       sCtx.beginPath();
       sCtx.roundRect(seg.x * CELL + 2, seg.y * CELL + 2, CELL - 4, CELL - 4, 5);
       sCtx.fill();
@@ -369,7 +369,7 @@
   let won = false;
 
   const TILE_COLORS: Record<number, string> = {
-    0: 'bg-white/5 text-transparent',
+    0: 'bg-ink-100/5 text-transparent',
     2: 'bg-ink-700 text-ink-100',
     4: 'bg-ink-600 text-ink-100',
     8: 'bg-aqua-600/60 text-ink-100',
@@ -517,10 +517,10 @@
 
 <style>
   .arcade-tab {
-    color: #7f8a86;
+    color: var(--ink-4);
   }
   .arcade-tab.active {
-    background: rgba(47, 94, 90, 0.15);
-    color: #3f7570;
+    background: color-mix(in srgb, var(--daiqing) 15%, transparent);
+    color: var(--daiqing-2);
   }
 </style>

@@ -188,6 +188,69 @@ document.querySelectorAll<HTMLElement>('.section-eyebrow[data-chapter]').forEach
 });
 if (slipped && lang() !== 'en') (window as any).__applyI18n?.();
 
+// ---------- Chapter rail and the cue at the foot of each chapter ----------
+const chapters = Array.from(document.querySelectorAll<HTMLElement>('.section-eyebrow[data-chapter]'))
+  .map(eyebrow => ({ eyebrow, section: eyebrow.closest('section') as HTMLElement | null }))
+  .filter((c): c is { eyebrow: HTMLElement; section: HTMLElement } => !!c.section?.id);
+if (chapters.length > 1) {
+  const rail = document.createElement('nav');
+  rail.className = 'chapter-rail';
+  rail.setAttribute('aria-label', 'Chapters');
+  const line = document.createElement('i');
+  line.className = 'chapter-rail-line';
+  rail.appendChild(line);
+  const items = chapters.map(({ eyebrow, section }) => {
+    const a = document.createElement('a');
+    a.href = `#${section.id}`;
+    a.className = 'chapter-rail-item';
+    const n = Number(eyebrow.dataset.chapter ?? 0);
+    const b = document.createElement('b');
+    b.textContent = Number.isInteger(n) && n > 0 && n < NUMERALS.length ? NUMERALS[n] : eyebrow.dataset.chapter ?? '';
+    const name = document.createElement('span');
+    name.textContent = eyebrow.textContent?.trim() ?? '';
+    if (eyebrow.dataset.i18n) name.dataset.i18n = eyebrow.dataset.i18n;
+    a.append(b, name);
+    rail.appendChild(a);
+    return a;
+  });
+  document.body.appendChild(rail);
+  let railFrame = 0;
+  const paintRail = () => {
+    railFrame = 0;
+    const probe = scrollY + innerHeight * 0.42;
+    let current = -1;
+    chapters.forEach((c, i) => { if (c.section.getBoundingClientRect().top + scrollY <= probe) current = i; });
+    items.forEach((a, i) => { a.classList.toggle('is-current', i === current); if (i === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+    const max = root.scrollHeight - innerHeight;
+    rail.classList.toggle('is-on', scrollY > innerHeight * 0.55 && scrollY < max - innerHeight * 0.6);
+    line.style.setProperty('--p', String(Math.min(1, Math.max(0, scrollY / Math.max(1, max)))));
+  };
+  addEventListener('scroll', () => { if (!railFrame) railFrame = requestAnimationFrame(paintRail); }, { passive: true });
+  addEventListener('resize', paintRail, { passive: true });
+  paintRail();
+
+  chapters.forEach((c, i) => {
+    const next = chapters[i + 1];
+    const container = c.section.querySelector<HTMLElement>(':scope > div');
+    if (!next || !container) return;
+    const a = document.createElement('a');
+    a.className = 'chapter-next';
+    a.href = `#${next.section.id}`;
+    const label = document.createElement('span');
+    label.dataset.i18n = 'chapter.next';
+    label.textContent = 'Next';
+    const name = document.createElement('em');
+    name.textContent = next.eyebrow.textContent?.trim() ?? '';
+    if (next.eyebrow.dataset.i18n) name.dataset.i18n = next.eyebrow.dataset.i18n;
+    const arrow = document.createElement('i');
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '↓';
+    a.append(label, name, arrow);
+    container.appendChild(a);
+  });
+  if (lang() !== 'en') (window as any).__applyI18n?.();
+}
+
 // ---------- Glint on every grained frame ----------
 document.querySelectorAll<HTMLElement>('.grain').forEach(grain => {
   const glint = document.createElement('span');

@@ -1,5 +1,6 @@
 ---
 import '../styles/fonts.css';
+import '../styles/theme.css';
 import '../styles/global.css';
 import '../styles/liquid-glass.css';
 import '../styles/kinetics.css';
@@ -68,7 +69,8 @@ const siteLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#f3efe6" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3efe6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121516" />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
@@ -106,9 +108,13 @@ const siteLd = {
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/noto-serif-sc-display-normal-200-900.woff2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Decide before first paint whether the cinematic intro plays (once per session). -->
+    <!-- Decide before first paint which ink the page wears (the system's, unless one was chosen) and whether the opening plays (once per session). -->
     <script is:inline>
       (function () {
+        var theme = null;
+        try { theme = localStorage.getItem('theme'); } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
         var seen = false;
         try { seen = !!sessionStorage.getItem('intro-seen'); } catch (e) {}
         var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -128,7 +134,6 @@ const siteLd = {
     <canvas id="ink-trail" aria-hidden="true"></canvas>
     <div id="cursor-badge" aria-hidden="true"><span></span></div>
     <a href="#main-content" class="skip-link" data-i18n="nav.skip">Skip to content</a>
-    <div id="reading-progress" aria-hidden="true"></div>
     <Nav />
     <main id="main-content" class="relative z-10" tabindex="-1">
       <slot />
@@ -139,6 +144,7 @@ const siteLd = {
 
     <script>
       import '../scripts/i18n-runtime';
+      import '../scripts/theme';
 
       import '../scripts/site-interactions';
       import '../scripts/liquid-motion';

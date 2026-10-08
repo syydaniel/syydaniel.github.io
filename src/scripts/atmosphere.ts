@@ -15,6 +15,7 @@ uniform vec2 uPointer;
 uniform float uScroll;
 uniform float uGlow;
 uniform float uHour;
+uniform float uDark;
 
 float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float noise(vec2 p){
@@ -68,10 +69,12 @@ void main(){
   float d = length(p - m);
   final += vec3(0.62, 0.92, 0.82) * exp(-d * d * 2.2) * 0.07 * uGlow;
 
-  // Vignette and the site's near-black base.
+  // Vignette. By day the field is an ink wash drawn off the paper; by night it is light on lamp-black.
   float vig = 1.0 - 0.55 * smoothstep(0.2, 1.1, length(uv - vec2(0.5, 0.45)) * 1.25);
-  final = final * vig + vec3(0.018, 0.022, 0.036);
-  gl_FragColor = vec4(final, 1.0);
+  vec3 nightSide = final * vig + vec3(0.07, 0.08, 0.085);
+  float wash = clamp(dot(final, vec3(0.333)) * 1.4, 0.0, 1.0);
+  vec3 daySide = vec3(0.953, 0.937, 0.902) * (1.0 - wash * 0.22 * (0.6 + 0.4 * vig));
+  gl_FragColor = vec4(mix(daySide, nightSide, uDark), 1.0);
 }`;
 
 export function initAtmosphere(canvas: HTMLCanvasElement): void {
@@ -111,6 +114,10 @@ export function initAtmosphere(canvas: HTMLCanvasElement): void {
   const uScroll = gl.getUniformLocation(program, 'uScroll');
   const uGlow = gl.getUniformLocation(program, 'uGlow');
   const uHour = gl.getUniformLocation(program, 'uHour');
+  const uDark = gl.getUniformLocation(program, 'uDark');
+  const paintTheme = () => gl!.uniform1f(uDark, document.documentElement.dataset.theme === 'dark' ? 1 : 0);
+  paintTheme();
+  addEventListener('themechange', () => { paintTheme(); wake(); });
   const hourIn = new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
   function localHour(): number {
     const [h, m] = hourIn.format(new Date()).split(':').map(Number);

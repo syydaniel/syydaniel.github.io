@@ -15,7 +15,7 @@ const framesIn = (country: string) => photos.filter((p) => p.location.country ==
 const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
 ---
 
-<section id="places" class="relative py-28 md:py-40 scroll-mt-20">
+<section id="places" class="chapter relative">
   <div class="mx-auto max-w-7xl px-6">
     <div class="places-head reveal">
       <div class="places-intro">
@@ -51,10 +51,11 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
 
     <div class="grid lg:grid-cols-[1.6fr_1fr] gap-6">
       <div class="glass rounded-2xl overflow-hidden reveal mounted">
-        <div id="places-map" class="w-full h-[520px] bg-ink-800" data-version={travel.version}></div>
+        <div id="places-map" class="w-full h-[520px] bg-ink-800 relative" data-version={travel.version}></div>
+        <p class="places-map-hint" aria-hidden="true"><span data-i18n="places.map_hint">Drag to turn the table · Each column is time spent in a 10 km square</span></p>
         {
           years && (
-            <div class="border-t border-white/5 px-5 py-3 text-xs font-mono text-ink-400 flex justify-between">
+            <div class="border-t border-line px-5 py-3 text-xs font-mono text-ink-400 flex justify-between">
               <span>{stats.firstYear} to {stats.lastYear}</span>
               <span>
                 {stats.days} <span data-i18n="places.days">days on the move</span>
@@ -70,7 +71,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
             countries.map((c) => (
               <li class="places-country" data-a3={c.a3}>
                 <div class="flex items-center gap-2.5">
-                  <span class="w-2 h-2 rounded-full shrink-0" style={`background:${c.color};box-shadow:0 0 6px ${c.color}`} title="Color on the globe"></span>
+                  <span class="places-mark w-2 h-2 rounded-full shrink-0" aria-hidden="true"></span>
                   <span class="text-xl leading-none">{c.flag}</span>
                   <span class="text-ink-100" data-i18n-self={loc(c.en, c.zh)}>{c.en}</span>
                   <span class="ml-auto text-[10px] font-mono text-ink-500">{c.cities.length || ''}</span>
@@ -114,118 +115,119 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
 </section>
 
 <script>
-  // Load MapLibre (~800 KB) and the cell data only when the map nears view.
+  // The atlas loads only when the map nears view. Cells are the 10 km squares
+  // of my GPS tracks, raised as columns by time spent: a table-top model of
+  // where I have walked. The country list and the globe stay in step with it.
+  import { createAtlas } from '../scripts/atlas';
   const el = document.getElementById('places-map');
   if (el) {
     let started = false;
     const initMap = async () => {
       if (started) return;
       started = true;
-      const [, mod, data] = await Promise.all([
-        import('maplibre-gl/dist/maplibre-gl.css'),
-        import('maplibre-gl'),
+      const [atlas, data] = await Promise.all([
+        createAtlas(el, { center: [20, 35], zoom: 1.2, maxZoom: 7, pitch: 42, bearing: -14, rotate: true, detail: false }),
         fetch(`/travel.json?v=${el.dataset.version ?? ''}`).then((r) => r.json())
       ]);
-      const maplibregl = mod.default;
-
+      const { map, maplibregl } = atlas;
       const cells: [number, number, number][] = data.cells;
-      const half = 0.05;
       const maxLog = Math.log1p(Math.max(...cells.map((c) => c[2])));
-      const cellFeatures = {
-        type: 'FeatureCollection',
-        features: cells.map(([x, y, n]) => ({
-          type: 'Feature',
-          properties: { w: Math.log1p(n) / maxLog },
-          geometry: {
-            type: 'Polygon',
-            coordinates: [[[x - half, y - half], [x + half, y - half], [x + half, y + half], [x - half, y + half], [x - half, y - half]]]
-          }
-        }))
+      const square = (x: number, y: number, half: number, w: number, id: number) => ({
+        type: 'Feature', id, properties: { w },
+        geometry: { type: 'Polygon', coordinates: [[[x - half, y - half], [x + half, y - half], [x + half, y + half], [x - half, y + half], [x - half, y - half]]] }
+      });
+      // Fine: the 10 km squares themselves. Coarse: the same time summed into 1° squares, for the zooms where 10 km is less than a pixel.
+      const fine = { type: 'FeatureCollection', features: cells.map(([x, y, n], i) => square(x, y, 0.05, Math.log1p(n) / maxLog, i)) };
+      const coarseSum = new Map<string, [number, number, number]>();
+      cells.forEach(([x, y, n]) => { const k = `${Math.floor(x)},${Math.floor(y)}`; const c = coarseSum.get(k); if (c) c[2] += n; else coarseSum.set(k, [Math.floor(x) + 0.5, Math.floor(y) + 0.5, n]); });
+      const coarseMax = Math.log1p(Math.max(...[...coarseSum.values()].map((c) => c[2])));
+      const coarse = { type: 'FeatureCollection', features: [...coarseSum.values()].map(([x, y, n], i) => square(x, y, 0.5, Math.log1p(n) / coarseMax, i)) };
+      const dots = { type: 'FeatureCollection', features: cells.map(([x, y, n], i) => ({ type: 'Feature', id: i, properties: { w: Math.log1p(n) / maxLog }, geometry: { type: 'Point', coordinates: [x, y] } })) };
+      const ramp = (ink: ReturnType<typeof atlas.ink>) => ['interpolate', ['linear'], ['get', 'w'], 0, ink.daiqing, 0.55, ink.ink, 1, ink.seal];
+      const column = (ink: ReturnType<typeof atlas.ink>) => ['case', ['boolean', ['feature-state', 'hover'], false], ink.zhusha, ramp(ink)];
+      // Columns keep their height on screen: metres halve as the scale doubles.
+      const height = (base: number, span: number) => ['interpolate', ['exponential', 2], ['zoom'], 2, ['+', base, ['*', ['get', 'w'], span]], 9, ['+', base / 128, ['*', ['get', 'w'], span / 128]]];
+      const paint = () => {
+        const ink = atlas.ink();
+        map.setPaintProperty('cells-coarse', 'fill-extrusion-color', column(ink));
+        map.setPaintProperty('cells-fine', 'fill-extrusion-color', column(ink));
+        map.setPaintProperty('cells-dots', 'circle-color', ramp(ink));
+        map.setPaintProperty('country-hi', 'fill-color', ink.daiqing);
+        map.setPaintProperty('country-hi-line', 'line-color', ink.daiqing);
+        map.setLight({ anchor: 'viewport', color: ink.dark ? '#ffffff' : ink.paperHi, intensity: ink.dark ? 0.6 : 0.35, position: [1.4, 120, 55] });
       };
 
-      const map = new maplibregl.Map({
-        container: el,
-        style: {
-          version: 8,
-          sources: {
-            basemap: {
-              type: 'raster',
-              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
-              tileSize: 256,
-              maxzoom: 16,
-              attribution: 'Tiles © Esri, HERE, Garmin, © OpenStreetMap contributors · Natural Earth'
-            }
-          },
-          layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
-        },
-        center: [20, 35],
-        zoom: 1.2,
-        attributionControl: true,
-        dragRotate: false
-      });
-      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-
-      map.on('load', () => {
+      atlas.ready.then(() => {
+        const ink = atlas.ink();
         map.addSource('outlines', { type: 'geojson', data: data.outlines });
-        map.addSource('cells', { type: 'geojson', data: cellFeatures as any });
-        map.addLayer({ id: 'country-fill', type: 'fill', source: 'outlines', paint: { 'fill-color': '#2f5e5a', 'fill-opacity': 0.06 } });
-        map.addLayer({ id: 'country-line', type: 'line', source: 'outlines', paint: { 'line-color': '#15191a', 'line-opacity': 0.35, 'line-width': 0.8 } });
-        // Glow halo so single cells stay visible at world zoom, then the crisp squares.
-        map.addLayer({
-          id: 'cells-glow',
-          type: 'circle',
-          source: 'cells',
-          maxzoom: 6,
-          paint: {
-            'circle-radius': ['interpolate', ['linear'], ['zoom'], 0, 2.5, 5, 7],
-            'circle-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#2f5e5a', 0.6, '#15191a', 1, '#bd3620'],
-            'circle-blur': 0.8,
-            'circle-opacity': ['interpolate', ['linear'], ['zoom'], 0, 0.9, 6, 0]
-          }
-        });
-        map.addLayer({
-          id: 'cells',
-          type: 'fill',
-          source: 'cells',
-          paint: {
-            'fill-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#2f5e5a', 0.6, '#15191a', 1, '#bd3620'],
-            'fill-opacity': ['interpolate', ['linear'], ['get', 'w'], 0, 0.6, 1, 1]
-          }
-        });
+        map.addSource('cells-fine', { type: 'geojson', data: fine as any });
+        map.addSource('cells-coarse', { type: 'geojson', data: coarse as any });
+        map.addSource('cells-dots', { type: 'geojson', data: dots as any });
+        map.addLayer({ id: 'country-hi', type: 'fill', source: 'outlines', filter: ['==', 'a3', ''], paint: { 'fill-color': ink.daiqing, 'fill-opacity': 0.12 } }, 'graticule');
+        map.addLayer({ id: 'country-hi-line', type: 'line', source: 'outlines', filter: ['==', 'a3', ''], paint: { 'line-color': ink.daiqing, 'line-opacity': 0.7, 'line-width': 1.2 } });
+        map.addLayer({ id: 'cells-dots', type: 'circle', source: 'cells-dots', maxzoom: 8, paint: { 'circle-pitch-alignment': 'map', 'circle-color': ramp(ink), 'circle-opacity': 0.55, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.6, 6, 4] } });
+        map.addLayer({ id: 'cells-coarse', type: 'fill-extrusion', source: 'cells-coarse', maxzoom: 3.6, paint: { 'fill-extrusion-color': column(ink), 'fill-extrusion-height': height(260000, 2600000), 'fill-extrusion-base': 0, 'fill-extrusion-opacity': 0.9, 'fill-extrusion-vertical-gradient': true } });
+        map.addLayer({ id: 'cells-fine', type: 'fill-extrusion', source: 'cells-fine', minzoom: 3.6, paint: { 'fill-extrusion-color': column(ink), 'fill-extrusion-height': height(260000, 2600000), 'fill-extrusion-base': 0, 'fill-extrusion-opacity': 0.92, 'fill-extrusion-vertical-gradient': true } });
+        paint();
+        atlas.onTheme(paint);
 
         const bounds = new maplibregl.LngLatBounds();
         cells.forEach(([x, y]) => bounds.extend([x, y]));
-        if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 40, maxZoom: 5, duration: 0 });
+        if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 48, maxZoom: 4.6, duration: 0, pitch: 42, bearing: -14 });
 
-        // Clicking a country in the list flies the map to it.
-        document.querySelectorAll<HTMLElement>('.places-country').forEach((li) => {
-          li.addEventListener('click', () => {
-            const f = (data.outlines.features as any[]).find((x) => x.properties.a3 === li.dataset.a3);
-            if (!f) return;
-            const b = new maplibregl.LngLatBounds();
-            const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-            polys.forEach((p: number[][][]) => p[0].forEach((pt) => b.extend(pt as [number, number])));
-            map.fitBounds(b, { padding: 40, maxZoom: 6, duration: 1200 });
+        // Hover lights a column.
+        let hovered: { source: string; id: number } | null = null;
+        const clear = () => { if (hovered) map.setFeatureState(hovered, { hover: false }); hovered = null; map.getCanvas().style.cursor = ''; };
+        for (const layer of ['cells-coarse', 'cells-fine']) {
+          map.on('mousemove', layer, (e) => {
+            const id = e.features?.[0]?.id as number | undefined;
+            if (id === undefined) return;
+            if (hovered && hovered.id === id && hovered.source === layer) return;
+            clear();
+            hovered = { source: layer, id };
+            map.setFeatureState(hovered, { hover: true });
+            map.getCanvas().style.cursor = 'pointer';
           });
-        });
+          map.on('mouseleave', layer, clear);
+        }
+      });
+
+      // One focus for the list, the globe and the map.
+      const items = Array.from(document.querySelectorAll<HTMLElement>('.places-country'));
+      const focus = (a3: string, source?: string) => {
+        items.forEach((li) => li.classList.toggle('is-focus', li.dataset.a3 === a3));
+        if (map.isStyleLoaded() && map.getLayer('country-hi')) {
+          map.setFilter('country-hi', ['==', 'a3', a3]);
+          map.setFilter('country-hi-line', ['==', 'a3', a3]);
+        }
+        if (source !== 'globe') (window as any).__globeFocus?.(a3);
+        if (source !== 'hover') {
+          const f = (data.outlines.features as any[]).find((x) => x.properties.a3 === a3);
+          if (!f) return;
+          const b = new maplibregl.LngLatBounds();
+          const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+          polys.forEach((p: number[][][]) => p[0].forEach((pt) => b.extend(pt as [number, number])));
+          map.fitBounds(b, { padding: 56, maxZoom: 5.5, duration: 1400, pitch: 42 });
+          if (source === 'globe') el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      };
+      (window as any).__placesFocus = focus;
+      items.forEach((li) => {
+        li.addEventListener('mouseenter', () => focus(li.dataset.a3!, 'hover'));
+        li.addEventListener('click', () => focus(li.dataset.a3!, 'list'));
       });
     };
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          io.disconnect();
-          initMap();
-        }
-      },
-      { rootMargin: '300px' }
-    );
+    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { io.disconnect(); initMap(); } }, { rootMargin: '300px' });
     io.observe(el);
   }
 </script>
 
 <style>
-  .places-country { cursor: pointer; }
-  .places-country > div > span[style] { filter: saturate(0.55) brightness(0.9); }
-  .places-country:hover .text-ink-100 { color: #b8341f; }
+  .places-country { cursor: pointer; border-radius: var(--radius); margin: 0 -0.5rem; padding: 0.35rem 0.5rem; transition: background 300ms ease; }
+  .places-country:hover, .places-country.is-focus { background: color-mix(in srgb, var(--daiqing) 7%, transparent); }
+  .places-mark { background: var(--daiqing); box-shadow: 0 0 0 3px color-mix(in srgb, var(--daiqing) 18%, transparent); transition: background 300ms ease, box-shadow 300ms ease; }
+  .places-country.is-focus .places-mark { background: var(--seal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--seal) 22%, transparent); }
+  .places-country:hover .text-ink-100, .places-country.is-focus .text-ink-100 { color: var(--zhusha); }
+  .places-map-hint { position: absolute; left: 1.4rem; top: 1rem; z-index: 3; margin: 0; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-4); pointer-events: none; }
 </style>

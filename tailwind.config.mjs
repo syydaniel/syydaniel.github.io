@@ -1,9 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+// The palette reads the theme tokens in src/styles/theme.css, so every utility
+// (and every /opacity modifier) follows the light and dark inks.
+const tone = (token) => `color-mix(in srgb, var(${token}) calc(<alpha-value> * 100%), transparent)`;
+
 export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
   theme: {
     // One border language for the whole site: hairlines and small radii, never pills (except controls).
-    borderRadius: { none: '0', sm: '3px', DEFAULT: '4px', md: '5px', lg: '6px', xl: '6px', '2xl': '8px', '3xl': '10px', full: '9999px' },
+    borderRadius: { none: '0', sm: '3px', DEFAULT: '4px', md: '5px', lg: '6px', xl: '6px', '2xl': '6px', '3xl': '8px', full: '9999px' },
     extend: {
       fontFamily: {
         sans: ['"Instrument Sans"', 'Inter', 'system-ui', 'sans-serif'],
@@ -12,33 +16,27 @@ export default {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
       },
       colors: {
+        // 950 is the page, 100 the strongest ink, in both themes.
         ink: {
-          950: '#f3efe6',
-          900: '#efebe2',
-          800: '#e9e5db',
-          700: '#dcd9cf',
-          600: '#cfd2ca',
-          500: '#a7afaa',
-          400: '#7f8a86',
-          300: '#5c6763',
-          200: '#2a302f',
-          100: '#15191a'
+          950: tone('--paper'),
+          900: tone('--paper-2'),
+          800: tone('--paper-3'),
+          700: tone('--paper-4'),
+          600: tone('--ink-6'),
+          500: tone('--ink-5'),
+          400: tone('--ink-4'),
+          300: tone('--ink-3'),
+          200: tone('--ink-2'),
+          100: tone('--ink')
         },
-        aqua: {
-          400: '#3f7570',
-          500: '#2f5e5a',
-          600: '#214744'
-        },
-        sol: {
-          400: '#b8341f',
-          500: '#a52c18',
-          600: '#8f2412'
-        },
-        moss: {
-          400: '#52705f',
-          500: '#3f5a4b',
-          600: '#3f5a4b'
-        }
+        paper: tone('--paper'),
+        aqua: { 400: tone('--daiqing-2'), 500: tone('--daiqing'), 600: tone('--daiqing-3') },
+        sol: { 400: tone('--zhusha'), 500: tone('--zhusha-2'), 600: tone('--zhusha-3') },
+        moss: { 400: tone('--moss'), 500: tone('--moss-2'), 600: tone('--moss-2') },
+        seal: tone('--seal'),
+        line: 'var(--line)',
+        'line-strong': 'var(--line-strong)',
+        ondark: tone('--on-dark')
       },
       animation: {
         'gradient-shift': 'gradient-shift 8s ease-in-out infinite',
@@ -65,8 +63,8 @@ export default {
         }
       },
       backgroundImage: {
-        'radial-fade': 'radial-gradient(ellipse at top, rgba(47,94,90,0.12), transparent 60%)',
-        'grid-fade': 'linear-gradient(rgba(21,25,26,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(21,25,26,0.04) 1px, transparent 1px)'
+        'radial-fade': 'radial-gradient(ellipse at top, color-mix(in srgb, var(--daiqing) 12%, transparent), transparent 60%)',
+        'grid-fade': 'linear-gradient(color-mix(in srgb, var(--ink) 4%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--ink) 4%, transparent) 1px, transparent 1px)'
       }
     }
   },

@@ -37,6 +37,10 @@ export const dict: Record<string, Record<Lang, string>> = {
   'gallery.back': { en: 'Return to gallery', zh: '返回空间展厅' },
   'gallery.photograph': { en: 'Photograph', zh: '摄影作品' },
   'nav.menu': { en: 'Navigation menu', zh: '导航菜单' },
+  'places.map_hint': { en: 'Drag to turn the table · Each column is time spent in a 10 km square', zh: '拖动旋转 · 每根柱子是在一个 10 公里方格里停留的时间' },
+  'chapter.next': { en: 'Next', zh: '下一章' },
+  'theme.dark': { en: 'Switch to night ink', zh: '切换到夜间（墨色）' },
+  'theme.light': { en: 'Switch to day ink', zh: '切换到日间（纸色）' },
   'nav.skip': { en: 'Skip to content', zh: '跳至正文' },
 
   // Hero

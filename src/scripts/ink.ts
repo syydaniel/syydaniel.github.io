@@ -77,24 +77,28 @@ void main () {
   gl_FragColor = vec4(velocity, 0.0, 1.0);
 }`;
 
-// The ink is lit like a wet surface: a little relief from the dye gradient, a
-// paper-dark base, a vignette, and the hour in Wageningen warming or cooling it.
-const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uHour; uniform float uDim;
+// By day the dye is absorbance: each drop darkens the paper toward its own hue.
+// By night (uDark) the same dye is light held in lamp-black: 黛青 for the inks,
+// a warm glow where the cinnabar fell. The hour in Wageningen tints both.
+const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uHour; uniform float uDim; uniform float uDark;
 void main () {
   vec3 a = texture2D(uTexture, vUv).rgb;
-  vec3 la = texture2D(uTexture, vL).rgb, ra = texture2D(uTexture, vR).rgb, ta = texture2D(uTexture, vT).rgb, ba = texture2D(uTexture, vB).rgb;
-  float dx = length(ra) - length(la), dy = length(ta) - length(ba);
-  vec3 n = normalize(vec3(dx, dy, length(uRes) * 0.00035));
-  float relief = 1.0;
   float dawn = smoothstep(4.5, 7.0, uHour) * (1.0 - smoothstep(8.0, 10.5, uHour));
   float dusk = smoothstep(16.5, 19.0, uHour) * (1.0 - smoothstep(20.0, 22.5, uHour));
-  float night = 1.0 - smoothstep(5.0, 8.0, uHour) * (1.0 - smoothstep(19.5, 23.0, uHour));
+  float late = 1.0 - smoothstep(5.0, 8.0, uHour) * (1.0 - smoothstep(19.5, 23.0, uHour));
   vec3 paper = vec3(0.953, 0.937, 0.902);
   paper = mix(paper, paper * vec3(1.0, 0.97, 0.92), (dawn + dusk) * 0.35);
-  paper = mix(paper, paper * vec3(0.95, 0.96, 0.98), night * 0.25);
+  paper = mix(paper, paper * vec3(0.95, 0.96, 0.98), late * 0.25);
   vec3 absorb = clamp(a * 0.6 * uDim, 0.0, 0.9);
-  vec3 color = paper * (vec3(1.0) - absorb) * relief;
-  float vig = 1.0 - 0.08 * smoothstep(0.25, 1.15, length(vUv - vec2(0.5, 0.45)) * 1.25);
+  vec3 day = paper * (vec3(1.0) - absorb);
+  vec3 lamp = vec3(0.071, 0.082, 0.086);
+  lamp = mix(lamp, lamp * vec3(1.12, 1.0, 0.9), (dawn + dusk) * 0.4);
+  float dye = dot(a, vec3(0.3333));
+  vec3 glow = dye * vec3(0.40, 0.60, 0.56) * 0.5 * uDim;
+  float warm = max(a.g + a.b - a.r * 2.2, 0.0);
+  glow += warm * vec3(0.95, 0.38, 0.22) * 0.32 * uDim;
+  vec3 color = mix(day, lamp + glow, uDark);
+  float vig = 1.0 - mix(0.08, 0.3, uDark) * smoothstep(0.25, 1.15, length(vUv - vec2(0.5, 0.45)) * 1.25);
   gl_FragColor = vec4(color * vig, 1.0);
 }`;
 
@@ -331,8 +335,12 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   let hour = localHour();
   setInterval(() => { hour = localHour(); }, 60000);
 
+  const isDark = () => document.documentElement.dataset.theme === 'dark';
+  let dark = isDark() ? 1 : 0;
+  addEventListener('themechange', () => { dark = isDark() ? 1 : 0; wake(); });
   function present() {
     gl!.useProgram(P.display.p);
+    gl!.uniform1f(P.display.u.uDark, dark);
     gl!.uniform2f(P.display.u.texelSize, 1 / dyeW, 1 / dyeH);
     gl!.uniform1i(P.display.u.uTexture, bind(dye.read, 0));
     gl!.uniform2f(P.display.u.uRes, canvas.width, canvas.height);
