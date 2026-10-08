@@ -297,6 +297,35 @@ function paint() {
   document.querySelectorAll<HTMLElement>('[data-sky-theme]').forEach((el) => {
     el.textContent = sky.night ? phrase('sky.card.night', 'night ink until sunrise {t}').replace('{t}', sky.sunrise ?? '') : phrase('sky.card.day', 'day ink until sunset {t}').replace('{t}', sky.sunset ?? '');
   });
+  // Photography: the light a photographer waits for.
+  document.querySelectorAll<HTMLElement>('[data-sky-light]').forEach((el) => {
+    const text = el.querySelector<HTMLElement>('[data-sky-light-text]');
+    if (!text || !sky.sunrise) { el.setAttribute('hidden', ''); return; }
+    const closed = w && (w.rain > 0.15 || w.cloud >= 0.85 || ['fog', 'storm', 'snow'].includes(weatherKind(w.code)));
+    const now = sky.golden > 0.45 && !closed;
+    text.textContent = now ? phrase('sky.light.now', 'Golden hour in Wageningen right now')
+      : closed && !sky.night ? phrase('sky.light.none', 'No golden light today: the sky over Wageningen is closed')
+      : sky.night || sky.phase === 'dawn' ? phrase('sky.light.sunrise', 'Next golden hour: sunrise {t}').replace('{t}', sky.sunrise ?? '')
+      : phrase('sky.light.sunset', 'Next golden hour: sunset {t}').replace('{t}', sky.sunset ?? '');
+    el.classList.toggle('is-now', now);
+    el.classList.toggle('is-off', !!closed && !now);
+    el.removeAttribute('hidden');
+  });
+  // Contact: the time and weather where the mail lands.
+  document.querySelectorAll<HTMLElement>('[data-sky-contact]').forEach((el) => {
+    const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: ZONE }).format(new Date());
+    el.textContent = `${phrase('sky.contact.time', 'There now')} ${time}${w ? ` · ${Math.round(w.temp)}° ${weatherLabel(w.code, lang())}` : ''}`;
+    el.removeAttribute('hidden');
+  });
+  // Nya: until someone types, the translator's sentence is today's weather (the cat script reads English).
+  if (w) document.querySelectorAll<HTMLTextAreaElement>('[data-sky-say]').forEach((el) => {
+    if (!el.dataset.skyBound) { el.dataset.skyBound = ''; el.addEventListener('input', (e) => { if (e.isTrusted) el.dataset.touched = ''; }); }
+    if (el.dataset.touched !== undefined) return;
+    const kind = weatherKind(w.code);
+    const say = kind === 'rain' ? 'It is raining in Wageningen today.' : kind === 'snow' ? 'It is snowing in Wageningen today.' : kind === 'storm' ? 'There is a thunderstorm over Wageningen.' : kind === 'fog' ? 'Fog lies over Wageningen today.' : kind === 'cloud' ? 'It is cloudy in Wageningen today.' : sky.night ? 'It is a clear night in Wageningen.' : 'The sun is out over Wageningen today.';
+    if (el.value !== say) { el.value = say; el.dispatchEvent(new Event('input')); }
+  });
+  paintBar(glowColor, glow, veilColor, veil);
   // Tonight's Moon, in the toggle: the bite sits where the shadow is.
   if (sky.moon) {
     root.style.setProperty('--moon-d', `${(12.7 * Math.max(0.22, sky.moon.lit)).toFixed(2)}px`);
@@ -305,6 +334,25 @@ function paint() {
   (window as any).__sky = sky;
   dispatchEvent(new CustomEvent('skychange', { detail: sky }));
 }
+
+// The browser's bar (meta theme-color) takes the paper's cast, so the frame of
+// the page is lit like the page. theme.ts sets the plain colour on a theme
+// change; this repaints after it.
+let lastBar = ['', 0, '', 0] as [string, number, string, number];
+function mixHex(a: string, b: string, t: number): string {
+  const p = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const [x, y] = [p(a), p(b)];
+  return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join('');
+}
+function paintBar(glowColor: string, glow: number, veilColor: string, veil: number) {
+  lastBar = [glowColor, glow, veilColor, veil];
+  const dark = root.dataset.theme === 'dark';
+  let c = dark ? '#121516' : '#f3efe6';
+  c = mixHex(c, glowColor, glow * (dark ? 0.12 : 0.22));
+  c = mixHex(c, veilColor, veil * (dark ? 0.08 : 0.14));
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => { m.content = c; });
+}
+addEventListener('themechange', () => safely(() => paintBar(...lastBar)));
 
 // Nothing here may take the rest of the page down with it: an older browser
 // without these Intl features simply gets no sky.

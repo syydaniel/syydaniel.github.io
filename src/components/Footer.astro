@@ -10,9 +10,12 @@ const year = new Date().getFullYear();
     <defs>
       <linearGradient id="ridge-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--daiqing)" stop-opacity="0.12" /><stop offset="1" stop-color="var(--daiqing)" stop-opacity="0" /></linearGradient>
       <linearGradient id="ridge-fade-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--daiqing-3)" stop-opacity="0.16" /><stop offset="1" stop-color="var(--daiqing-3)" stop-opacity="0" /></linearGradient>
+      <linearGradient id="ridge-snow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--paper-hi)" stop-opacity="0.85" /><stop offset="0.2" stop-color="var(--paper-hi)" stop-opacity="0" /></linearGradient>
     </defs>
     <path class="ridge ridge-far" fill="url(#ridge-fade)" d="M0 210 C 90 170, 150 120, 240 140 C 320 158, 360 90, 450 96 C 530 102, 580 150, 660 132 C 740 114, 790 60, 880 72 C 960 82, 1010 140, 1100 120 C 1180 102, 1230 50, 1320 70 C 1380 84, 1410 120, 1440 110 L 1440 320 L 0 320 Z" />
     <path class="ridge ridge-near" fill="url(#ridge-fade-near)" d="M0 268 C 110 240, 170 200, 260 214 C 350 228, 400 180, 500 186 C 590 192, 640 240, 740 226 C 830 214, 880 160, 980 176 C 1070 190, 1120 236, 1220 222 C 1310 210, 1360 180, 1440 196 L 1440 320 L 0 320 Z" />
+    <!-- Snow in Wageningen lies on the near ridge (html[data-weather='snow']). -->
+    <path class="ridge ridge-snow" fill="url(#ridge-snow)" d="M0 268 C 110 240, 170 200, 260 214 C 350 228, 400 180, 500 186 C 590 192, 640 240, 740 226 C 830 214, 880 160, 980 176 C 1070 190, 1120 236, 1220 222 C 1310 210, 1360 180, 1440 196 L 1440 320 L 0 320 Z" />
   </svg>
   <div class="footer-giant" aria-hidden="true">
     <span class="footer-giant-en">Yiyang <em>Shen</em></span>
