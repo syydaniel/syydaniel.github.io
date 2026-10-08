@@ -5,12 +5,12 @@ const covers = [galleryPhotos[1], galleryPhotos[0], galleryPhotos[5]].filter(Boo
 
 {galleryPhotos.length > 0 && (
   <section class="gallery-invitation" aria-labelledby="gallery-invitation-title">
-    <a href="/gallery/" class="gallery-invitation-link glass liquid-glass card-hover group">
+    <a href="/gallery/" class="gallery-invitation-link glass card-hover group mounted">
       <div class="invitation-copy">
         <span class="section-eyebrow" data-i18n="gallery.eyebrow">Selected photographs</span>
-        <h2 id="gallery-invitation-title" data-i18n="gallery.invitation">A room for light.</h2>
-        <p data-i18n="gallery.invitation.body">Step inside a spatial exhibition of landscapes, wildlife and fleeting light.</p>
-        <span class="invitation-cta"><span data-i18n="gallery.enter">Enter the gallery</span><span aria-hidden="true">↗</span></span>
+        <h2 id="gallery-invitation-title" data-i18n="gallery.invitation">The ones I would print.</h2>
+        <p data-i18n="gallery.invitation.body">A small 3D room with the photographs I like best. Drag to look around, click one to open it.</p>
+        <span class="invitation-cta"><span data-i18n="gallery.enter">Go in</span><span aria-hidden="true">↗</span></span>
       </div>
       <div class="invitation-frames" aria-hidden="true">
         {covers.map((p, i) => <img src={p.thumb} width="480" height="320" alt="" loading="lazy" decoding="async" style={`--frame:${i}`} />)}
@@ -22,16 +22,17 @@ const covers = [galleryPhotos[1], galleryPhotos[0], galleryPhotos[5]].filter(Boo
 
 <style>
   .gallery-invitation { max-width: 1280px; margin: 20px auto 0; padding: 32px 24px 0; }
-  .gallery-invitation-link { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 30px; padding: 38px 44px; border-radius: 28px; overflow: hidden; }
+  .gallery-invitation-link { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 30px; padding: 38px 44px; border-radius: var(--radius); overflow: hidden; }
   .invitation-copy { position: relative; z-index: 1; }
-  .invitation-copy h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: clamp(30px, 4vw, 48px); color: #eaf0e5; margin: 18px 0 12px; line-height: 1.1; }
-  .invitation-copy p { max-width: 370px; font-size: 12px; line-height: 1.8; color: #a9bbb5; }
-  .invitation-cta { display: inline-flex; gap: 30px; margin-top: 25px; font-size: 11px; color: #d0e8dc; }
+  .invitation-copy h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: clamp(30px, 4vw, 48px); color: var(--ink); margin: 18px 0 12px; line-height: 1.1; view-transition-name: gallery-title; }
+  .invitation-copy p { max-width: 370px; font-size: 12px; line-height: 1.8; color: var(--ink-3); }
+  .invitation-cta { display: inline-flex; gap: 30px; margin-top: 25px; font-size: 11px; color: var(--daiqing); }
   .invitation-cta > :last-child { transition: transform .5s; }
   .group:hover .invitation-cta > :last-child { transform: translate(3px, -3px); }
-  .invitation-frames { position: relative; height: 210px; perspective: 1000px; }
-  .invitation-frames img { position: absolute; width: 60%; aspect-ratio: 1.5; object-fit: cover; border-radius: 8px; top: 50%; left: 50%; transform: translate(calc(-50% + (var(--frame) - 1) * 62%), -50%) rotateY(calc((1 - var(--frame)) * 28deg)) scale(calc(1 - (var(--frame) - 1) * (var(--frame) - 1) * .15)); border: 1px solid #efffff30; box-shadow: 0 22px 40px -16px #000b; }
+  /* The frames and the title carry the same names as the gallery's stage and heading, so the card flies open into the room. */
+  .invitation-frames { position: relative; height: 210px; perspective: 1000px; view-transition-name: gallery-frames; }
+  .invitation-frames img { position: absolute; width: 60%; aspect-ratio: 1.5; object-fit: cover; border-radius: 4px; top: 50%; left: 50%; transform: translate(calc(-50% + (var(--frame) - 1) * 62%), -50%) rotateY(calc((1 - var(--frame)) * 28deg)) scale(calc(1 - (var(--frame) - 1) * (var(--frame) - 1) * .15)); border: 1px solid color-mix(in srgb, var(--hi) 20%, transparent); box-shadow: 0 22px 40px -16px #000b; }
   .invitation-frames img:nth-child(2) { z-index: 1; }
-  .invitation-edition { position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); color: #b2c6c1; font: 8px 'JetBrains Mono', monospace; letter-spacing: .2em; white-space: nowrap; }
+  .invitation-edition { position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); color: var(--ink-4); font: 8px 'JetBrains Mono', monospace; letter-spacing: .2em; white-space: nowrap; }
   @media (max-width: 767px) { .gallery-invitation-link { grid-template-columns: 1fr; padding: 28px; gap: 18px; } .invitation-frames { height: 160px; } .invitation-copy p { max-width: none; } .invitation-frames img { width: 54%; } }
 </style>

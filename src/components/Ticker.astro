@@ -1,0 +1,38 @@
+---
+// An instrument readout along the bottom of the hero: the time in Wageningen,
+// the solar term, the lunar date, and the site's counts, drifting slowly like a
+// field station's display. Decorative (aria-hidden); the live slots are filled
+// by scripts/kinetics.ts and the labels follow the site language.
+import { profile } from '../data/profile';
+import { photos } from '../data/photos-loader';
+import { films } from '../data/films';
+import travel from '../data/travel.generated.json';
+const latest = films.find((f) => f.featured) ?? films[0];
+const statKeys = ['stat.countries', 'stat.universities', 'stat.projects'];
+type Item = { key: string; label: string; value?: string; live?: 'time' | 'term' | 'lunar'; self?: Record<string, string> };
+const items: Item[] = [
+  { key: 'ticker.local_time', label: 'Local time, Wageningen', live: 'time' },
+  { key: 'footer.term', label: 'Solar term', live: 'term' },
+  { key: 'footer.lunar', label: 'Lunar date', live: 'lunar' },
+  ...profile.stats.slice(0, 3).map((s, i) => ({ key: statKeys[i], label: s.label, value: s.value })),
+  { key: 'ticker.frames', label: 'Frames', value: String(photos.length) },
+  { key: 'ticker.films', label: 'Films', value: String(films.length) },
+  { key: 'ticker.km', label: 'km tracked', value: travel.stats.km.toLocaleString('en-US') },
+  ...(latest ? [{ key: 'ticker.latest_film', label: 'Latest film', self: latest.title as Record<string, string> }] : [])
+];
+---
+
+<div class="hero-ticker marquee" aria-hidden="true" data-marquee data-speed="0.45">
+  <div class="marquee-track">
+    {[0, 1].map(() => items.map((item) => (
+      <span class="ticker-item">
+        <span class="ticker-label" data-i18n={item.key}>{item.label}</span>
+        {item.live === 'time' && <b data-ticker-time>--:--</b>}
+        {item.live === 'term' && <b data-solar-term></b>}
+        {item.live === 'lunar' && <b data-lunar-date></b>}
+        {item.value && <b>{item.value}</b>}
+        {item.self && <b data-i18n-self={JSON.stringify(item.self)}>{item.self.en}</b>}
+      </span>
+    )))}
+  </div>
+</div>

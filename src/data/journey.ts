@@ -27,8 +27,8 @@ export const journey: JourneyItem[] = [
     id: 'next-phd',
     kind: 'education',
     title: {
-      en: 'Next: a PhD in environmental modelling',
-      zh: '下一步：环境建模方向的博士'
+      en: 'A PhD in environmental modelling',
+      zh: '环境建模方向的博士'
     },
     org: {
       en: 'Looking for a position',
@@ -43,8 +43,8 @@ export const journey: JourneyItem[] = [
     end: '2026-06',
     ongoing: false,
     summary: {
-      en: 'Large-scale modelling of how land use shapes the environment: the effect of agricultural practices on soil health and soil ecosystem services, and the non-CO₂ greenhouse gas emissions (N₂O, CH₄) of farming systems, building on my catchment-scale water and microplastic modelling.',
-      zh: '用大尺度模型研究土地利用如何塑造环境：农业管理方式对土壤健康与土壤生态系统服务的影响，以及农业系统的非二氧化碳温室气体（N₂O、CH₄）排放。这延续了我在流域尺度上做水与微塑料建模的经验。'
+      en: 'What I want to work on: how land use shapes the environment at large scale, what farming practices do to soil health and the services soils provide, and the nitrous oxide and methane that farming systems give off. It follows on from the catchment-scale water and microplastic modelling I did at Wageningen.',
+      zh: '想做的方向：土地利用在大尺度上怎样改变环境，耕作方式对土壤健康和土壤生态系统服务有什么影响，以及农业系统排出的氧化亚氮和甲烷。这接着我在瓦赫宁根做的流域尺度水与微塑料建模往下走。'
     },
     tags: ['Soil Ecosystem Services', 'Agricultural Practices', 'Non-CO₂ GHGs', 'Large-scale Modelling'],
     status: 'upcoming'

@@ -4,10 +4,10 @@ export const profile = {
     cn: '沈亦旸',
     nickname: 'Daniel'
   },
-  title: 'MSc, Wageningen · Open to PhD positions · Photographer',
-  tagline: 'Soils, water, climate, and the quiet choreography of light on landscapes.',
+  title: 'MSc Wageningen 2026 · Environmental modelling · Open to PhD positions',
+  tagline: 'I model soil, water and the climate of farmland. Wherever that takes me, I bring a camera.',
   subtitle:
-    'MSc in Urban Environmental Management from Wageningen University & Research. I model how human activity shapes water and soils, and I photograph the places I study.',
+    'MSc in Urban Environmental Management, Wageningen University & Research. I do environmental modelling: what people do to water and soil, from microplastics in rivers to greenhouse gases from farmland. I take a camera to the places I study.',
   location: 'Wageningen, Netherlands',
   email: {
     personal: 'syydaniel@gmail.com'

@@ -9,7 +9,8 @@ Personal site of Yiyang Shen (Daniel, 沈亦旸): environmental researcher and p
 - [Astro 5](https://astro.build): static site generator
 - [Tailwind CSS](https://tailwindcss.com)
 - [MapLibre GL JS](https://maplibre.org): interactive maps (no API key, lazy loaded)
-- [Three.js](https://threejs.org): interactive hero globe and a separate particle atmosphere
+- [Three.js](https://threejs.org): the catchment terrain in the hero and the interactive globe in Places
+- Raw WebGL for the full-page ink fluid simulation (no library)
 - [exifr](https://github.com/MikeKovarik/exifr): EXIF extraction for photos
 - [sharp](https://sharp.pixelplumbing.com): builds the social share card
 
@@ -72,12 +73,87 @@ npm run og:image   # scripts/build-og-image.mjs
 
 Per-post previews use the post's `cover` automatically.
 
-## Visual interactions
+## Visual layer (2026 redesign)
 
-The hero retains the original interactive globe, visited-country colors, research locations,
-and orbiting photo previews. The Places and Photography maps keep their existing controls.
-`ParticleScene.astro` adds a separate decorative particle atmosphere behind the globe; its
-Terrain / Orbit / Flow controls do not change the globe or either map.
+Type: [Fraunces](https://fonts.google.com/specimen/Fraunces) with its full variable axes
+(`opsz`, `wght`, `SOFT`, `WONK`) for display, [Instrument Sans](https://fonts.google.com/specimen/Instrument+Sans)
+for text, JetBrains Mono for metadata, and a 15-glyph subset of Noto Serif SC for 沈亦旸, the
+seals and the chapter numerals. The fonts are self-hosted (`npm run fonts` →
+`scripts/fetch-fonts.mjs` → `public/fonts`, `src/styles/fonts.css`), so they load without a third
+party and where Google Fonts is unreachable. The Chinese interface adds the full Noto Serif SC
+from Google on demand for its headings.
+
+- **The catchment, 流域** (`Catchment.astro`, `src/scripts/catchment.ts`): the hero is a living
+  3D ink-wash height field drawn as contour lines, a five-density wash (墨分五色), a hillshade and
+  one vermilion shoreline. The pointer carries the light: the hillshade turns to follow it, and
+  the ground gives a little under it, so the contours bend around the hand like paper under a
+  finger. The camera lands from above after the opening and climbs away as the page scrolls.
+  Three.js loads only when the hero is on screen; reduced motion gets one still frame.
+- **Ink** (`Atmosphere.astro`, `src/scripts/ink.ts`): a real-time fluid simulation (velocity
+  advected, curled and projected on a small grid, dye on a larger one) behind the whole site, in
+  月白, mist grey and 黛青 with one drop in twenty of 朱砂. The pointer drags it (its path is
+  resampled into an even trail of splats, so a fast stroke is one filament, not a row of blobs),
+  scrolling stirs it, a drop lands on its own now and then, and a pressed seal pours
+  into it, and the opening ends with one drop blooming in the middle. Where half-float render
+  targets are missing, `src/scripts/atmosphere.ts` draws a noise atmosphere instead.
+- **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
+  The name rises letter by letter in the display face, a counter runs, the seal stamps beside the
+  name, the curtain lifts. Click or any key skips it.
+- **Typography in motion** (`src/scripts/kinetics.ts`, `src/styles/kinetics.css`): the hero name
+  is split into letters that respond to the pointer through the font's weight and softness axes;
+  a vertical signature column (题款 + 印) beside it; a hand-drawn ink underline under the tagline's
+  accent; section titles rising out of masks; `Statement.astro`, whose softness and weight follow
+  its place on screen; outlined `Marquee.astro` ribbons that lean with scroll velocity; the footer
+  name at display size over 远山, ridges in mist.
+- **Chinese elements, kept quiet**: `Seal.astro` is a carved name seal, 沈亦旸印 (白文), and a
+  leisure seal 水土 (朱文); press one and it stamps again. The clocks show the time in
+  Wageningen, the current solar term 节气 from the Sun's ecliptic longitude, and the lunar date
+  农历 from the browser's Chinese calendar. Chapters are numbered 壹 贰 叁 on 题签 slips.
+- **Wayfinding**: every chapter opens the same way (number and name, title, one paragraph, the
+  work) just under the navigation; a chapter rail on the left (书签) shows where you are, fills
+  with the scroll and jumps on click; a "Next" cue closes every chapter; one accent, 朱砂, marks
+  the thing to look at. Blocks settle onto the page in depth as they arrive, posters and the film
+  stage tilt under the pointer, and the seals press in perspective.
+- **Mechanics**: `Ticker.astro`, an instrument readout along the hero's foot; inertial wheel
+  scrolling on desktop (`src/scripts/inertia.ts`, never over maps, the globe, the gallery or
+  anything that scrolls on its own); a cursor badge that names what a frame does; magnetic buttons
+  with an ink ripple; an ink trail behind fast pointer strokes; counting numbers; a navigation bar
+  that slips away while reading. Everything is skipped or static under `prefers-reduced-motion`,
+  and the text is simply visible without JavaScript.
+
+## Two inks (light and dark)
+
+The page follows the system colour scheme and can be pinned from the toggle in the navigation
+(choosing the scheme the system already uses lets the page follow the system again; the choice
+is remembered per browser). Every colour on the site is a token in `src/styles/theme.css`, a
+`light-dark()` pair: 纸上墨, ink on 宣纸 by day, and 夜里墨, the same ink on lamp-black at night.
+Transparencies are `color-mix()`es of those tokens and the Tailwind palette reads them too, so
+every utility and `/opacity` modifier follows the theme. The toggle wipes the new ink out from
+the button with a View Transition. The fluid ink, the catchment and the globe carry a theme
+uniform and repaint on `themechange`; the maps repaint their layers. Text tokens are checked
+against the surfaces they sit on in both schemes by `node scripts/check-contrast.mjs` (AA for
+body-size text). The seal paste and the primary button keep the deep cinnabar in both inks.
+
+## The atlas and the globe
+
+The three maps share one ink-wash base (`src/scripts/atlas.ts`): Natural Earth 1:50m country
+shapes, simplified and kept as TopoJSON (`npm run atlas` → `scripts/build-atlas.mjs` →
+`public/atlas/countries.json`, ~350 KB, ~105 KB gzipped), decoded in the browser into paper
+land on a washed sea, a hairline coast, dashed borders and a 10° graticule, in the page's two
+inks. Beyond zoom 5 the Photography map fades a desaturated raster base (Esri light or dark
+grey, by theme) in under the lines for street-level detail; the other maps never zoom that far.
+The Places map is a pitched table: the 10 km squares of the GPS tracks rise as columns by time
+spent (summed into 1° squares at world zoom, the squares themselves close up), and the country
+list, the map and the globe stay in step through one focus.
+
+`Globe.astro` is a paper 浑仪: a sphere shaded with ink at the limb, continents stippled in
+ink, the countries walked in 黛青 with the GPS footprints in 朱砂, the research cities joined by
+dashed arcs, and three hairline rings turning on their own axes around it. The beads on the
+outer ring are photographs (hover for the frame, press to open). Drag to turn, and it keeps
+turning for a moment; the scroll turns it too; pressing a footprint focuses that country on the
+map below.
+
+## Visual interactions
 
 The Liquid Glass inspired control surfaces use transparent fills, moving edge reflections,
 and shared spring-animated selection capsules. Navigation and particle controls also use a
@@ -93,12 +169,6 @@ page. Unsupported browsers and reduced-motion users keep normal anchor navigatio
 Photography and text have separate entrance treatments; map surfaces only fade. The
 existing photo lightboxes gain a soft opening animation without changing their controls.
 
-The particle system interpolates its three forms in a shader. It initializes when visible,
-shares the site's existing Three.js dependency, caps pixel density and particle count on small or lower-powered devices, suspends rendering
-outside the viewport and in hidden tabs, and provides a pause control. Reduced-motion users
-get a still composition by default; a static SVG remains available if this particle renderer
-cannot initialize. These lifecycle controls apply to the new particle layer; the original
-globe component is preserved.
 
 ## Spatial photography exhibition
 
@@ -129,15 +199,16 @@ settings, Pages, Source: **GitHub Actions**.
 
 ```
 src/
-├── components/     # Nav, Footer, Hero, About, Journey, Places, Photography, Films,
-│                   # FilmPlayer, FilmPoster, Filmstrip, Contact, Globe, Arcade, ...
+├── components/     # Nav, Footer, Hero, Catchment, Ticker, Intro, Seal, Statement, Marquee,
+│                   # About, Journey, Places, Globe, Photography, Films, Contact, ...
 ├── content/blog/   # unpublished journal posts (Markdown, EN + ZH)
 ├── content.config.ts
 ├── data/           # profile, journey, photos, films, travel, i18n
 ├── layouts/        # Base
 ├── pages/          # index.astro, nya-translator.astro, sitemap.xml.ts
-└── styles/         # global.css
+└── styles/         # global.css, liquid-glass.css, kinetics.css
 scripts/
+├── fetch-fonts.mjs            # self-hosted web fonts -> public/fonts + src/styles/fonts.css
 ├── build-photo-manifest.mjs   # EXIF -> photos.generated.json + copies to public/photos
 ├── build-og-image.mjs         # branded social share card
 └── notify-bluesky.mjs         # new-post announcer (Journal is unpublished)

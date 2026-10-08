@@ -1,6 +1,11 @@
 ---
+import '../styles/fonts.css';
+import '../styles/theme.css';
 import '../styles/global.css';
 import '../styles/liquid-glass.css';
+import '../styles/kinetics.css';
+import Atmosphere from '../components/Atmosphere.astro';
+import Intro from '../components/Intro.astro';
 import GlassEffects from '../components/GlassEffects.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -22,7 +27,7 @@ interface Props {
 
 const {
   title = 'Yiyang Shen · MSc & Photographer',
-  description = 'Personal site of Yiyang Shen (Daniel, 沈亦旸). MSc in Urban Environmental Management from Wageningen University & Research (2026), looking for a PhD in environmental modelling: soils, agriculture, greenhouse gases and water. Photographs and short films from the places I study.',
+  description = 'Yiyang Shen (Daniel, 沈亦旸). MSc in Urban Environmental Management, Wageningen University & Research, 2026. Looking for a PhD in environmental modelling: soil, farming, greenhouse gases and water. Photographs and short films from the places I work in.',
   image = '/og-image.jpg',
   type = 'website',
   publishedTime,
@@ -58,13 +63,14 @@ const siteLd = {
 ---
 
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#05060a" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3efe6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121516" />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
@@ -95,21 +101,39 @@ const siteLd = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
+    <!-- Fonts are served from this origin (scripts/fetch-fonts.mjs). The Chinese interface adds Noto Serif SC from Google Fonts on demand. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/fraunces-normal-100-900-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/fraunces-italic-100-900-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/instrument-sans-normal-400-700-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/noto-serif-sc-display-normal-200-900.woff2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Decide before first paint which ink the page wears (the system's, unless one was chosen) and whether the opening plays (once per session). -->
+    <script is:inline>
+      (function () {
+        var theme = null;
+        try { theme = localStorage.getItem('theme'); } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        var seen = false;
+        try { seen = !!sessionStorage.getItem('intro-seen'); } catch (e) {}
+        var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.documentElement.dataset.intro = seen || still ? 'done' : 'pending';
+      })();
+    </script>
 
     <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
     <script type="application/ld+json" set:html={JSON.stringify(siteLd)} />
   </head>
   <body class="ambient-noise min-h-screen">
+    <Intro />
     <GlassEffects />
+    <Atmosphere />
     <div class="aurora" aria-hidden="true"></div>
+    <div id="spotlight" aria-hidden="true"></div>
+    <canvas id="ink-trail" aria-hidden="true"></canvas>
+    <div id="cursor-badge" aria-hidden="true"><span></span></div>
     <a href="#main-content" class="skip-link" data-i18n="nav.skip">Skip to content</a>
-    <div id="reading-progress" aria-hidden="true"></div>
     <Nav />
     <main id="main-content" class="relative z-10" tabindex="-1">
       <slot />
@@ -120,9 +144,12 @@ const siteLd = {
 
     <script>
       import '../scripts/i18n-runtime';
+      import '../scripts/theme';
 
       import '../scripts/site-interactions';
       import '../scripts/liquid-motion';
+      import '../scripts/kinetics';
+      import '../scripts/inertia';
     </script>
   </body>
 </html>

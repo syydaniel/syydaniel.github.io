@@ -25,19 +25,6 @@ reducedMotion.addEventListener('change', () => {
   }
 });
 
-const progress = document.getElementById('reading-progress');
-let scrollFrame = 0;
-function updateProgress() {
-  scrollFrame = 0;
-  const height = document.documentElement.scrollHeight - innerHeight;
-  progress?.style.setProperty('transform', `scaleX(${height > 0 ? Math.min(1, Math.max(0, scrollY / height)) : 0})`);
-}
-addEventListener('scroll', () => {
-  if (!scrollFrame) scrollFrame = requestAnimationFrame(updateProgress);
-}, {passive: true});
-addEventListener('resize', updateProgress, {passive: true});
-new ResizeObserver(updateProgress).observe(document.body);
-updateProgress();
 
 // A single frame per pointer event for the active card; no perpetual cursor loop.
 const pointerMedia = matchMedia('(hover: hover) and (pointer: fine)');
@@ -59,7 +46,7 @@ function clearCard() {
 }
 document.addEventListener('pointermove', event => {
   if (!pointerMedia.matches || reducedMotion.matches) return;
-  const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('a.glass.card-hover, button.glass.card-hover, .site-nav-panel, .scene-console, .gallery-console');
+  const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('a.glass.card-hover, button.glass.card-hover, .skill-tile, .site-nav-panel, .scene-console, .gallery-console, .film-open, .film-stage');
   if (!card) { clearCard(); return; }
   if (activeCard !== card) {
     clearCard();

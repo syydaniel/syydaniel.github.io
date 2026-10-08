@@ -1,0 +1,22 @@
+---
+// Full-viewport living background: ink in water (scripts/ink.ts) where the GPU
+// offers half-float render targets, otherwise the noise atmosphere
+// (scripts/atmosphere.ts). Reduced motion gets one still frame of the latter.
+---
+<canvas id="atmosphere" aria-hidden="true"></canvas>
+
+<script>
+  import { initInk } from '../scripts/ink';
+  import { initAtmosphere } from '../scripts/atmosphere';
+  const canvas = document.getElementById('atmosphere') as HTMLCanvasElement | null;
+  if (canvas) {
+    let live = false;
+    try { live = initInk(canvas); } catch { live = false; }
+    if (!live) {
+      // A context of a different kind cannot be created on the same canvas.
+      const fallback = canvas.cloneNode() as HTMLCanvasElement;
+      canvas.replaceWith(fallback);
+      try { initAtmosphere(fallback); } catch { /* the CSS aurora remains */ }
+    }
+  }
+</script>

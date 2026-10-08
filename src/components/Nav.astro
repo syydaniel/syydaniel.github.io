@@ -1,5 +1,6 @@
 ---
 import LangSwitcher from './LangSwitcher.astro';
+import Seal from './Seal.astro';
 
 const links: { href: string; target?: string; label: string; i18n: string }[] = [
   { href: '/#hero', target: '#hero', label: 'Home', i18n: 'nav.home' },
@@ -20,9 +21,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
   <div class="mx-auto max-w-[1280px] px-6 md:px-8 mt-5">
     <nav class="site-nav-panel glass liquid-glass rounded-2xl px-5 py-3 flex items-center justify-between gap-4" aria-label="Main navigation" data-refract>
       <a href="/" class="flex items-center gap-2 group">
-        <span class="relative flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-[#cfe4ca] font-display text-lg">
-          Y
-        </span>
+        <Seal size={30} stamp={false} class="nav-seal" />
         <span class="font-display text-ink-100 text-[0.95rem] whitespace-nowrap hidden sm:inline" data-i18n="brand.name">Yiyang Shen</span>
       </a>
 
@@ -45,6 +44,15 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
       </ul>
 
       <div class="flex items-center gap-3">
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to night ink">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <defs><mask id="theme-bite-mask"><rect width="24" height="24" fill="#fff" /><circle class="theme-bite" cx="17" cy="7" r="6" fill="#000" /></mask></defs>
+            <circle class="theme-disc" cx="12" cy="12" r="5.2" fill="currentColor" mask="url(#theme-bite-mask)" />
+            <g class="theme-rays" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M5.4 18.6l1.5-1.5M17.1 6.9l1.5-1.5" />
+            </g>
+          </svg>
+        </button>
         <LangSwitcher />
         <a
           href="/Yiyang_Shen_CV_2026.pdf"
@@ -71,7 +79,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
           data-i18n-attr='{"aria-label":"nav.menu"}'
           aria-controls="mobile-menu"
           aria-expanded="false"
-          class="xl:hidden p-2 rounded-full hover:bg-white/5 transition-colors"
+          class="xl:hidden p-2 rounded-full hover:bg-ink-100/5 transition-colors"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M3 7h18M3 12h18M3 17h18" />
@@ -87,7 +95,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
             <li>
               <a
                 href={link.href}
-                class="block px-4 py-2.5 rounded-xl text-ink-200 hover:bg-white/5 transition-colors"
+                class="block px-4 py-2.5 rounded-xl text-ink-200 hover:bg-ink-100/5 transition-colors"
                 data-i18n={link.i18n}
               >
                 {link.label}
@@ -100,7 +108,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
             href="/Yiyang_Shen_CV_2026.pdf"
             target="_blank"
             rel="noopener"
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-aqua-300 hover:bg-white/5 transition-colors"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-aqua-500 hover:bg-ink-100/5 transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span data-i18n="nav.cv">CV</span>
@@ -161,7 +169,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
           navLinks.forEach((a) => {
             const on = a.dataset.target === `#${entry.target.id}`;
             a.classList.toggle('text-ink-100', on);
-            a.classList.toggle('bg-white/5', on);
+            a.classList.toggle('bg-ink-100/5', on);
             if (on) a.setAttribute('aria-current', 'location');
             else a.removeAttribute('aria-current');
           });

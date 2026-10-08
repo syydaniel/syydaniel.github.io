@@ -1,45 +1,50 @@
 ---
 import { profile } from '../data/profile';
 import { films, filmLabel } from '../data/films';
-import { photos } from '../data/photos-loader';
 
-// Newest featured film and three recent frames from different places.
+// Newest featured film.
 const latest = films.find((f) => f.featured)!;
-const places = new Set<string>();
-const frames = [...photos]
-  .sort((a, b) => (a.takenAt < b.takenAt ? 1 : -1))
-  .filter((p) => (places.has(p.location.country) ? false : (places.add(p.location.country), true)))
-  .slice(0, 3);
 
+// Line icons drawn to one 24px grid, so the tiles read as a set.
+const ICON: Record<string, string> = {
+  water: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
+  microplastics: '<circle cx="7" cy="7" r="2.6"/><circle cx="17" cy="9" r="2.2"/><circle cx="10" cy="17" r="2.4"/><path d="M9.3 8.4l5.5 0.1M8.2 9.4l1.2 5.2M15.5 10.9l-3.6 4.4"/>',
+  scenario: '<path d="M3 19h18"/><path d="M4 15l4.5-5 3.5 3 4-6 4 4"/><circle cx="20" cy="11" r="1"/>',
+  climate: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  ml: '<rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9 9h6v6H9zM12 2v4M12 18v4M2 12h4M18 12h4M5 5l2 2M17 17l2 2M19 5l-2 2M5 19l2-2"/>',
+  gis: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/><circle cx="12" cy="11" r="1.5"/>',
+  boreal: '<path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/><path d="M4 12a8 8 0 0 0 2.3 5.7"/><path d="M4 20v-4h4"/>',
+  urban: '<path d="M12 21V11"/><path d="M12 11c0-3 2.5-5 5-5-0 3-2.5 5-5 5zM12 15c0-3-2.5-5-5-5 0 3 2.5 5 5 5z"/><path d="M4 21h16"/>'
+};
 const skills = [
-  { label: 'Water Quality', icon: '💧', key: 'about.skill.water' },
-  { label: 'Microplastics', icon: '🧬', key: 'about.skill.microplastics' },
-  { label: 'Environmental Modelling', icon: '📈', key: 'about.skill.scenario' },
-  { label: 'Climate Change', icon: '🌍', key: 'about.skill.climate' },
-  { label: 'Machine Learning', icon: '🤖', key: 'about.skill.ml' },
-  { label: 'GIS Analysis', icon: '🗺️', key: 'about.skill.gis' },
-  { label: 'Carbon & Nutrient Cycles', icon: '🔄', key: 'about.skill.boreal' },
-  { label: 'Soils & Agriculture', icon: '🌾', key: 'about.skill.urban' }
+  { label: 'Water Quality', icon: 'water', key: 'about.skill.water' },
+  { label: 'Microplastics', icon: 'microplastics', key: 'about.skill.microplastics' },
+  { label: 'Environmental Modelling', icon: 'scenario', key: 'about.skill.scenario' },
+  { label: 'Climate Change', icon: 'climate', key: 'about.skill.climate' },
+  { label: 'Machine Learning', icon: 'ml', key: 'about.skill.ml' },
+  { label: 'GIS Analysis', icon: 'gis', key: 'about.skill.gis' },
+  { label: 'Carbon & Nutrient Cycles', icon: 'boreal', key: 'about.skill.boreal' },
+  { label: 'Soils & Agriculture', icon: 'urban', key: 'about.skill.urban' }
 ];
 ---
 
-<section id="about" class="relative py-28 md:py-40 scroll-mt-20">
+<section id="about" class="chapter relative">
   <div class="mx-auto max-w-6xl px-6">
     <div class="grid lg:grid-cols-[1fr_1.1fr] gap-16 items-start">
       <div class="reveal">
         <span class="section-eyebrow" data-chapter="01" data-i18n="about.eyebrow">About me</span>
-        <h2 class="section-title mt-4">
-          <span data-i18n="about.title.a">Researching the</span>
-          <span class="text-gradient italic font-display" data-i18n="about.title.b">quiet systems</span>
-          <span data-i18n="about.title.c">we take for granted.</span>
+        <h2 class="section-title mt-4" data-i18n-flush>
+          <span data-i18n="about.title.a">I study</span>
+          <span class="text-gradient italic font-display" data-i18n="about.title.b">soil and water,</span>
+          <span data-i18n="about.title.c">and what farming does to them.</span>
         </h2>
 
         <!-- Now showing: the latest film, then recent frames -->
         <div class="mt-12 hidden lg:block">
-          <button type="button" class="group relative block w-full overflow-hidden rounded-2xl ring-1 ring-white/10 card-hover text-left" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
+          <button type="button" class="group relative block w-full overflow-hidden rounded-2xl ring-1 ring-line card-hover text-left mounted" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
             <span class="relative block aspect-[2.2/1]">
               <img src={latest.featured!.stillSm} alt="" loading="lazy" decoding="async" class="media-img absolute inset-0 w-full h-full object-cover" style={`object-position:${latest.featured!.focus ?? '50% 50%'}`} />
-              <span class="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/20 to-ink-950/30"></span>
+              <span class="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/5 to-ink-950/15"></span>
               <span class="grain"></span>
               <span class="absolute inset-x-4 top-3 flex justify-between font-mono text-[9px] tracking-[0.28em] text-ink-100/65 uppercase">
                 <span data-i18n="about.now_showing">Now showing</span><span data-i18n-self={JSON.stringify(filmLabel(latest.bvid))}>{filmLabel(latest.bvid).en}</span>
@@ -53,18 +58,6 @@ const skills = [
               </span>
             </span>
           </button>
-          <div class="mt-3 grid grid-cols-3 gap-3">
-            {frames.map((p, i) => (
-              <a href="#photography" class="group block">
-                <span class="relative block aspect-square overflow-hidden rounded-xl ring-1 ring-white/10">
-                  <img src={p.thumb ?? p.src} alt={p.caption ?? p.location.name} loading="lazy" decoding="async" class="media-img absolute inset-0 w-full h-full object-cover" />
-                  <span class="grain"></span>
-                  <span class="absolute left-2 top-1.5 font-mono text-[9px] tracking-[0.2em] text-ink-100/70">{String(i + 1).padStart(2, '0')}A</span>
-                </span>
-                <span class="meta-line mt-2 !text-[9px] !flex-nowrap"><span class="truncate">{p.location.country}</span></span>
-              </a>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -88,16 +81,16 @@ const skills = [
           This site is a working notebook: my research, the places I've stood in, and the photographs I've made there.
         </p>
 
-        <div class="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <ul class="skill-line" aria-label="Fields">
           {
             skills.map((s) => (
-              <div class="glass-soft rounded-xl p-3 text-center card-hover group">
-                <div class="text-2xl group-hover:scale-110 transition-transform">{s.icon}</div>
-                <div class="mt-1.5 text-[11px] uppercase tracking-[0.15em] text-ink-300" data-i18n={s.key}>{s.label}</div>
-              </div>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={ICON[s.icon]} />
+                <span data-i18n={s.key}>{s.label}</span>
+              </li>
             ))
           }
-        </div>
+        </ul>
       </div>
     </div>
   </div>

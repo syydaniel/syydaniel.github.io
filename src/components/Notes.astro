@@ -12,14 +12,15 @@ const dateLoc = (d: string) => {
 const self = (v: unknown) => JSON.stringify(v);
 ---
 
-<section id="notes" class="relative py-28 md:py-40 scroll-mt-20">
+<section id="notes" class="chapter relative">
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal">
       <div>
         <span class="section-eyebrow" data-chapter="06" data-i18n="notes.eyebrow">Notes</span>
-        <h2 class="section-title mt-4 max-w-3xl">
-          <span data-i18n="notes.title.a">Thinking out loud,</span>
-          <span class="text-gradient italic font-display" data-i18n="notes.title.b">in public.</span>
+        <h2 class="section-title mt-4 max-w-3xl" data-i18n-flush>
+          <span data-i18n="notes.title.a">Things I've</span>
+          <span class="text-gradient italic font-display" data-i18n="notes.title.b">written down</span>
+          <span data-i18n="notes.title.c">lately.</span>
         </h2>
         <p class="mt-5 text-ink-300 max-w-2xl" data-i18n="notes.intro">
           Short posts from LinkedIn: the science I'm reading, the end of one chapter, and the places in between.
@@ -59,7 +60,7 @@ const self = (v: unknown) => JSON.stringify(v);
                 )}
                 <span class="block p-5 md:p-6">
                   <span class="meta-line">
-                    <span class="!text-sol-400/90" data-i18n-self={self(n.kind)}>{n.kind.en}</span>
+                    <span class="!text-aqua-500" data-i18n-self={self(n.kind)}>{n.kind.en}</span>
                     <i>·</i>
                     <span data-i18n-self={self(dateLoc(n.date))}>{dateLoc(n.date).en}</span>
                     <span class="ml-auto">LinkedIn</span>
@@ -69,7 +70,7 @@ const self = (v: unknown) => JSON.stringify(v);
                     {n.text}
                   </span>
                   {n.link && (
-                    <span class="mt-4 block rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3">
+                    <span class="mt-4 block rounded-xl border border-line bg-ink-100/[0.04] px-4 py-3">
                       <span class="meta-line !text-[9px]">{new URL(n.link.href).hostname.replace('www.', '')}</span>
                       <span class="mt-1 block text-sm text-ink-300 leading-snug">{n.link.label}</span>
                     </span>

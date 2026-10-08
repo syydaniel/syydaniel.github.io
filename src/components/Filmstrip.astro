@@ -32,7 +32,7 @@ const dot = (d: string) => d.slice(0, 10).replaceAll('-', '.');
 <div class="filmstrip relative z-10 py-10 md:py-14" aria-label={label}>
   <div class="mx-auto max-w-7xl px-6 mb-4 flex items-center gap-4">
     <span class="meta-line !text-sol-400/90" data-i18n={labelKey}>{label}</span>
-    <span class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></span>
+    <span class="h-px flex-1 bg-gradient-to-r from-line to-transparent"></span>
     <a href={href} class="meta-line hover:!text-ink-100 transition-colors"><span data-i18n="strip.all">All frames</span>&nbsp;→</a>
   </div>
   <div class="strip-viewport overflow-hidden">
@@ -76,14 +76,14 @@ const dot = (d: string) => d.slice(0, 10).replaceAll('-', '.');
   }
   .strip-cell {
     padding: 0 0.35rem;
-    background: #101219;
+    background: var(--paper-3);
   }
   .strip-cell:first-child { padding-left: 0.7rem; }
   /* Perforations along the film edge. */
   .strip-sprockets {
     display: block;
     height: 14px;
-    background: linear-gradient(rgba(238, 240, 250, 0.16), rgba(238, 240, 250, 0.16)) 0 50% / 100% 6px no-repeat;
+    background: linear-gradient(color-mix(in srgb, var(--ink) 16%, transparent), color-mix(in srgb, var(--ink) 16%, transparent)) 0 50% / 100% 6px no-repeat;
     -webkit-mask: repeating-linear-gradient(to right, #000 0 7px, transparent 7px 16px);
     mask: repeating-linear-gradient(to right, #000 0 7px, transparent 7px 16px);
   }

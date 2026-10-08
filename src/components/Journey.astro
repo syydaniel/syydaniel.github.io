@@ -35,15 +35,15 @@ const txt = (v: string | Loc) => (typeof v === 'string' ? v : v.en);
 const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
 ---
 
-<section id="journey" class="relative py-28 md:py-40 scroll-mt-20">
+<section id="journey" class="chapter relative">
   <div class="mx-auto max-w-6xl px-6">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal">
       <div>
         <span class="section-eyebrow" data-chapter="02" data-i18n="journey.eyebrow">Research journey</span>
-        <h2 class="section-title mt-4 max-w-2xl">
-          <span data-i18n="journey.title.a">Four countries. Four universities.</span>
-          <span class="text-gradient" data-i18n="journey.title.b">One question</span>
-          <span data-i18n="journey.title.c">: how do land, water and climate respond to human pressure?</span>
+        <h2 class="section-title mt-4 max-w-2xl" data-i18n-flush>
+          <span data-i18n="journey.title.a">Four universities, four countries,</span>
+          <span class="text-gradient" data-i18n="journey.title.b">the same question</span>
+          <span data-i18n="journey.title.c">every time.</span>
         </h2>
       </div>
       <div class="flex gap-2 flex-wrap" id="journey-filters">
@@ -57,7 +57,7 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
     <div class="grid lg:grid-cols-[1.4fr_1fr] gap-10">
       <!-- timeline -->
       <div class="relative">
-        <div class="absolute left-[11px] top-3 bottom-3 w-px bg-gradient-to-b from-aqua-400/60 via-ink-600 to-transparent"></div>
+        <div class="journey-line absolute left-[11px] top-3 bottom-3 w-px bg-gradient-to-b from-aqua-400/60 via-ink-600 to-transparent"></div>
         <ul class="space-y-6" id="journey-list">
           {
             sorted.map((item) => (
@@ -117,8 +117,8 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
                     </ul>
                   )}
                   {journeyFilms[item.id] && (
-                    <div class="mt-5 pt-4 border-t border-white/5">
-                      <p class="meta-line mb-3"><span class="!text-sol-400/90" data-i18n="journey.films">Filmed in this chapter</span><i>·</i><span>{journeyFilms[item.id].length}</span></p>
+                    <div class="mt-5 pt-4 border-t border-line">
+                      <p class="meta-line mb-3"><span class="!text-aqua-500" data-i18n="journey.films">Filmed in this chapter</span><i>·</i><span>{journeyFilms[item.id].length}</span></p>
                       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                         {journeyFilms[item.id].map((bv) => <FilmPoster bvid={bv} size="sm" />)}
                       </div>
@@ -127,7 +127,7 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
                   <div class="mt-4 flex flex-wrap gap-1.5">
                     {item.tags.map((t) => {
                       const tl = tagLoc(t);
-                      return <span class="px-2.5 py-1 rounded-full bg-white/5 border border-white/5 text-[11px] text-ink-300" {...selfAttr(tl)}>{txt(tl)}</span>;
+                      return <span class="px-2.5 py-1 rounded-full bg-ink-100/5 border border-line text-[11px] text-ink-300" {...selfAttr(tl)}>{txt(tl)}</span>;
                     })}
                   </div>
                 </article>
@@ -146,7 +146,7 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
           </div>
           <div
             id="journey-map"
-            class="w-full aspect-square rounded-xl overflow-hidden bg-ink-800 border border-white/5"
+            class="w-full aspect-square rounded-xl overflow-hidden bg-ink-800 border border-line mounted"
           ></div>
           <ul class="mt-4 space-y-2">
             {
@@ -183,76 +183,50 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
     });
   });
 
-  // Map: load MapLibre (~800 KB) lazily, only when it nears the viewport.
+  // The atlas loads lazily, only when the map nears the viewport.
+  import { createAtlas } from '../scripts/atlas';
   const el = document.getElementById('journey-map');
   if (el) {
     let started = false;
     const initMap = async () => {
       if (started) return;
       started = true;
-      await import('maplibre-gl/dist/maplibre-gl.css');
-      const maplibregl = (await import('maplibre-gl')).default;
-
-      const map = new maplibregl.Map({
-        container: el,
-        style: {
-          version: 8,
-          sources: {
-            basemap: {
-              type: 'raster',
-              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
-              tileSize: 256,
-              maxzoom: 16,
-              attribution: 'Tiles © Esri, HERE, Garmin, © OSM'
-            }
-          },
-          layers: [{ id: 'basemap', type: 'raster', source: 'basemap' }]
-        },
-        center: [20, 40],
-        zoom: 1,
-        attributionControl: true,
-        dragRotate: false
-      });
-
-      map.on('load', () => {
-        document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
+      const { map, maplibregl } = await createAtlas(el, { center: [20, 40], zoom: 0.9, maxZoom: 6, detail: false, controls: false });
+      {
+        const cards = document.querySelectorAll<HTMLElement>('[data-coords]');
+        const pins = new Map<string, HTMLElement>();
+        cards.forEach((card) => {
           try {
             const coords = JSON.parse(card.dataset.coords || '[]');
             if (!Array.isArray(coords) || coords.length !== 2) return;
+            const key = coords.join(',');
+            if (pins.has(key)) return;
             const pin = document.createElement('div');
             pin.className = 'research-pin';
             new maplibregl.Marker({ element: pin }).setLngLat(coords as [number, number]).addTo(map);
+            pins.set(key, pin);
           } catch {}
         });
-
-        document.querySelectorAll<HTMLElement>('[data-coords]').forEach((card) => {
+        cards.forEach((card) => {
           card.addEventListener('mouseenter', () => {
             try {
               const coords = JSON.parse(card.dataset.coords || '[]');
-              if (Array.isArray(coords) && coords.length === 2) {
-                map.flyTo({ center: coords as [number, number], zoom: 4, speed: 1.4, curve: 1.4 });
-              }
+              if (!Array.isArray(coords) || coords.length !== 2) return;
+              pins.forEach((pin, key) => pin.classList.toggle('is-active', key === coords.join(',')));
+              map.flyTo({ center: coords as [number, number], zoom: 3.6, speed: 1.2, curve: 1.3 });
             } catch {}
           });
+          card.addEventListener('mouseleave', () => pins.forEach((pin) => pin.classList.remove('is-active')));
         });
-      });
+      }
     };
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          io.disconnect();
-          initMap();
-        }
-      },
-      { rootMargin: '300px' }
-    );
+    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { io.disconnect(); initMap(); } }, { rootMargin: '300px' });
     io.observe(el);
   }
 </script>
 
 <style>
   .journey-filter.active {
-    box-shadow: 0 0 0 2px rgba(56, 228, 210, 0.6);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--daiqing) 60%, transparent);
   }
 </style>

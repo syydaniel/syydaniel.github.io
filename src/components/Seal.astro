@@ -1,0 +1,71 @@
+---
+// A carved seal. 白文 (the default): characters cut out of a vermilion ground,
+// read top-right, bottom-right, top-left, bottom-left. 朱文: red strokes on
+// nothing, for the leisure seal 闲章. The edge, strokes, ink density and bleed
+// come from the filters in GlassEffects.astro, so the mark reads as pressed
+// from a stone rather than drawn by a program. Set in the Noto Serif SC display
+// subset at its heaviest weight.
+interface Props {
+  size?: number;
+  class?: string;
+  /** Interactive: press to stamp again. */
+  stamp?: boolean;
+  variant?: 'baiwen' | 'zhuwen';
+  /** 2×2 characters in seal order, or two characters for a tall seal. */
+  chars?: string[];
+  label?: string;
+}
+const { size = 44, class: className = '', stamp = true, variant = 'baiwen', chars = ['沈', '亦', '旸', '印'], label = '沈亦旸印 (name seal)' } = Astro.props;
+const tall = chars.length === 2;
+// Below 44px the fine filters only blur: keep the hand-cut edge, drop the rest.
+const fine = size >= 44;
+const ground = 'var(--seal)';
+const ink = 'var(--on-seal)';
+// Hand-cut outlines: nothing here is a straight line.
+const outline = tall
+  ? 'M8 7 C 22 4, 40 4, 53 6 C 56 30, 56 66, 53 94 C 38 97, 22 96, 7 93 C 4 66, 4 32, 8 7 Z'
+  : 'M7 10 C 24 6, 52 5, 93 8 C 95 32, 96 62, 92 93 C 62 96, 30 95, 9 91 C 5 62, 4 34, 7 10 Z';
+// Even margins: the glyph block sits centred in the field, with equal gutters between columns and rows.
+const glyphs = tall
+  ? [[chars[0], 30, 43], [chars[1], 30, 83]]
+  : [[chars[0], 71, 42], [chars[2], 29, 42], [chars[1], 71, 83], [chars[3], 29, 83]];
+const fontSize = tall ? 32 : 33;
+const viewBox = tall ? '0 0 60 100' : '0 0 100 100';
+const width = tall ? Math.round(size * 0.6) : size;
+---
+
+<svg
+  class:list={['seal', `seal--${variant}`, className]}
+  width={width}
+  height={size}
+  viewBox={viewBox}
+  role="img"
+  aria-label={label}
+  data-seal={stamp ? '' : undefined}
+  tabindex={stamp ? 0 : undefined}
+  shape-rendering="geometricPrecision"
+  text-rendering="geometricPrecision"
+>
+  <g class="seal-ghost" opacity="0.14" transform="translate(1.6 1.1)" filter="url(#seal-bleed)">
+    {variant === 'baiwen' ? <path d={outline} style={`fill:${ground}`} /> : <path d={outline} fill="none" style={`stroke:${ground}`} stroke-width="4.5" />}
+  </g>
+  <g filter={fine ? 'url(#seal-density)' : undefined}>
+    <g filter={fine ? 'url(#seal-edge)' : 'url(#seal-edge-fine)'}>
+      {variant === 'baiwen' ? <path d={outline} style={`fill:${ground}`} /> : <path d={outline} fill="none" style={`stroke:${ground}`} stroke-width="4.5" />}
+    </g>
+    <g filter={fine ? 'url(#seal-glyph)' : undefined}>
+      <text
+        font-family="'Noto Serif SC', 'Songti SC', 'SimSun', serif"
+        font-weight="900"
+        font-size={fontSize}
+        style={`fill:${variant === 'baiwen' ? ink : ground};stroke:${variant === 'baiwen' ? ink : ground}`}
+        stroke-width="1.2"
+        stroke-linejoin="miter"
+        paint-order="stroke"
+        text-anchor="middle"
+      >
+        {glyphs.map(([ch, x, y]) => <tspan x={x} y={y}>{ch}</tspan>)}
+      </text>
+    </g>
+  </g>
+</svg>
