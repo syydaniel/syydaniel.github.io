@@ -8,6 +8,8 @@
 export type Phase = 'night' | 'dawn' | 'day' | 'dusk';
 export type Weather = {
   temp: number; // °C
+  feels: number | null; // apparent temperature, °C
+  humidity: number | null; // relative humidity, %
   code: number; // WMO weather code
   wind: number; // km/h
   windDir: number; // degrees, where the wind comes from
@@ -25,6 +27,8 @@ export type Sky = {
   night: boolean; // the Sun is below the horizon: the page wears its night ink
   sunrise: string | null; // "07:52", Wageningen time
   sunset: string | null;
+  dayMinutes: number | null; // minutes of daylight today
+  dayDelta: number | null; // minutes more (+) or fewer (-) than yesterday
   moon: Moon | null;
   weather: Weather | null;
 };
@@ -39,9 +43,9 @@ const CANNED: Record<string, Partial<Weather>> = {
   clear: { temp: 19, code: 0, wind: 6, windDir: 90, cloud: 0.05, rain: 0 },
   cloud: { temp: 12, code: 3, wind: 14, windDir: 240, cloud: 0.95, rain: 0 },
   fog: { temp: 7, code: 45, wind: 3, windDir: 180, cloud: 1, rain: 0 },
-  rain: { temp: 9, code: 61, wind: 24, windDir: 230, cloud: 0.9, rain: 0.6 },
-  snow: { temp: -2, code: 73, wind: 9, windDir: 20, cloud: 0.9, rain: 0.4 },
-  storm: { temp: 17, code: 95, wind: 38, windDir: 200, cloud: 1, rain: 0.9 }
+  rain: { temp: 9, feels: 6, humidity: 88, code: 61, wind: 24, windDir: 230, cloud: 0.9, rain: 0.6 },
+  snow: { temp: -2, feels: -5, humidity: 92, code: 73, wind: 9, windDir: 20, cloud: 0.9, rain: 0.4 },
+  storm: { temp: 17, feels: 15, humidity: 90, code: 95, wind: 38, windDir: 200, cloud: 1, rain: 0.9 }
 };
 
 const LAT = 51.97, LON = 5.66;
@@ -96,17 +100,17 @@ function localMidnight(date: Date): Date {
   return new Date(Date.UTC(get('year'), get('month') - 1, get('day')) - zoneOffsetMinutes(date) * 60000);
 }
 const hhmm = (minute: number) => `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
-function sunTimes(date: Date): { sunrise: string | null; sunset: string | null } {
+function sunTimes(date: Date): { sunrise: string | null; sunset: string | null; daylight: number | null } {
   const midnight = localMidnight(date).getTime();
-  let sunrise: string | null = null, sunset: string | null = null;
+  let sunrise: string | null = null, sunset: string | null = null, rise = -1, set = -1;
   let above = sunAt(new Date(midnight)).elevation > -0.833;
   for (let m = 1; m < 1440; m++) {
     const up = sunAt(new Date(midnight + m * 60000)).elevation > -0.833;
-    if (up && !above) sunrise = hhmm(m);
-    if (!up && above) sunset = hhmm(m);
+    if (up && !above) { sunrise = hhmm(m); rise = m; }
+    if (!up && above) { sunset = hhmm(m); set = m; }
     above = up;
   }
-  return { sunrise, sunset };
+  return { sunrise, sunset, daylight: rise >= 0 && set >= 0 ? set - rise : null };
 }
 const smooth = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
@@ -132,13 +136,13 @@ async function fetchWeather(): Promise<Weather | null> {
   const control = new AbortController();
   const timer = setTimeout(() => control.abort(), 6000);
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,cloud_cover,precipitation,is_day&timezone=${encodeURIComponent(ZONE)}&forecast_days=1`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,cloud_cover,precipitation,is_day&timezone=${encodeURIComponent(ZONE)}&forecast_days=1`;
     const response = await fetch(url, { signal: control.signal });
     if (!response.ok) return null;
     const c = (await response.json()).current;
     if (!c || typeof c.temperature_2m !== 'number') return null;
     const weather: Weather = {
-      temp: c.temperature_2m, code: Number(c.weather_code ?? 3), wind: Number(c.wind_speed_10m ?? 0), windDir: Number(c.wind_direction_10m ?? 0),
+      temp: c.temperature_2m, feels: typeof c.apparent_temperature === 'number' ? c.apparent_temperature : null, humidity: typeof c.relative_humidity_2m === 'number' ? c.relative_humidity_2m : null, code: Number(c.weather_code ?? 3), wind: Number(c.wind_speed_10m ?? 0), windDir: Number(c.wind_direction_10m ?? 0),
       cloud: Math.min(1, Math.max(0, Number(c.cloud_cover ?? 50) / 100)), rain: Math.min(1, Math.max(0, Number(c.precipitation ?? 0) / 2)), isDay: !!c.is_day, at: Date.now()
     };
     try { sessionStorage.setItem(CACHE, JSON.stringify(weather)); } catch {}
@@ -147,7 +151,7 @@ async function fetchWeather(): Promise<Weather | null> {
 }
 
 // ---- publish ----
-const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false, sunrise: null, sunset: null, moon: null, weather: null };
+const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false, sunrise: null, sunset: null, dayMinutes: null, dayDelta: null, moon: null, weather: null };
 
 // The Moon's age from the Chinese calendar the browser already keeps: day 1 is
 // new, day 15 full. Enough for a glyph in the footer.
@@ -213,11 +217,20 @@ function readSun() {
   const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hour12: false, timeZone: ZONE }).format(now)) % 24;
   sky.phase = FORCED_PHASE && ['night', 'dawn', 'day', 'dusk'].includes(FORCED_PHASE) ? FORCED_PHASE : sun.elevation < -6 ? 'night' : sun.elevation < 6 ? (hour < 12 ? 'dawn' : 'dusk') : 'day';
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE }).format(now);
-  if (day !== timesDay) { timesDay = day; Object.assign(sky, sunTimes(now)); sky.moon = moonPhase(now); }
+  if (day !== timesDay) {
+    timesDay = day;
+    const today = sunTimes(now), yesterday = sunTimes(new Date(now.getTime() - 86400000));
+    sky.sunrise = today.sunrise; sky.sunset = today.sunset;
+    sky.dayMinutes = today.daylight;
+    sky.dayDelta = today.daylight !== null && yesterday.daylight !== null ? today.daylight - yesterday.daylight : null;
+    sky.moon = moonPhase(now);
+  }
 }
 
 function paint() {
   root.dataset.sky = sky.phase;
+  const month = Number(new Intl.DateTimeFormat('en-US', { month: 'numeric', timeZone: ZONE }).format(new Date()));
+  root.dataset.season = month >= 3 && month <= 5 ? 'spring' : month >= 6 && month <= 8 ? 'summer' : month >= 9 && month <= 11 ? 'autumn' : 'winter';
   root.style.setProperty('--sky-daylight', sky.daylight.toFixed(3));
   root.style.setProperty('--sky-golden', sky.golden.toFixed(3));
   root.dataset.night = sky.night ? '' : undefined as unknown as string;
@@ -250,14 +263,32 @@ function paint() {
   }
   if (sky.moon) document.querySelectorAll<HTMLElement>('[data-moon]').forEach((el) => { el.innerHTML = moonSvg(sky.moon!); el.title = `${lang() === 'zh' ? '农历' : 'Lunar day'} ${sky.moon!.day}`; });
   const sunText = sky.sunrise && sky.sunset ? `<span class="sky-mark">↑</span>${sky.sunrise}<span class="sky-mark">↓</span>${sky.sunset}` : '';
-  document.querySelectorAll<HTMLElement>('[data-sky-sun]').forEach((el) => { el.innerHTML = sunText; el.closest<HTMLElement>('.ticker-item, .footer-clock')?.toggleAttribute('hidden', !sunText); });
+  const dayText = sky.dayMinutes !== null ? (() => {
+    const h = Math.floor(sky.dayMinutes! / 60), m = sky.dayMinutes! % 60, d = sky.dayDelta ?? 0;
+    const length = lang() === 'zh' ? `${h} 小时 ${String(m).padStart(2, '0')} 分` : `${h} h ${String(m).padStart(2, '0')} min`;
+    const change = d === 0 ? '' : lang() === 'zh' ? `，比昨天${d > 0 ? '长' : '短'} ${Math.abs(d)} 分钟` : `, ${Math.abs(d)} min ${d > 0 ? 'more' : 'less'} than yesterday`;
+    return `${length}${change}`;
+  })() : '';
+  document.querySelectorAll<HTMLElement>('[data-sky-sun]').forEach((el) => {
+    el.innerHTML = sunText;
+    el.closest<HTMLElement>('.ticker-item, .footer-clock')?.toggleAttribute('hidden', !sunText);
+    if (dayText) el.title = `${phrase('sky.daylight', 'Daylight')} ${dayText}`;
+  });
+  document.querySelectorAll<HTMLElement>('[data-sky-daylight]').forEach((el) => { el.textContent = dayText; el.closest<HTMLElement>('.sky-row')?.toggleAttribute('hidden', !dayText); });
+  document.querySelectorAll<HTMLElement>('[data-sky-humidity]').forEach((el) => {
+    // The weather row already says what it feels like; this row is the air itself.
+    const has = w?.humidity !== null && w?.humidity !== undefined;
+    el.textContent = has ? `${Math.round(w!.humidity!)}% ${phrase('sky.humidity', 'humidity')}` : '';
+    el.closest<HTMLElement>('.sky-row')?.toggleAttribute('hidden', !has);
+  });
   document.querySelectorAll<HTMLElement>('[data-sky-weather]').forEach((el) => {
     const row = el.closest<HTMLElement>('.ticker-item, .footer-clock');
     if (!w) { row?.setAttribute('hidden', ''); return; }
     const degrees = `${Math.round(w.temp)}°`;
     // A strong wind shows its direction: the arrow points where it blows to.
     const wind = w.wind >= 20 ? ` · <span class="wind-arrow" style="transform:rotate(${Math.round(((w.windDir ?? 0) + 180) % 360)}deg)" aria-hidden="true">↑</span>${lang() === 'zh' ? '风' : 'wind'} ${Math.round(w.wind)} km/h` : '';
-    el.innerHTML = `${degrees} <span lang="${lang() === 'zh' ? 'zh' : 'en'}">${weatherLabel(w.code, lang())}</span>${wind}`;
+    const feels = w.feels !== null && Math.abs(w.feels - w.temp) >= 2 ? ` · ${phrase('sky.feels', 'feels like')} ${Math.round(w.feels)}°` : '';
+    el.innerHTML = `${degrees} <span lang="${lang() === 'zh' ? 'zh' : 'en'}">${weatherLabel(w.code, lang())}</span>${feels}${wind}`;
     row?.removeAttribute('hidden');
   });
   // One line in the hero: the weather and the light there, right now.
@@ -314,12 +345,15 @@ function paint() {
   // Contact: the time and weather where the mail lands.
   document.querySelectorAll<HTMLElement>('[data-sky-contact]').forEach((el) => {
     const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: ZONE }).format(new Date());
-    el.textContent = `${phrase('sky.contact.time', 'There now')} ${time}${w ? ` · ${Math.round(w.temp)}° ${weatherLabel(w.code, lang())}` : ''}`;
+    el.textContent = `${hourWord()}${lang() === 'zh' ? ' ' : ', '}${time}${w ? ` · ${Math.round(w.temp)}° ${weatherLabel(w.code, lang())}` : ''}`;
     el.removeAttribute('hidden');
   });
   // Nya: until someone types, the translator's sentence is today's weather (the cat script reads English).
   if (w) document.querySelectorAll<HTMLTextAreaElement>('[data-sky-say]').forEach((el) => {
-    if (!el.dataset.skyBound) { el.dataset.skyBound = ''; el.addEventListener('input', (e) => { if (e.isTrusted) el.dataset.touched = ''; }); }
+    if (!el.dataset.skyBound) { el.dataset.skyBound = ''; el.addEventListener('input', (e) => { if (e.isTrusted) { el.dataset.touched = ''; el.parentElement?.querySelector('[data-sky-restore]')?.removeAttribute('hidden'); } }); }
+    const restore = el.parentElement?.querySelector<HTMLElement>('[data-sky-restore]');
+    if (restore && !restore.dataset.skyBound) { restore.dataset.skyBound = ''; restore.addEventListener('click', () => { delete el.dataset.touched; safely(paint); }); }
+    restore?.toggleAttribute('hidden', el.dataset.touched === undefined);
     if (el.dataset.touched !== undefined) return;
     const kind = weatherKind(w.code);
     const say = kind === 'rain' ? 'It is raining in Wageningen today.' : kind === 'snow' ? 'It is snowing in Wageningen today.' : kind === 'storm' ? 'There is a thunderstorm over Wageningen.' : kind === 'fog' ? 'Fog lies over Wageningen today.' : kind === 'cloud' ? 'It is cloudy in Wageningen today.' : sky.night ? 'It is a clear night in Wageningen.' : 'The sun is out over Wageningen today.';
@@ -363,7 +397,7 @@ addEventListener('lang:change', () => safely(paint));
 
 async function refreshWeather() {
   if (FORCED_WEATHER && CANNED[FORCED_WEATHER]) {
-    sky.weather = { temp: 12, code: 3, wind: 10, windDir: 200, cloud: 0.5, rain: 0, isDay: !sky.night, at: Date.now(), ...CANNED[FORCED_WEATHER] };
+    sky.weather = { temp: 12, feels: null, humidity: null, code: 3, wind: 10, windDir: 200, cloud: 0.5, rain: 0, isDay: !sky.night, at: Date.now(), ...CANNED[FORCED_WEATHER] };
     safely(paint);
     return;
   }

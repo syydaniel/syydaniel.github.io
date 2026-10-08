@@ -56,6 +56,8 @@ html { transition: --sky-x 2.4s ease, --sky-glow 2.4s ease, --sky-veil 2.4s ease
   border: 1px solid var(--line); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hi) 60%, transparent), 0 24px 48px -28px color-mix(in srgb, var(--shadow) 45%, transparent);
   transform-origin: top right; animation: sky-card-in 420ms var(--ease-out-expo) both; }
 .sky-card[hidden] { display: none; }
+.sky-row[hidden] { display: none; }
+@media (max-width: 767px) { .sky-card { position: fixed; top: 92px; left: 16px; right: 16px; width: auto; } }
 @keyframes sky-card-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
 .sky-card-title { margin: 0 0 10px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--zhusha); }
 .sky-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0; padding: 5px 0; border-top: 1px solid var(--line); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); }
@@ -86,6 +88,12 @@ html[data-weather='snow'] .ridge-snow { opacity: 1; }
 html[data-weather='fog'] .footer-ridges { filter: blur(1.4px); }
 html[data-weather='fog'] .ridge-far { opacity: 0.4; }
 html[data-weather='storm'] .footer-ridges { filter: saturate(0.6) brightness(0.86); }
+/* The season (from the month in Wageningen) colours the footer's hills: moss in
+   spring, the blue-green of summer, ochre in autumn, a cold grey in winter. */
+:root { --ridge-far-color: var(--daiqing); --ridge-near-color: var(--daiqing-3); }
+html[data-season='spring'] { --ridge-far-color: var(--moss); --ridge-near-color: var(--moss-2); }
+html[data-season='autumn'] { --ridge-far-color: var(--ochre-2); --ridge-near-color: var(--ochre); }
+html[data-season='winter'] { --ridge-far-color: var(--ink-5); --ridge-near-color: var(--ink-4); }
 /* The light a photographer waits for, under the Photography lede. */
 .photo-light { display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.9rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-4); animation: sky-card-in 700ms var(--ease-out-expo) both; }
 .photo-light[hidden] { display: none; }
