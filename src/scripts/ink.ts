@@ -343,15 +343,17 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   // The sky over Wageningen (scripts/sky.ts): the Sun's height tints the paper;
   // rain there lands as drops here; a wind there is a slow drift here.
   let golden = 0, night = 0, warmth = 0, rain = 0, windX = 0, windY = 0, storm = false, flash = 0, nextFlash = 0;
+  // Each reading is an aim; the paper tints and the rain sets in over a couple of seconds.
+  const skyAim = { golden: 0, night: 0, warmth: 0, rain: 0 };
   function readSky() {
     const sky = (window as any).__sky;
     if (!sky) return;
-    golden = sky.golden ?? 0;
-    night = 1 - (sky.daylight ?? 1);
+    skyAim.golden = sky.golden ?? 0;
+    skyAim.night = 1 - (sky.daylight ?? 1);
     const w = sky.weather;
     if (w) {
-      warmth = Math.max(-1, Math.min(1, (w.temp - 12) / 14));
-      rain = w.rain ?? 0;
+      skyAim.warmth = Math.max(-1, Math.min(1, (w.temp - 12) / 14));
+      skyAim.rain = w.rain ?? 0;
       storm = w.code >= 95;
       const blowsTo = ((w.windDir ?? 0) + 180) * Math.PI / 180;
       const k = w.wind >= 12 ? Math.min(1, w.wind / 45) : 0;
@@ -453,6 +455,9 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     const dt = Math.min(0.033, elapsed);
     last = now;
     strokeLeft -= dt;
+    const ks = 1 - Math.exp(-dt * 0.9);
+    golden += (skyAim.golden - golden) * ks; night += (skyAim.night - night) * ks;
+    warmth += (skyAim.warmth - warmth) * ks; rain += (skyAim.rain - rain) * ks;
     // The governor: a second of long frames in a row steps the quality down.
     if (scrollY < innerHeight * 1.6) {
       slowFrames = elapsed > 0.027 ? slowFrames + 1 : Math.max(0, slowFrames - 2);

@@ -288,10 +288,11 @@ html[data-lang='zh'] .marquee-cn, html[data-lang='cat'] .marquee-cn { display: n
 .theme-toggle:active { transform: scale(0.92); }
 .theme-toggle svg { overflow: visible; }
 .theme-bite, .theme-rays, .theme-disc { transform-box: fill-box; transform-origin: center; }
-.theme-bite { transform: scale(0); transition: transform 560ms var(--ease-out-back); }
+.theme-bite { transform: scale(0); transition: transform 560ms var(--ease-out-back), cx 700ms ease, cy 700ms ease; }
 .theme-disc { transition: transform 560ms var(--ease-out-back); }
 .theme-rays { transition: transform 420ms var(--ease-out-expo), opacity 300ms ease; }
-:root[data-theme="dark"] .theme-bite { transform: scale(1); }
+/* The bite sits where tonight's shadow is (scripts/sky.ts sets --moon-d from the Moon's lit fraction and --moon-side from whether it waxes): a crescent after the new Moon, a plain disc at the full. */
+:root[data-theme="dark"] .theme-bite { transform: scale(1); cx: calc(12px + var(--moon-side, 1) * var(--moon-d, 6.5px)); cy: 10px; }
 :root[data-theme="dark"] .theme-disc { transform: scale(1.28) rotate(-20deg); }
 :root[data-theme="dark"] .theme-rays { transform: scale(0.3) rotate(60deg); opacity: 0; }
 
@@ -377,6 +378,7 @@ footer { overflow: hidden; }
 .moon { display: inline-block; width: 12px; height: 12px; color: var(--ink-2); vertical-align: -1px; }
 .moon:empty { display: none; }
 .moon svg { display: block; }
+.wind-arrow { display: inline-block; margin-right: 0.3em; transition: transform 1.2s ease; }
 .footer-alive { flex-basis: 100%; margin-top: 0.4rem; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 13px; color: var(--ink-4); }
 html[data-lang='zh'] .footer-alive { font-family: var(--font-cjk); font-style: normal; font-size: 12px; letter-spacing: 0.04em; }
 .footer-clock b [lang="zh"], .ticker-item b [lang="zh"] { font-family: var(--font-cjk); letter-spacing: 0.12em; }

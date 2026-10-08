@@ -110,8 +110,13 @@ from Google on demand for its headings.
   less of it under cloud, and an overcast or rainy sky lays a grey veil over the top; the cursor
   lamp is cool daylight, warmer and smaller after dark, broad and dim under cloud; the dot beside
   the hero's weather line takes the colour of the light. All of it is registered CSS properties,
-  so a change in the weather eases in over a couple of seconds. The theme toggle's tooltip says
-  why the page wears its ink and until when. To see a state the sky is not in, add `?sky=night`
+  so a change in the weather eases in over a couple of seconds, and the WebGL layers ease too (the
+  water rises, the snow settles, the paper tints) rather than snapping when the forecast arrives.
+  The theme toggle's tooltip says why the page wears its ink and until when, and at night its moon
+  shows tonight's phase. The hero's live line opens with the hour's word (morning, afternoon,
+  evening, night, in Wageningen's own time), a strong wind shows an arrow pointing where it blows,
+  and the footer's note says what the sky is doing to the page right now (raining in the ink, snow
+  on the heights, a storm lighting the paper, fog closing in, or the night ink until sunrise). To see a state the sky is not in, add `?sky=night`
   (or `dawn`, `day`, `dusk`) and `?weather=rain` (or `clear`, `cloud`, `fog`, `snow`, `storm`)
   to the address.
 - **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.

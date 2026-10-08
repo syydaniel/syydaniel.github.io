@@ -171,6 +171,20 @@ function moonSvg(m: Moon): string {
   return `<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55"/><path d="${lit}" fill="currentColor"/></svg>`;
 }
 const lang = () => root.dataset.lang ?? 'en';
+// A translated string from the page's dictionary, with the English to fall back on.
+function phrase(key: string, en: string): string {
+  const t = (window as any).__t as ((k: string) => string) | undefined;
+  const out = t?.(key);
+  return out && out !== key ? out : en;
+}
+const localHour = (now = new Date()) => Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hour12: false, timeZone: ZONE }).format(now)) % 24;
+// The hour's word for the hero line: morning, afternoon, evening, night, in Wageningen's own time.
+function hourWord(): string {
+  const h = localHour();
+  const key = sky.phase === 'dawn' ? 'dawn' : sky.phase === 'dusk' ? 'dusk' : sky.phase === 'night' ? (h >= 4 && h < 10 ? 'small' : 'night') : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  const en: Record<string, string> = { dawn: 'Dawn in Wageningen', dusk: 'Dusk in Wageningen', small: 'Before dawn in Wageningen', night: 'Night in Wageningen', morning: 'Morning in Wageningen', afternoon: 'Afternoon in Wageningen', evening: 'Evening in Wageningen' };
+  return phrase(`sky.hour.${key}`, en[key]);
+}
 let timesDay = '';
 
 function readSun() {
@@ -228,7 +242,8 @@ function paint() {
     const row = el.closest<HTMLElement>('.ticker-item, .footer-clock');
     if (!w) { row?.setAttribute('hidden', ''); return; }
     const degrees = `${Math.round(w.temp)}°`;
-    const wind = w.wind >= 20 ? ` · ${lang() === 'zh' ? '风' : 'wind'} ${Math.round(w.wind)} km/h` : '';
+    // A strong wind shows its direction: the arrow points where it blows to.
+    const wind = w.wind >= 20 ? ` · <span class="wind-arrow" style="transform:rotate(${Math.round(((w.windDir ?? 0) + 180) % 360)}deg)" aria-hidden="true">↑</span>${lang() === 'zh' ? '风' : 'wind'} ${Math.round(w.wind)} km/h` : '';
     el.innerHTML = `${degrees} <span lang="${lang() === 'zh' ? 'zh' : 'en'}">${weatherLabel(w.code, lang())}</span>${wind}`;
     row?.removeAttribute('hidden');
   });
@@ -239,10 +254,30 @@ function paint() {
     const zh = lang() === 'zh';
     const next = sky.phase === 'night' || sky.phase === 'dawn' ? (zh ? `日出 ${sky.sunrise ?? ''}` : `sunrise ${sky.sunrise ?? ''}`) : (zh ? `日落 ${sky.sunset ?? ''}` : `sunset ${sky.sunset ?? ''}`);
     el.innerHTML = zh
-      ? `<span lang="zh">此刻瓦赫宁根</span> · ${Math.round(w.temp)}° <span lang="zh">${weatherLabel(w.code, 'zh')}</span> · <span lang="zh">${next}</span>`
-      : `Wageningen now · ${Math.round(w.temp)}° ${weatherLabel(w.code, 'en')} · ${next}`;
+      ? `<span lang="zh">${hourWord()}</span> · ${Math.round(w.temp)}° <span lang="zh">${weatherLabel(w.code, 'zh')}</span> · <span lang="zh">${next}</span>`
+      : `${hourWord()} · ${Math.round(w.temp)}° ${weatherLabel(w.code, 'en')} · ${next}`;
     row?.removeAttribute('hidden');
   });
+  // The footer's note says what the sky is doing to the page right now.
+  document.querySelectorAll<HTMLElement>('[data-sky-note]').forEach((el) => {
+    const kind = w ? weatherKind(w.code) : null;
+    let note: string | null = null;
+    if (kind === 'rain') note = phrase('sky.note.rain', 'It is raining in Wageningen right now, so it rains in the ink here.');
+    else if (kind === 'snow') note = phrase('sky.note.snow', 'It is snowing in Wageningen: snow lies on the heights of the catchment above.');
+    else if (kind === 'storm') note = phrase('sky.note.storm', 'A thunderstorm over Wageningen: now and then the paper lights up.');
+    else if (kind === 'fog') note = phrase('sky.note.fog', 'Fog in Wageningen: the mist has closed in on the contours above.');
+    else if (sky.night) note = phrase('sky.note.night', 'Night over Wageningen: the page wears its night ink until sunrise {t}.').replace('{t}', sky.sunrise ?? '');
+    else if (w && w.cloud >= 0.6) note = phrase('sky.note.cloud', 'An overcast sky over Wageningen: the light on the page is flat and grey today.');
+    else if (w) note = phrase('sky.note.clear', 'The Sun is out over Wageningen; the paper follows it and turns to its night ink at sunset {t}.').replace('{t}', sky.sunset ?? '');
+    // Once the note is live it leaves the dictionary's hands (the runtime re-applies
+    // data-i18n after late DOM changes and would put the standing text back).
+    if (note) { delete el.dataset.i18n; el.textContent = note; }
+  });
+  // Tonight's Moon, in the toggle: the bite sits where the shadow is.
+  if (sky.moon) {
+    root.style.setProperty('--moon-d', `${(12.7 * Math.max(0.22, sky.moon.lit)).toFixed(2)}px`);
+    root.style.setProperty('--moon-side', sky.moon.waxing ? '-1' : '1');
+  }
   (window as any).__sky = sky;
   dispatchEvent(new CustomEvent('skychange', { detail: sky }));
 }
