@@ -246,9 +246,19 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
 
   let dye: Pair, velocity: Pair, divergence: Target, curl: Target, pressure: Pair;
   let simW = 0, simH = 0, dyeW = 0, dyeH = 0;
+  // Three qualities. The page starts at the finest and steps down, once, when
+  // frames keep running long, so a weaker machine gets silk at a lower grain
+  // rather than a stutter at the full one.
+  const LEVELS = [
+    { sim: 112, dye: 0.42, cap: 640, iterations: 12 },
+    { sim: 144, dye: 0.55, cap: 832, iterations: 16 },
+    { sim: 176, dye: 0.66, cap: 1024, iterations: 20 }
+  ];
+  let quality = 2;
   function allocate() {
     const aspect = innerWidth / Math.max(1, innerHeight);
-    const sim = 176, dyeSide = Math.min(1024, Math.round(innerWidth * 0.66));
+    const level = LEVELS[quality];
+    const sim = level.sim, dyeSide = Math.min(level.cap, Math.round(innerWidth * level.dye));
     simW = aspect >= 1 ? Math.round(sim * aspect) : sim;
     simH = aspect >= 1 ? sim : Math.round(sim / aspect);
     dyeW = aspect >= 1 ? dyeSide : Math.round(dyeSide * aspect);
@@ -306,7 +316,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     gl!.useProgram(P.pressure.p);
     gl!.uniform2f(P.pressure.u.texelSize, velocity.read.texel[0], velocity.read.texel[1]);
     gl!.uniform1i(P.pressure.u.uDivergence, bind(divergence, 0));
-    for (let i = 0; i < CONFIG.pressureIterations; i++) {
+    for (let i = 0; i < LEVELS[quality].iterations; i++) {
       gl!.uniform1i(P.pressure.u.uPressure, bind(pressure.read, 1));
       draw(pressure.write); pressure.swap();
     }
@@ -431,12 +441,24 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
 
   // ---- loop ----
   let last = 0, frame = 0, visible = !document.hidden;
+  let slowFrames = 0;
   function tick(now: number) {
     frame = 0;
     if (!visible) return;
-    const dt = Math.min(0.033, last ? (now - last) / 1000 : 0.016);
+    // Far down the page the ink is dim and nothing stirs it: half rate is plenty.
+    if (scrollY > innerHeight * 1.6 && now - last < 31) { frame = requestAnimationFrame(tick); return; }
+    const elapsed = last ? (now - last) / 1000 : 0.016;
+    const dt = Math.min(0.033, elapsed);
     last = now;
     strokeLeft -= dt;
+    // The governor: a second of long frames in a row steps the quality down.
+    if (scrollY < innerHeight * 1.6) {
+      slowFrames = elapsed > 0.027 ? slowFrames + 1 : Math.max(0, slowFrames - 2);
+      if (slowFrames > 45 && quality > 0) {
+        quality--; slowFrames = 0; allocate();
+        for (let i = 0; i < 3; i++) drop(0.2 + Math.random() * 0.6, 0.25 + Math.random() * 0.5, 0.16, 5);
+      }
+    }
     if (now > nextDrop) {
       // Rain in Wageningen lands here too: more often and a little heavier.
       drop(0.1 + Math.random() * 0.8, 0.15 + Math.random() * 0.7, 0.1 + Math.random() * 0.08 + rain * 0.1, 3 + Math.random() * 4);

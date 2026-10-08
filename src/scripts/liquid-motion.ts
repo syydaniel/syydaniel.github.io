@@ -85,6 +85,9 @@ document.addEventListener('click', event => {
   const transition = document.startViewTransition(() => {
     if (location.hash !== destination.hash) history.pushState(null, '', destination.href);
     target.scrollIntoView({behavior: 'instant', block: 'start'});
+    // The chapter's number answers the jump: a moment of cinnabar, then it settles.
+    target.classList.remove('is-arrived'); void target.offsetWidth; target.classList.add('is-arrived');
+    setTimeout(() => target.classList.remove('is-arrived'), 2000);
     // IntersectionObserver runs asynchronously; make the new snapshot readable.
     document.querySelectorAll<HTMLElement>('.reveal').forEach(element => {
       const box = element.getBoundingClientRect();
