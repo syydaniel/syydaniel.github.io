@@ -12,7 +12,7 @@ import Ticker from './Ticker.astro';
       <aside class="hero-signature" aria-hidden="true">
         <span class="signature-name">沈亦旸</span>
         <Seal size={48} class="signature-seal" />
-        <span class="signature-meta"><span>Daniel</span><i>·</i><span>Wageningen</span><i>·</i><span>51.97° N</span></span>
+        <span class="signature-meta">Daniel</span>
       </aside>
       <div class="hero-copy">
         <div class="hero-eyebrow">
@@ -20,9 +20,10 @@ import Ticker from './Ticker.astro';
           <span data-i18n="hero.eyebrow">{profile.title}</span>
         </div>
         <h1 class="hero-title">
-          <span><span class="hero-word">Yiyang</span></span>
-          <span class="hero-surname"><span class="hero-word">Shen</span><span class="hero-alias"><span class="alias-cn">沈亦旸 <i aria-hidden="true">/</i> </span>Daniel</span><Seal size={38} class="hero-seal" /></span>
+          <span class="hero-line"><span class="hero-word">Yiyang</span></span>
+          <span class="hero-line hero-surname"><span class="hero-word">Shen</span></span>
         </h1>
+        <p class="hero-alias-row"><span>沈亦旸</span><i aria-hidden="true">/</i><span>Daniel</span><Seal size={34} class="hero-seal" /></p>
         <p class="hero-tagline">
           <span data-i18n="hero.tagline.a">Environmental modelling, interested in soils, water and the climate of farmland. Photographing the</span>
           <span class="ink"><em data-i18n="hero.tagline.b">quiet light</em><svg class="ink-stroke" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 40 2, 80 11, 120 6 S 175 3, 198 8" pathLength="100" /></svg></span>
@@ -38,10 +39,12 @@ import Ticker from './Ticker.astro';
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>
           </a>
         </div>
-        <p class="hero-hint"><i aria-hidden="true"></i><span data-i18n="hero.hint">Move to rain on the model · Hold for a downpour · Water finds the valley</span></p>
       </div>
     </div>
-    <a href="#about" class="hero-scroll"><span data-i18n="hero.scroll">Scroll</span><span class="scroll-line" aria-hidden="true"></span><span aria-hidden="true">↓</span></a>
+    <div class="hero-foot">
+      <p class="hero-hint"><i aria-hidden="true"></i><span data-i18n="hero.hint">Move to rain on the model · Hold for a downpour · Water finds the valley</span></p>
+      <a href="#about" class="hero-scroll"><span data-i18n="hero.scroll">Scroll</span><span class="scroll-line" aria-hidden="true"></span><span aria-hidden="true">↓</span></a>
+    </div>
   </div>
   <Ticker />
 </section>
@@ -52,31 +55,33 @@ import Ticker from './Ticker.astro';
   .hero-grid { flex: 1; display: grid; grid-template-columns: 56px minmax(0, 660px); align-items: start; gap: 40px 48px; }
   .hero-copy { min-width: 0; animation: hero-arrive 900ms cubic-bezier(.22,1,.36,1) both; }
   @keyframes hero-arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  .hero-eyebrow { display: flex; align-items: center; gap: .75rem; color: #a8c5b5; font-size: 10px; letter-spacing: .2em; font-family: 'JetBrains Mono', ui-monospace, monospace; text-transform: uppercase; line-height: 1.8; }
+  .hero-eyebrow { display: flex; align-items: center; gap: .75rem; color: #9fb8b2; font-size: 10px; letter-spacing: .2em; font-family: 'JetBrains Mono', ui-monospace, monospace; text-transform: uppercase; line-height: 1.8; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #bd3620; box-shadow: 0 0 0 4px rgba(189, 54, 32, .14); flex-shrink: 0; }
-  .hero-title { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-optical-sizing: auto; font-variation-settings: 'opsz' 144, 'SOFT' 40, 'WONK' 1; font-size: clamp(5rem, 10.4vw, 9.6rem); line-height: .9; letter-spacing: -.06em; color: #f0f3e9; margin-top: 30px; }
-  .hero-title > span { display: block; }
-  .hero-surname { font-style: italic; color: #c3dbc7; font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
-  .hero-alias { display: inline-block; font-size: 13px; font-style: normal; letter-spacing: .22em; color: #9caf9f; margin-left: 24px; vertical-align: middle; white-space: nowrap; }
-  .hero-alias i { padding: 0 .45rem; color: #5a7266; font-style: normal; }
-  .hero-tagline { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 32, 'SOFT' 60; margin-top: 34px; font-size: 23px; line-height: 1.45; color: #dbe5dc; max-width: 560px; font-weight: 300; text-wrap: balance; }
+  .hero-title { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-optical-sizing: auto; font-variation-settings: 'opsz' 144, 'SOFT' 40, 'WONK' 1; font-size: clamp(5rem, 10.4vw, 9.6rem); line-height: .96; letter-spacing: -.055em; color: #eef2ec; margin-top: 30px; }
+  .hero-line { display: block; }
+  .hero-surname { font-style: italic; color: #cfd9d3; font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
+  .hero-alias-row { display: none; align-items: center; gap: 14px; margin-top: 20px; font-family: 'Noto Serif SC', 'Songti SC', serif; font-size: 13px; letter-spacing: .22em; color: #9aa8a2; }
+  .hero-alias-row i { font-style: normal; color: #4a5652; }
+  .hero-tagline { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 32, 'SOFT' 60; margin-top: 34px; font-size: 23px; line-height: 1.45; color: #cfd8d3; max-width: 560px; font-weight: 300; text-wrap: balance; }
   .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
   .hero-actions .btn { font-size: 13px; padding: 14px 24px; gap: 1rem; }
-  .hero-hint { display: inline-flex; align-items: center; gap: 12px; margin-top: 28px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #8ea39a; }
+  .hero-foot { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 28px; }
+  .hero-hint { display: inline-flex; align-items: center; gap: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #7f948a; }
   .hero-hint i { width: 26px; height: 1px; background: #bd3620; flex-shrink: 0; }
-  .hero-scroll { align-self: flex-end; margin-top: 28px; display: flex; align-items: center; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .13em; text-transform: uppercase; color: #a1b1a5; }
+  .hero-scroll { display: flex; align-items: center; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: #7f948a; }
   .scroll-line { width: 55px; height: 1px; background: #99b6a538; }
   @media (min-width: 1600px) { .hero-shell { padding-top: max(170px, calc((100svh - 620px) / 2)); } }
-  @media (max-width: 1100px) { .hero-shell { padding-inline: 32px; } .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; } .hero-alias { display: block; margin: 18px 0 0 4px; } .hero-title { font-size: 100px; } }
+  @media (max-width: 1100px) { .hero-shell { padding-inline: 32px; } .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; } .hero-alias-row { display: inline-flex; } .hero-title { font-size: 100px; } }
   @media (max-width: 767px) {
     .hero-shell { padding: 118px 24px 22px; }
     .hero-title { font-size: clamp(78px, 17vw, 112px); }
-    .hero-alias { display: inline-block; margin: 0 0 0 20px; font-size: 11px; }
+    .hero-alias-row { font-size: 11px; gap: 10px; margin-top: 16px; }
     .hero-eyebrow { font-size: 9px; letter-spacing: .12em; }
     .hero-tagline { font-size: 21px; margin-top: 26px; }
     .hero-actions .btn { font-size: 11px; padding: 13px 16px; gap: 12px; }
     .hero-hint { display: none; }
-    .hero-scroll { gap: 10px; align-self: flex-start; margin-top: 36px; } .scroll-line { display: none; }
+    .hero-foot { margin-top: 36px; }
+    .hero-scroll { gap: 10px; } .scroll-line { display: none; }
   }
-  @media (max-width: 359px) { .hero-title { font-size: 72px; } .hero-alias { margin-left: 14px; font-size: 9px; } }
+  @media (max-width: 359px) { .hero-title { font-size: 72px; } }
 </style>

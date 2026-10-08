@@ -79,7 +79,7 @@ void main () {
 
 // The ink is lit like a wet surface: a little relief from the dye gradient, a
 // paper-dark base, a vignette, and the hour in Wageningen warming or cooling it.
-const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uHour;
+const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uHour; uniform float uDim;
 void main () {
   vec3 c = texture2D(uTexture, vUv).rgb;
   vec3 lc = texture2D(uTexture, vL).rgb, rc = texture2D(uTexture, vR).rgb, tc = texture2D(uTexture, vT).rgb, bc = texture2D(uTexture, vB).rgb;
@@ -92,7 +92,7 @@ void main () {
   float night = 1.0 - smoothstep(5.0, 8.0, uHour) * (1.0 - smoothstep(19.5, 23.0, uHour));
   c = mix(c, c * vec3(1.18, 0.98, 0.78), (dawn + dusk) * 0.35);
   c = mix(c, c * vec3(0.8, 0.9, 1.15), night * 0.3);
-  c *= 0.5;
+  c *= 0.5 * uDim;
   c = c / (vec3(1.0) + c * 0.9);
   float vig = 1.0 - 0.55 * smoothstep(0.25, 1.15, length(vUv - vec2(0.5, 0.45)) * 1.25);
   vec3 base = vec3(0.022, 0.026, 0.038);
@@ -337,6 +337,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     gl!.uniform1i(P.display.u.uTexture, bind(dye.read, 0));
     gl!.uniform2f(P.display.u.uRes, canvas.width, canvas.height);
     gl!.uniform1f(P.display.u.uHour, hour);
+    gl!.uniform1f(P.display.u.uDim, 1 - 0.55 * Math.min(1, scrollY / Math.max(1, innerHeight)));
     draw(null);
   }
 

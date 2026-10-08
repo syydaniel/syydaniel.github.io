@@ -355,9 +355,9 @@ if (trail && fine.matches && !still()) {
         const r = d.r * (0.4 + ease * 1.2) * dpr;
         const g = ctx!.createRadialGradient(d.x * dpr, d.y * dpr, 0, d.x * dpr, d.y * dpr, r);
         const a = (1 - p) * 0.42;
-        g.addColorStop(0, `hsla(${d.hue}, 45%, 72%, ${a})`);
-        g.addColorStop(0.6, `hsla(${d.hue}, 45%, 62%, ${a * 0.45})`);
-        g.addColorStop(1, `hsla(${d.hue}, 45%, 55%, 0)`);
+        g.addColorStop(0, `hsla(${d.hue}, ${d.hue < 60 ? 60 : 18}%, 72%, ${a})`);
+        g.addColorStop(0.6, `hsla(${d.hue}, ${d.hue < 60 ? 60 : 18}%, 62%, ${a * 0.45})`);
+        g.addColorStop(1, `hsla(${d.hue}, ${d.hue < 60 ? 60 : 18}%, 55%, 0)`);
         ctx!.fillStyle = g;
         ctx!.beginPath();
         ctx!.arc(d.x * dpr, d.y * dpr, r, 0, Math.PI * 2);
@@ -373,7 +373,7 @@ if (trail && fine.matches && !still()) {
       if (speed < 9 || drops.length > 80) return;
       const n = Math.min(3, Math.floor(speed / 14));
       for (let i = 0; i < n; i++) {
-        drops.push({ x: e.clientX + (Math.random() - 0.5) * speed * 0.6, y: e.clientY + (Math.random() - 0.5) * speed * 0.6, r: 2 + Math.min(14, speed * 0.28) * Math.random(), born: now, life: 700 + Math.random() * 600, hue: Math.random() < 0.82 ? 150 + Math.random() * 20 : 38 });
+        drops.push({ x: e.clientX + (Math.random() - 0.5) * speed * 0.6, y: e.clientY + (Math.random() - 0.5) * speed * 0.6, r: 2 + Math.min(14, speed * 0.28) * Math.random(), born: now, life: 700 + Math.random() * 600, hue: Math.random() < 0.9 ? 160 + Math.random() * 16 : 10 });
       }
       if (!frame) frame = requestAnimationFrame(paint);
     }, { passive: true });

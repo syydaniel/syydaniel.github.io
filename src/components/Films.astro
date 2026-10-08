@@ -189,7 +189,7 @@ const dot = (d: string) => d.replaceAll('-', '.');
   .film-title { text-wrap: balance; letter-spacing: -0.01em; }
 
   .film-play {
-    color: #05060a;
+    color: #06080a;
     background: rgba(238, 240, 250, 0.94);
     transition: transform 0.4s var(--ease-film), background 0.3s ease;
   }
@@ -201,12 +201,12 @@ const dot = (d: string) => d.replaceAll('-', '.');
     border: 1px solid rgba(238, 240, 250, 0.35);
     transition: inset 0.4s var(--ease-film), border-color 0.3s ease;
   }
-  .film-stage:hover .film-play { transform: scale(1.06); background: #ffc46b; }
-  .film-stage:hover .film-play::after { inset: -12px; border-color: rgba(255, 196, 107, 0.5); }
+  .film-stage:hover .film-play { transform: scale(1.06); background: #d9735b; }
+  .film-stage:hover .film-play::after { inset: -12px; border-color: rgba(189, 54, 32, 0.5); }
 
-  .film-year { color: #a0a5c0; transition: color 0.2s ease, background 0.2s ease; }
-  .film-year:hover { color: #eef0fa; }
-  .film-year.active { background: rgba(238, 240, 250, 0.1); color: #eef0fa; }
+  .film-year { color: #9aa8a2; transition: color 0.2s ease, background 0.2s ease; }
+  .film-year:hover { color: #eef2ec; }
+  .film-year.active { background: rgba(238, 240, 250, 0.1); color: #eef2ec; }
 
   @media (prefers-reduced-motion: reduce) {
     .film-stage, .film-still, .film-play, .film-play::after { transition: none; }

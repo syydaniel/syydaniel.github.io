@@ -248,7 +248,7 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
       );
     }
     const g = new THREE.BufferGeometry().setFromPoints(points);
-    const m = new THREE.LineBasicMaterial({ color: 0x38e4d2, transparent: true, opacity: 0.08 });
+    const m = new THREE.LineBasicMaterial({ color: 0x5f948f, transparent: true, opacity: 0.08 });
     latGroup.add(new THREE.LineLoop(g, m));
   }
   globe.add(latGroup);
@@ -260,14 +260,14 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     eqPoints.push(new THREE.Vector3(Math.cos(t) * 1.01, 0, Math.sin(t) * 1.01));
   }
   const eqGeom = new THREE.BufferGeometry().setFromPoints(eqPoints);
-  const eqMat = new THREE.LineBasicMaterial({ color: 0x38e4d2, transparent: true, opacity: 0.18 });
+  const eqMat = new THREE.LineBasicMaterial({ color: 0x5f948f, transparent: true, opacity: 0.18 });
   globe.add(new THREE.LineLoop(eqGeom, eqMat));
 
   // ---- Atmosphere glow (back-facing inverted sphere) ----
   const atmosGeom = new THREE.SphereGeometry(1.22, 64, 64);
   const atmosMat = new THREE.ShaderMaterial({
     uniforms: {
-      glowColor: { value: new THREE.Color(0x38e4d2) }
+      glowColor: { value: new THREE.Color(0x5f948f) }
     },
     vertexShader: `
       varying vec3 vNormal;
@@ -311,13 +311,13 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     const primary = idx === 0;
     // core dot
     const mkGeom = new THREE.SphereGeometry(primary ? 0.035 : 0.022, 16, 16);
-    const mkMat = new THREE.MeshBasicMaterial({ color: primary ? 0xffc46b : 0x38e4d2 });
+    const mkMat = new THREE.MeshBasicMaterial({ color: primary ? 0xbd3620 : 0x5f948f });
     const mk = new THREE.Mesh(mkGeom, mkMat);
     g.add(mk);
     // glow ring
     const ringGeom = new THREE.RingGeometry(0.05, 0.065, 32);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: primary ? 0xffc46b : 0x38e4d2,
+      color: primary ? 0xbd3620 : 0x5f948f,
       transparent: true,
       opacity: 0.5,
       side: THREE.DoubleSide
@@ -353,7 +353,7 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     for (let j = i + 1; j < markers.length; j++) {
       const geom = makeArc(markers[i].pos, markers[j].pos);
       const mat = new THREE.LineDashedMaterial({
-        color: 0x38e4d2,
+        color: 0x5f948f,
         transparent: true,
         opacity: 0.35,
         dashSize: 0.04,
@@ -422,7 +422,7 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
   }
 
   const starTex = createStarTexture();
-  const STAR_TINTS = [0xffffff, 0xc6f3ff, 0x9fe6ff, 0xffe3b0, 0xd8c8ff];
+  const STAR_TINTS = [0xffffff, 0xdfe9e4, 0xb9cfc9, 0xe7ddd0, 0xcfd8d3];
 
   if (orbitPhotos.length > 0) {
     orbitPhotos.forEach((p, i) => {
@@ -728,5 +728,5 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
 <style>
   #globe-canvas { cursor: grab; display: block; }
   #globe-canvas:active { cursor: grabbing; }
-  .globe-wrap { filter: drop-shadow(0 20px 50px rgba(56, 228, 210, 0.15)); }
+  .globe-wrap { filter: drop-shadow(0 20px 50px rgba(95, 148, 143, 0.15)); }
 </style>

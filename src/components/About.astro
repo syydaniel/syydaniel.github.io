@@ -41,7 +41,7 @@ const skills = [
 
         <!-- Now showing: the latest film, then recent frames -->
         <div class="mt-12 hidden lg:block">
-          <button type="button" class="group relative block w-full overflow-hidden rounded-2xl ring-1 ring-white/10 card-hover text-left" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
+          <button type="button" class="group relative block w-full overflow-hidden rounded-2xl ring-1 ring-white/10 card-hover text-left mounted" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
             <span class="relative block aspect-[2.2/1]">
               <img src={latest.featured!.stillSm} alt="" loading="lazy" decoding="async" class="media-img absolute inset-0 w-full h-full object-cover" style={`object-position:${latest.featured!.focus ?? '50% 50%'}`} />
               <span class="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/20 to-ink-950/30"></span>

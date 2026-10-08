@@ -23,6 +23,10 @@ const mapUrl = `data:image/svg+xml,${encodeURIComponent(normalMap)}`;
       <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="4" seed="3" result="n" />
       <feDisplacementMap in="SourceGraphic" in2="n" scale="4.2" xChannelSelector="R" yChannelSelector="G" />
     </filter>
+    <filter id="seal-edge-fine" x="-12%" y="-12%" width="124%" height="124%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="3" result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
     <filter id="seal-glyph" x="-12%" y="-12%" width="124%" height="124%">
       <feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="3" seed="5" result="n" />
       <feDisplacementMap in="SourceGraphic" in2="n" scale="1.6" xChannelSelector="R" yChannelSelector="G" />
