@@ -157,7 +157,15 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
         map.setPaintProperty('cells-dots', 'circle-color', ramp(ink));
         map.setPaintProperty('country-hi', 'fill-color', ink.daiqing);
         map.setPaintProperty('country-hi-line', 'line-color', ink.daiqing);
-        map.setLight({ anchor: 'viewport', color: ink.dark ? '#ffffff' : ink.paperHi, intensity: ink.dark ? 0.6 : 0.35, position: [1.4, 120, 55] });
+        // The columns are lit from where the Sun stands over Wageningen (scripts/sky.ts),
+        // flatter under cloud; after dark, by a lamp over the reader's shoulder.
+        const sky = (window as any).__sky as { azimuth?: number; elevation?: number; weather?: { cloud?: number } } | undefined;
+        const cloud = sky?.weather?.cloud ?? 0.3;
+        const up = !!sky && typeof sky.elevation === 'number' && sky.elevation > 0;
+        const polar = up ? Math.min(78, 90 - Math.max(12, sky!.elevation!)) * (1 - cloud * 0.5) : 55;
+        map.setLight(up
+          ? { anchor: 'map', color: ink.dark ? '#ffffff' : ink.paperHi, intensity: (ink.dark ? 0.6 : 0.35) * (1 - cloud * 0.35), position: [1.4, sky!.azimuth ?? 180, polar] }
+          : { anchor: 'viewport', color: ink.dark ? '#ffffff' : ink.paperHi, intensity: ink.dark ? 0.6 : 0.35, position: [1.4, 120, 55] });
       };
 
       atlas.ready.then(() => {
@@ -177,6 +185,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
         columns('cells-fine', 'cells-fine', { minzoom: 5 }, 140000, 1100000);
         paint();
         atlas.onTheme(paint);
+        addEventListener('skychange', () => paint());
 
         const bounds = new maplibregl.LngLatBounds();
         cells.forEach(([x, y]) => bounds.extend([x, y]));

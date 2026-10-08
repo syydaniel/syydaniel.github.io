@@ -118,7 +118,13 @@ from Google on demand for its headings.
   shows the sky's glyph (tonight's Moon on a clear night) and the temperature, and opens a card
   with the weather, the Sun's times, the Moon, which ink the page wears until when, and the note.
   The theme toggle's tooltip says why the page wears its ink and until when, and at night its moon
-  shows tonight's phase. The hero's live line opens with the hour's word (morning, afternoon,
+  shows tonight's phase. The weather reaches further down the page too: under the Photography lede
+  a line says whether it is golden hour in Wageningen right now, when the next one comes, or that
+  the sky is closed today; the Places columns are lit from where the Sun stands, flatter under
+  cloud; the Nya translator's sentence is today's weather until someone types; the Contact card
+  gives the time and weather where the mail lands; rain makes the chapter watermarks run and fog
+  fades them; snow lies on the footer's near ridge, fog softens the hills, a storm darkens them;
+  and the browser's own bar (meta theme-color) takes the paper's cast. The hero's live line opens with the hour's word (morning, afternoon,
   evening, night, in Wageningen's own time), a strong wind shows an arrow pointing where it blows,
   and the footer's note says what the sky is doing to the page right now (raining in the ink, snow
   on the heights, a storm lighting the paper, fog closing in, or the night ink until sunrise). To see a state the sky is not in, add `?sky=night`

@@ -73,6 +73,30 @@ html[data-night] { --lamp-color: var(--ochre); --lamp-scale: 0.84; --lamp-streng
 html[data-weather='cloud'], html[data-weather='fog'], html[data-weather='rain'], html[data-weather='storm'] { --lamp-scale: 1.22; --lamp-strength: 0.72; }
 html[data-weather='snow'] { --lamp-scale: 1.1; }
 
+/* ---------- The weather in more places ----------
+   Rain makes the chapter watermarks run, fog fades them and softens the footer's
+   hills, snow lies on the near ridge, a storm darkens the hills. */
+.chapter-watermark { transition: filter 2.4s ease, opacity 2.4s ease; }
+html[data-weather='rain'] .chapter-watermark, html[data-weather='storm'] .chapter-watermark { filter: blur(1.6px); }
+html[data-weather='fog'] .chapter-watermark { filter: blur(2.6px); opacity: 0.55; }
+.footer-ridges { transition: filter 2.4s ease; }
+.ridge-far, .ridge-near { transition: opacity 2.4s ease; }
+.ridge-snow { opacity: 0; transition: opacity 2.4s ease; }
+html[data-weather='snow'] .ridge-snow { opacity: 1; }
+html[data-weather='fog'] .footer-ridges { filter: blur(1.4px); }
+html[data-weather='fog'] .ridge-far { opacity: 0.4; }
+html[data-weather='storm'] .footer-ridges { filter: saturate(0.6) brightness(0.86); }
+/* The light a photographer waits for, under the Photography lede. */
+.photo-light { display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.9rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-4); animation: sky-card-in 700ms var(--ease-out-expo) both; }
+.photo-light[hidden] { display: none; }
+.photo-light .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ochre-2); flex-shrink: 0; transition: background 2.4s ease; }
+.photo-light.is-now { color: var(--ink-2); }
+.photo-light.is-now .live-dot { background: var(--zhusha); animation: photo-light-breathe 3.2s ease-in-out infinite; }
+.photo-light.is-off .live-dot { background: var(--ink-5); }
+@keyframes photo-light-breathe { 0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--zhusha) 16%, transparent); } 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--zhusha) 6%, transparent); } }
+html[data-lang='zh'] .photo-light { font-family: var(--font-cjk); letter-spacing: 0.14em; }
+.contact-now[hidden] { display: none; }
+
 /* ---------- Cursor lamp, ink trail, cursor badge ---------- */
 #spotlight {
   position: fixed; left: 0; top: 0; width: 720px; height: 720px; margin: -360px 0 0 -360px; border-radius: 50%;
@@ -383,7 +407,7 @@ footer { overflow: hidden; }
 .footer-ridges .ridge { transform-origin: 50% 100%; }
 @supports (animation-timeline: view()) {
   .ridge-far { animation: ridge-far linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
-  .ridge-near { animation: ridge-near linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
+  .ridge-near, .ridge-snow { animation: ridge-near linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
   @keyframes ridge-far { from { transform: translateY(14%) scaleX(1.02); } to { transform: translateY(-4%); } }
   @keyframes ridge-near { from { transform: translateY(22%); } to { transform: translateY(-2%); } }
 }
@@ -480,7 +504,7 @@ html[data-lang='zh'] .italic[data-i18n-self], html[data-lang='zh'] .film-title, 
   .hero-copy > :not(.hero-title), .signature-name, .signature-seal, .signature-meta { animation: none; opacity: 1; transform: none; filter: none; }
   .catchment[data-ready] { opacity: 1; }
   .footer-giant .footer-giant-en { clip-path: none; }
-  .chapter-slip, .ridge-far, .ridge-near { animation: none; }
+  .chapter-slip, .ridge-far, .ridge-near, .ridge-snow { animation: none; }
   .hero-copy, .hero-art, .hero-signature { translate: 0 0 !important; rotate: none !important; }
   [data-magnetic] { translate: 0 0 !important; }
   .ink-stroke path { stroke-dashoffset: 0; animation: none; }

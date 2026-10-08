@@ -64,6 +64,8 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
           Every pin on the map is a place I've stood with a camera; the amber frames are films. Click one to open it.
           Drag the time range to travel through the months, or switch to the timeline view, where the photographs and films share one chronological ribbon.
         </p>
+        <!-- The light a photographer waits for: whether it is golden hour in Wageningen right now, or when the next one comes (scripts/sky.ts). -->
+        <p class="photo-light" data-sky-light hidden><span class="live-dot" aria-hidden="true"></span><span data-sky-light-text></span></p>
       </div>
       <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-2 sm:grid-cols-4 gap-5 min-w-[300px]">
         <div>
