@@ -84,7 +84,11 @@ main { overflow-x: clip; }
   background-clip: text;
   color: transparent;
   animation: gradient-shift 14s ease-in-out infinite;
+  /* background-clip: text paints only inside the box: give the italic outstrokes, swashes and descenders room, and take it back from the layout. */
+  padding: 0.12em 0.2em 0.26em 0.16em;
+  margin: -0.12em -0.2em -0.26em -0.16em;
 }
+.section-title:hover .text-gradient, .statement:hover .text-gradient { animation-duration: 5s; }
 
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }

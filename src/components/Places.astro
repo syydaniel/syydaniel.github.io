@@ -31,15 +31,15 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
         </p>
       <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-3 gap-6 places-stats mt-8 max-w-md">
         <div>
-          <div class="font-display text-2xl text-ink-100">{stats.countries}</div>
+          <div class="font-display text-2xl text-ink-100" data-count>{stats.countries}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.countries">Countries</div>
         </div>
         <div>
-          <div class="font-display text-2xl text-ink-100">{stats.cities}</div>
+          <div class="font-display text-2xl text-ink-100" data-count>{stats.cities}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.cities">Cities</div>
         </div>
         <div>
-          <div class="font-display text-2xl text-ink-100">{stats.km.toLocaleString('en-US')}</div>
+          <div class="font-display text-2xl text-ink-100" data-count>{stats.km.toLocaleString('en-US')}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.km">km tracked</div>
         </div>
       </div>
@@ -236,5 +236,6 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
   .places-mark { background: var(--daiqing); box-shadow: 0 0 0 3px color-mix(in srgb, var(--daiqing) 18%, transparent); transition: background 300ms ease, box-shadow 300ms ease; }
   .places-country.is-focus .places-mark { background: var(--seal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--seal) 22%, transparent); }
   .places-country:hover .text-ink-100, .places-country.is-focus .text-ink-100 { color: var(--zhusha); }
+  @media (max-width: 767px) { .places-map-hint { top: auto; bottom: 2.6rem; left: 1.2rem; max-width: 60%; } }
   .places-map-hint { position: absolute; left: 2rem; top: 1.1rem; z-index: 3; margin: 0; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-4); pointer-events: none; }
 </style>

@@ -63,21 +63,21 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
           Drag the time range to travel through the months, or switch to the timeline view, where the photographs and films share one chronological ribbon.
         </p>
       </div>
-      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-4 gap-5 min-w-[300px]">
+      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-2 sm:grid-cols-4 gap-5 min-w-[300px]">
         <div>
-          <div class="font-display text-2xl text-ink-100">{total}</div>
+          <div class="font-display text-2xl text-ink-100" data-count>{total}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="photo.stat.frames">Frames</div>
         </div>
         <div>
-          <div class="font-display text-2xl text-ink-100">{films.length}</div>
+          <div class="font-display text-2xl text-ink-100" data-count>{films.length}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="films.stat.films">Films</div>
         </div>
         <div>
-          <div class="font-display text-2xl text-ink-100">{countries}</div>
+          <div class="font-display text-2xl text-ink-100" data-count>{countries}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="photo.stat.countries">Countries</div>
         </div>
         <div>
-          <div class="font-display text-2xl text-ink-100">{yearMax - yearMin + 1}</div>
+          <div class="font-display text-2xl text-ink-100" data-count>{yearMax - yearMin + 1}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="photo.stat.years">Years</div>
         </div>
       </div>

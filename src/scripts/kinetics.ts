@@ -107,12 +107,15 @@ if (fine.matches) {
 // ---------- Counting numbers ----------
 function countUp(el: HTMLElement) {
   const raw = el.textContent?.trim() ?? '';
-  const match = raw.match(/^(\d+)(.*)$/);
+  const match = raw.match(/^([\d,]+)(.*)$/);
   if (!match || still()) return;
-  const target = Number(match[1]), suffix = match[2], began = performance.now();
+  const grouped = match[1].includes(',');
+  const target = Number(match[1].replace(/,/g, '')), suffix = match[2], began = performance.now();
+  if (!Number.isFinite(target)) return;
   function step(now: number) {
     const p = Math.min(1, (now - began) / 1400);
-    el.textContent = `${Math.round((1 - Math.pow(1 - p, 4)) * target)}${suffix}`;
+    const n = Math.round((1 - Math.pow(1 - p, 4)) * target);
+    el.textContent = `${grouped ? n.toLocaleString('en-US') : n}${suffix}`;
     if (p < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);

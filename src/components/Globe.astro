@@ -536,7 +536,7 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
     if (onScreen && !document.hidden && moving) frame = requestAnimationFrame(tick);
   }
   function wake() { if (!frame && onScreen && !document.hidden) frame = requestAnimationFrame(tick); }
-  new IntersectionObserver((entries) => { onScreen = entries.some((e) => e.isIntersecting); if (onScreen) wake(); }, { rootMargin: '120px' }).observe(canvas);
+  new IntersectionObserver((entries) => { onScreen = entries.some((e) => e.isIntersecting); if (onScreen) { canvas.parentElement?.classList.add('is-ready'); wake(); } }, { rootMargin: '120px' }).observe(canvas);
   document.addEventListener('visibilitychange', wake);
   addEventListener('lang:change', hide);
   paintTheme();
@@ -546,7 +546,9 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
 <style>
   #globe-canvas { cursor: grab; display: block; }
   #globe-canvas:active { cursor: grabbing; }
-  .globe-wrap { filter: drop-shadow(0 22px 40px color-mix(in srgb, var(--shadow) 16%, transparent)); }
+  .globe-wrap { filter: drop-shadow(0 22px 40px color-mix(in srgb, var(--shadow) 16%, transparent)); opacity: 0; transform: scale(0.94) translateY(12px); transition: opacity 1.1s ease, transform 1.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  .globe-wrap.is-ready { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .globe-wrap { opacity: 1; transform: none; transition: none; } }
   #globe-label { background: color-mix(in srgb, var(--paper-hi) 96%, transparent); color: var(--ink); border-color: var(--line); box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--shadow) 30%, transparent); }
   .globe-hint { position: absolute; left: 50%; bottom: -0.4rem; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ink-4); white-space: nowrap; pointer-events: none; }
   .globe-hint-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--daiqing); }
