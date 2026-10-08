@@ -296,7 +296,10 @@ const spotlight = document.getElementById('spotlight');
 const badge = document.getElementById('cursor-badge');
 const badgeLabel = badge?.querySelector('span');
 const ROLES: [string, string][] = [
+  ['a, button, [data-seal], input, textarea, .hero-copy, .hero-signature', ''],
   ['[data-film], .hero-film', 'cursor.play'],
+  ['#places-map', 'cursor.turn'],
+  ['#hero', 'cursor.rain'],
   ['.gallery-invitation-link, .hero-gallery-link', 'cursor.enter'],
   ['.strip-cell a, .photo-pin, .film-pin, #lightbox-figure, .gallery-plane', 'cursor.view'],
   ['#globe-canvas, .gallery-stage', 'cursor.drag']
@@ -325,7 +328,7 @@ if (fine.matches && !still()) {
     root.dataset.spotlight = 'on';
     const target = e.target instanceof Element ? e.target : null;
     let next: string | null = null;
-    if (target) for (const [selector, key] of ROLES) { if (target.closest(selector)) { next = key; break; } }
+    if (target) for (const [selector, key] of ROLES) { if (target.closest(selector)) { next = key || null; break; } }
     setRole(next);
     if (!frame) frame = requestAnimationFrame(glide);
   }, { passive: true });
@@ -352,6 +355,7 @@ if (nav) {
 }
 
 // ---------- The seals: press one and it stamps again ----------
+const stampSeal = (seal: Element) => (seal as any).__stamp?.();
 document.querySelectorAll<SVGElement>('[data-seal]').forEach(seal => {
   const stamp = () => {
     if (still()) return;
@@ -371,6 +375,7 @@ document.querySelectorAll<SVGElement>('[data-seal]').forEach(seal => {
     (window as any).__inkSplat?.((box.left + box.width / 2) / innerWidth, 1 - (box.top + box.height / 2) / innerHeight, 0.55, [0.52, 0.13, 0.08]);
     try { navigator.vibrate?.(12); } catch {}
   };
+  (seal as any).__stamp = stamp;
   seal.addEventListener('click', stamp);
   seal.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stamp(); } });
 });
@@ -446,7 +451,14 @@ if (trail && fine.matches && !still()) {
 // ---------- Footer: the giant name ----------
 const giant = document.querySelector<HTMLElement>('.footer-giant');
 if (giant) {
-  const io = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) { giant.classList.add('is-inview'); io.disconnect(); } }, { threshold: 0.3 });
+  // The name writes itself, then the page is signed: the seal presses once on its own.
+  const io = new IntersectionObserver(entries => {
+    if (!entries.some(e => e.isIntersecting)) return;
+    giant.classList.add('is-inview');
+    io.disconnect();
+    const seal = giant.querySelector('.footer-seal');
+    if (seal && !still()) setTimeout(() => stampSeal(seal), 1250);
+  }, { threshold: 0.3 });
   io.observe(giant);
 }
 

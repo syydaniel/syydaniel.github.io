@@ -191,8 +191,8 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
     const initMap = async () => {
       if (started) return;
       started = true;
-      const { map, maplibregl, ready } = await createAtlas(el, { center: [20, 40], zoom: 0.9, maxZoom: 6, detail: false, controls: false });
-      ready.then(() => {
+      const { map, maplibregl } = await createAtlas(el, { center: [20, 40], zoom: 0.9, maxZoom: 6, detail: false, controls: false });
+      {
         const cards = document.querySelectorAll<HTMLElement>('[data-coords]');
         cards.forEach((card) => {
           try {
@@ -211,7 +211,7 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
             } catch {}
           });
         });
-      });
+      }
     };
     const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { io.disconnect(); initMap(); } }, { rootMargin: '300px' });
     io.observe(el);

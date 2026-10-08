@@ -136,12 +136,16 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
         type: 'Feature', id, properties: { w },
         geometry: { type: 'Polygon', coordinates: [[[x - half, y - half], [x + half, y - half], [x + half, y + half], [x - half, y + half], [x - half, y - half]]] }
       });
-      // Fine: the 10 km squares themselves. Coarse: the same time summed into 1° squares, for the zooms where 10 km is less than a pixel.
+      // The 10 km squares themselves, and the same time summed into 0.25° and 1° squares for
+      // the zooms where a 10 km square is less than a pixel across.
       const fine = { type: 'FeatureCollection', features: cells.map(([x, y, n], i) => square(x, y, 0.05, Math.log1p(n) / maxLog, i)) };
-      const coarseSum = new Map<string, [number, number, number]>();
-      cells.forEach(([x, y, n]) => { const k = `${Math.floor(x)},${Math.floor(y)}`; const c = coarseSum.get(k); if (c) c[2] += n; else coarseSum.set(k, [Math.floor(x) + 0.5, Math.floor(y) + 0.5, n]); });
-      const coarseMax = Math.log1p(Math.max(...[...coarseSum.values()].map((c) => c[2])));
-      const coarse = { type: 'FeatureCollection', features: [...coarseSum.values()].map(([x, y, n], i) => square(x, y, 0.5, Math.log1p(n) / coarseMax, i)) };
+      const summed = (step: number) => {
+        const sum = new Map<string, [number, number, number]>();
+        cells.forEach(([x, y, n]) => { const k = `${Math.floor(x / step)},${Math.floor(y / step)}`; const c = sum.get(k); if (c) c[2] += n; else sum.set(k, [Math.floor(x / step) * step + step / 2, Math.floor(y / step) * step + step / 2, n]); });
+        const top = Math.log1p(Math.max(...[...sum.values()].map((c) => c[2])));
+        return { type: 'FeatureCollection', features: [...sum.values()].map(([x, y, n], i) => square(x, y, step / 2, Math.log1p(n) / top, i)) };
+      };
+      const coarse = summed(1), mid = summed(0.25);
       const dots = { type: 'FeatureCollection', features: cells.map(([x, y, n], i) => ({ type: 'Feature', id: i, properties: { w: Math.log1p(n) / maxLog }, geometry: { type: 'Point', coordinates: [x, y] } })) };
       const ramp = (ink: ReturnType<typeof atlas.ink>) => ['interpolate', ['linear'], ['get', 'w'], 0, ink.daiqing, 0.55, ink.ink, 1, ink.seal];
       const column = (ink: ReturnType<typeof atlas.ink>) => ['case', ['boolean', ['feature-state', 'hover'], false], ink.zhusha, ramp(ink)];
@@ -149,8 +153,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
       const height = (base: number, span: number) => ['interpolate', ['exponential', 2], ['zoom'], 2, ['+', base, ['*', ['get', 'w'], span]], 9, ['+', base / 128, ['*', ['get', 'w'], span / 128]]];
       const paint = () => {
         const ink = atlas.ink();
-        map.setPaintProperty('cells-coarse', 'fill-extrusion-color', column(ink));
-        map.setPaintProperty('cells-fine', 'fill-extrusion-color', column(ink));
+        for (const id of ['cells-coarse', 'cells-mid', 'cells-fine']) map.setPaintProperty(id, 'fill-extrusion-color', column(ink));
         map.setPaintProperty('cells-dots', 'circle-color', ramp(ink));
         map.setPaintProperty('country-hi', 'fill-color', ink.daiqing);
         map.setPaintProperty('country-hi-line', 'line-color', ink.daiqing);
@@ -162,12 +165,16 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
         map.addSource('outlines', { type: 'geojson', data: data.outlines });
         map.addSource('cells-fine', { type: 'geojson', data: fine as any });
         map.addSource('cells-coarse', { type: 'geojson', data: coarse as any });
+        map.addSource('cells-mid', { type: 'geojson', data: mid as any });
         map.addSource('cells-dots', { type: 'geojson', data: dots as any });
         map.addLayer({ id: 'country-hi', type: 'fill', source: 'outlines', filter: ['==', 'a3', ''], paint: { 'fill-color': ink.daiqing, 'fill-opacity': 0.12 } }, 'graticule');
         map.addLayer({ id: 'country-hi-line', type: 'line', source: 'outlines', filter: ['==', 'a3', ''], paint: { 'line-color': ink.daiqing, 'line-opacity': 0.7, 'line-width': 1.2 } });
         map.addLayer({ id: 'cells-dots', type: 'circle', source: 'cells-dots', maxzoom: 8, paint: { 'circle-pitch-alignment': 'map', 'circle-color': ramp(ink), 'circle-opacity': 0.55, 'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 1.6, 6, 4] } });
-        map.addLayer({ id: 'cells-coarse', type: 'fill-extrusion', source: 'cells-coarse', maxzoom: 3.6, paint: { 'fill-extrusion-color': column(ink), 'fill-extrusion-height': height(200000, 1900000), 'fill-extrusion-base': 0, 'fill-extrusion-opacity': 0.9, 'fill-extrusion-vertical-gradient': true } });
-        map.addLayer({ id: 'cells-fine', type: 'fill-extrusion', source: 'cells-fine', minzoom: 3.6, paint: { 'fill-extrusion-color': column(ink), 'fill-extrusion-height': height(140000, 1100000), 'fill-extrusion-base': 0, 'fill-extrusion-opacity': 0.92, 'fill-extrusion-vertical-gradient': true } });
+        const columns = (id: string, source: string, zoom: { minzoom?: number; maxzoom?: number }, base: number, span: number) =>
+          map.addLayer({ id, type: 'fill-extrusion', source, ...zoom, paint: { 'fill-extrusion-color': column(ink), 'fill-extrusion-height': height(base, span), 'fill-extrusion-base': 0, 'fill-extrusion-opacity': 0.9, 'fill-extrusion-vertical-gradient': true } });
+        columns('cells-coarse', 'cells-coarse', { maxzoom: 3.4 }, 200000, 1900000);
+        columns('cells-mid', 'cells-mid', { minzoom: 3.4, maxzoom: 5 }, 170000, 1500000);
+        columns('cells-fine', 'cells-fine', { minzoom: 5 }, 140000, 1100000);
         paint();
         atlas.onTheme(paint);
 
@@ -178,7 +185,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
         // Hover lights a column.
         let hovered: { source: string; id: number } | null = null;
         const clear = () => { if (hovered) map.setFeatureState(hovered, { hover: false }); hovered = null; map.getCanvas().style.cursor = ''; };
-        for (const layer of ['cells-coarse', 'cells-fine']) {
+        for (const layer of ['cells-coarse', 'cells-mid', 'cells-fine']) {
           map.on('mousemove', layer, (e) => {
             const id = e.features?.[0]?.id as number | undefined;
             if (id === undefined) return;

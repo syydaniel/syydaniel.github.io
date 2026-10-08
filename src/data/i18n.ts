@@ -39,6 +39,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.menu': { en: 'Navigation menu', zh: '导航菜单' },
   'places.map_hint': { en: 'Drag to turn the table · Each column is time spent in a 10 km square', zh: '拖动旋转 · 每根柱子是在一个 10 公里方格里停留的时间' },
   'chapter.next': { en: 'Next', zh: '下一章' },
+  'cursor.rain': { en: 'Rain', zh: '下雨' },
+  'cursor.turn': { en: 'Turn', zh: '转动' },
   'theme.dark': { en: 'Switch to night ink', zh: '切换到夜间（墨色）' },
   'theme.light': { en: 'Switch to day ink', zh: '切换到日间（纸色）' },
   'nav.skip': { en: 'Skip to content', zh: '跳至正文' },

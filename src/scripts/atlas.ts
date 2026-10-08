@@ -19,6 +19,47 @@ export function loadMapLibre(): Promise<ML> {
   return lib;
 }
 
+// The atlas is stitched (a ring may run straight across the antimeridian, as on a
+// sphere). A flat map needs every ring cut at ±180° and a ring around a pole closed
+// through the pole along the seam.
+type Pt = [number, number];
+function cutRing(r: Pt[]): Pt[][] {
+  const jumps: number[] = [];
+  for (let i = 1; i < r.length; i++) if (Math.abs(r[i][0] - r[i - 1][0]) > 180) jumps.push(i);
+  if (!jumps.length) return [r];
+  if (jumps.length % 2 === 1) {
+    const i = jumps[0], a = r[i - 1], b = r[i];
+    const side = a[0] > 0 ? 180 : -180;
+    const pole = r.reduce((s, p) => s + p[1], 0) / r.length < 0 ? -89.99 : 89.99;
+    const path: Pt[] = [[side, a[1]], [side, pole], [-side, pole], [-side, b[1]]];
+    return [[...r.slice(0, i), ...path, ...r.slice(i)]];
+  }
+  const shifted: Pt[] = r.map(([x, y]) => [x < 0 ? x + 360 : x, y]);
+  const clip = (west: boolean): Pt[] => {
+    const out: Pt[] = [];
+    for (let i = 0; i < shifted.length - 1; i++) {
+      const cur = shifted[i], nxt = shifted[i + 1];
+      const cin = west ? cur[0] <= 180 : cur[0] >= 180, nin = west ? nxt[0] <= 180 : nxt[0] >= 180;
+      if (cin) out.push(cur);
+      if (cin !== nin && nxt[0] !== cur[0]) { const t = (180 - cur[0]) / (nxt[0] - cur[0]); out.push([180, cur[1] + t * (nxt[1] - cur[1])]); }
+    }
+    if (out.length) out.push(out[0]);
+    return out;
+  };
+  const east = clip(true);
+  const west: Pt[] = clip(false).map(([x, y]) => [x > 180 ? x - 360 : -180, y]);
+  return [east, west].filter((p) => p.length >= 4);
+}
+function cutLine(a: Pt[]): Pt[][] {
+  const parts: Pt[][] = [];
+  let cur: Pt[] = [a[0]];
+  for (let i = 1; i < a.length; i++) {
+    if (Math.abs(a[i][0] - a[i - 1][0]) > 180) { parts.push(cur); cur = [a[i]]; } else cur.push(a[i]);
+  }
+  parts.push(cur);
+  return parts.filter((p) => p.length >= 2);
+}
+
 // ---- TopoJSON → GeoJSON, just the parts the atlas needs ----
 function decodeTopology(topo: Topology): World {
   const [sx, sy] = topo.transform.scale, [tx, ty] = topo.transform.translate;
@@ -37,13 +78,22 @@ function decodeTopology(topo: Topology): World {
   for (const g of topo.objects.countries.geometries) {
     const polys: number[][][] = g.type === 'Polygon' ? [g.arcs] : g.type === 'MultiPolygon' ? g.arcs : [];
     for (const poly of polys) for (const r of poly) for (const id of r) use[id < 0 ? ~id : id] = Math.min(2, use[id < 0 ? ~id : id] + 1);
-    // Simplification can leave slivers: drop rings that no longer enclose anything.
-    const coords = polys.map((poly) => poly.map(ring).filter((r) => r.length >= 4)).filter((poly) => poly.length && poly[0].length >= 4);
+    // Simplification can leave slivers (drop rings that no longer enclose anything); the
+    // outer ring may need cutting at the seam, in which case its holes follow their side.
+    const coords: Pt[][][] = [];
+    for (const poly of polys) {
+      const rings = poly.map(ring).filter((r) => r.length >= 4);
+      if (!rings.length) continue;
+      const outers = cutRing(rings[0]);
+      const holes = rings.slice(1).flatMap(cutRing);
+      if (outers.length === 1) coords.push([outers[0], ...holes]);
+      else outers.forEach((o) => { const eastSide = o.some((p) => p[0] > 0); coords.push([o, ...holes.filter((h) => (h[0][0] > 0) === eastSide)]); });
+    }
     if (!coords.length) continue;
-    features.push({ type: 'Feature', id: g.id, properties: { name: g.properties?.name ?? '' }, geometry: g.type === 'Polygon' ? { type: 'Polygon', coordinates: coords[0] } : { type: 'MultiPolygon', coordinates: coords } });
+    features.push({ type: 'Feature', id: g.id, properties: { name: g.properties?.name ?? '' }, geometry: coords.length === 1 ? { type: 'Polygon', coordinates: coords[0] } : { type: 'MultiPolygon', coordinates: coords } });
   }
-  const coast: [number, number][][] = [], borders: [number, number][][] = [];
-  arcs.forEach((a, i) => { if (use[i] === 1) coast.push(a); else if (use[i] >= 2) borders.push(a); });
+  const coast: Pt[][] = [], borders: Pt[][] = [];
+  arcs.forEach((a, i) => { if (use[i] === 1) coast.push(...cutLine(a)); else if (use[i] >= 2) borders.push(...cutLine(a)); });
   const lines: GeoJSON.Feature[] = [];
   for (let lon = -180; lon <= 180; lon += 10) { const c: [number, number][] = []; for (let lat = -85; lat <= 85; lat += 5) c.push([lon, lat]); lines.push({ type: 'Feature', properties: { major: lon % 30 === 0 }, geometry: { type: 'LineString', coordinates: c } }); }
   for (let lat = -80; lat <= 80; lat += 10) { const c: [number, number][] = []; for (let lon = -180; lon <= 180; lon += 5) c.push([lon, lat]); lines.push({ type: 'Feature', properties: { major: lat % 30 === 0 }, geometry: { type: 'LineString', coordinates: c } }); }
@@ -134,11 +184,14 @@ export async function createAtlas(container: HTMLElement, opts: AtlasOptions): P
     attributionControl: { compact: true }, renderWorldCopies: true
   });
   if (!opts.rotate) map.touchZoomRotate.disableRotation();
+  // Beyond the edge of the world (visible when the table is tilted) the sea continues.
+  container.style.background = ink.sea;
   if (opts.controls !== false) map.addControl(new maplibregl.NavigationControl({ showCompass: !!opts.rotate, visualizePitch: !!opts.rotate }), opts.controls ?? 'top-right');
 
   const listeners: ((ink: AtlasInk) => void)[] = [];
   function repaint() {
     ink = atlasInk();
+    container.style.background = ink.sea;
     if (!map.isStyleLoaded()) return;
     map.setPaintProperty('sea', 'background-color', ink.sea);
     map.setPaintProperty('land', 'fill-color', ink.land);
