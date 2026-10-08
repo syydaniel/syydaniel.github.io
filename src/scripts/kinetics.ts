@@ -187,6 +187,13 @@ document.querySelectorAll<HTMLElement>('.section-eyebrow[data-chapter]').forEach
   slip.append(numeral, rule, label);
   section.dataset.hasMark = '';
   section.prepend(slip);
+  // The same numeral, written large and faint behind the chapter head (水印): a
+  // bearing you read without looking at it. It drifts slower than the page.
+  const mark = document.createElement('span');
+  mark.className = 'chapter-watermark';
+  mark.setAttribute('aria-hidden', 'true');
+  mark.textContent = numeral.textContent;
+  section.prepend(mark);
   slipped = true;
 });
 if (slipped && lang() !== 'en') (window as any).__applyI18n?.();

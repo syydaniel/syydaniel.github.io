@@ -66,7 +66,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
         </a>
         <a
           href="mailto:syydaniel@gmail.com"
-          class="btn btn-primary !py-2 !px-4 text-sm whitespace-nowrap max-xl:!hidden"
+          class="btn btn-primary nav-cta !py-2 !px-4 text-sm whitespace-nowrap max-xl:!hidden"
           data-i18n="nav.cta"
         >
           Let's talk
@@ -179,8 +179,24 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
     { rootMargin: '-40% 0px -50% 0px' }
   );
   sections.forEach((s) => activeObserver.observe(s));
+
+  // When the reader reaches Contact, the button they were going to need anyway
+  // breathes once: a prompt at the moment of intent, not before.
+  const contact = document.getElementById('contact');
+  const cta = document.querySelector<HTMLElement>('.nav-cta');
+  if (contact && cta) {
+    const invite = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      invite.disconnect();
+      cta.classList.add('is-invited');
+    }, { rootMargin: '-30% 0px -30% 0px' });
+    invite.observe(contact);
+  }
 </script>
 
 <style>
   #mobile-menu { max-height: calc(100svh - 110px); overflow-y: auto; }
+  .nav-cta.is-invited { animation: cta-invite 1100ms cubic-bezier(.16, 1, .3, 1) 2; }
+  @keyframes cta-invite { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--zhusha) 55%, transparent); } 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--zhusha) 0%, transparent); } }
+  @media (prefers-reduced-motion: reduce) { .nav-cta.is-invited { animation: none; } }
 </style>

@@ -155,6 +155,17 @@ html[data-lang="zh"] .ink-stroke { bottom: -0.34em; }
 .hero-title:not([data-kinetic]) ~ .hero-tagline .ink-stroke path { stroke-dashoffset: 0; }
 @keyframes ink-draw { to { stroke-dashoffset: 0; } }
 
+/* ---------- Chapter watermark (水印): the numeral, large and faint, behind the head ---------- */
+.chapter[data-has-mark] { isolation: isolate; }
+.chapter-watermark { position: absolute; z-index: -1; right: clamp(0.5rem, 7vw, 7rem); top: clamp(1rem, 4vh, 2.5rem); font-family: var(--font-cjk); font-weight: 200; font-size: clamp(9rem, 22vw, 20rem); line-height: 1; letter-spacing: -0.04em; color: color-mix(in srgb, var(--ink) 4.5%, transparent); pointer-events: none; user-select: none; }
+[data-theme="dark"] .chapter-watermark { color: color-mix(in srgb, var(--ink) 5.5%, transparent); }
+@supports (animation-timeline: view()) {
+  .chapter-watermark { animation: watermark-drift linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
+  @keyframes watermark-drift { from { transform: translateY(9vh); } to { transform: translateY(-14vh); } }
+}
+@media (max-width: 767px) { .chapter-watermark { font-size: clamp(7rem, 34vw, 10rem); right: 3%; top: 2.25rem; } }
+@media (prefers-reduced-motion: reduce) { .chapter-watermark { animation: none; } }
+
 /* ---------- Navigation: a seal-red point under the chapter in view ---------- */
 .nav-link::after { content: ''; position: absolute; left: 50%; bottom: 3px; width: 3px; height: 3px; border-radius: 50%; background: var(--zhusha); transform: translateX(-50%) scale(0); transition: transform 450ms var(--ease-out-back); }
 .nav-link[aria-current]::after { transform: translateX(-50%) scale(1); }
