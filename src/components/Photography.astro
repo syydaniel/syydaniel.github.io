@@ -404,6 +404,18 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
     previewTimer = window.setTimeout(() => preview.classList.remove('is-on'), 80);
   }
 
+  // Places asks for a country: fly there once the map exists.
+  let pendingCountry: string | null = null;
+  function flyToCountry(country: string) {
+    const pts = allPhotos.filter((p) => p.location.country === country);
+    if (!pts.length) return;
+    if (!map || !maplibregl) { pendingCountry = country; initMap(); return; }
+    const bounds = new maplibregl.LngLatBounds();
+    pts.forEach((p) => bounds.extend(p.location.coords));
+    map.fitBounds(bounds, { padding: 110, maxZoom: 6, duration: 1600 });
+  }
+  document.querySelectorAll<HTMLAnchorElement>('[data-photo-country]').forEach((a) => a.addEventListener('click', () => { setTimeout(() => flyToCountry(a.dataset.photoCountry || ''), 350); }));
+
   let mapStarted = false;
   async function initMap() {
     if (mapStarted || !mapEl) return;
@@ -412,6 +424,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
     map = atlas.map;
     maplibregl = atlas.maplibregl;
     renderMarkers();
+    if (pendingCountry) { const c = pendingCountry; pendingCountry = null; flyToCountry(c); return; }
     const pts = visiblePhotos();
     if (pts.length) {
       const bounds = new maplibregl.LngLatBounds();

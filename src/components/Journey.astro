@@ -194,22 +194,29 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
       const { map, maplibregl } = await createAtlas(el, { center: [20, 40], zoom: 0.9, maxZoom: 6, detail: false, controls: false });
       {
         const cards = document.querySelectorAll<HTMLElement>('[data-coords]');
+        const pins = new Map<string, HTMLElement>();
         cards.forEach((card) => {
           try {
             const coords = JSON.parse(card.dataset.coords || '[]');
             if (!Array.isArray(coords) || coords.length !== 2) return;
+            const key = coords.join(',');
+            if (pins.has(key)) return;
             const pin = document.createElement('div');
             pin.className = 'research-pin';
             new maplibregl.Marker({ element: pin }).setLngLat(coords as [number, number]).addTo(map);
+            pins.set(key, pin);
           } catch {}
         });
         cards.forEach((card) => {
           card.addEventListener('mouseenter', () => {
             try {
               const coords = JSON.parse(card.dataset.coords || '[]');
-              if (Array.isArray(coords) && coords.length === 2) map.flyTo({ center: coords as [number, number], zoom: 3.6, speed: 1.2, curve: 1.3 });
+              if (!Array.isArray(coords) || coords.length !== 2) return;
+              pins.forEach((pin, key) => pin.classList.toggle('is-active', key === coords.join(',')));
+              map.flyTo({ center: coords as [number, number], zoom: 3.6, speed: 1.2, curve: 1.3 });
             } catch {}
           });
+          card.addEventListener('mouseleave', () => pins.forEach((pin) => pin.classList.remove('is-active')));
         });
       }
     };

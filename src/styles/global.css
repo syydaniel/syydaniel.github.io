@@ -403,7 +403,9 @@ main { overflow-x: clip; }
   box-shadow: 0 0 0 2px var(--paper-hi), 0 0 0 3px var(--line-strong), 0 0 0 3px color-mix(in srgb, var(--seal) 50%, transparent);
   animation: pulse-dot 2.6s ease-out infinite;
   cursor: pointer;
+  transition: transform 400ms var(--ease-film);
 }
+.research-pin.is-active { transform: scale(1.5); animation-duration: 1.3s; }
 
 @keyframes pulse-dot {
   0% { box-shadow: 0 0 0 2px var(--paper-hi), 0 0 0 3px var(--line-strong), 0 0 0 3px color-mix(in srgb, var(--seal) 50%, transparent); }

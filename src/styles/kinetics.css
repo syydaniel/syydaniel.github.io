@@ -381,6 +381,7 @@ html[data-lang='zh'] .footer-kuan-name, html[data-lang='zh'] .signature-name { f
   .hero-copy, .hero-art, .hero-signature { translate: 0 0 !important; rotate: none !important; }
   [data-magnetic] { translate: 0 0 !important; }
   .ink-stroke path { stroke-dashoffset: 0; animation: none; }
+  .scroll-line i, .status-dot { animation: none; }
   .intro-seal, .intro-ch, .intro-cn, .intro-meta, .intro-now { animation: none; opacity: 1; transform: none; }
 }
 
