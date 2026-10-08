@@ -3,24 +3,30 @@ import { profile } from '../data/profile';
 import { films } from '../data/films';
 import ParticleScene from './ParticleScene.astro';
 import Globe from './Globe.astro';
+import Seal from './Seal.astro';
 const latest = films.find(film => film.featured);
 const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.photos'];
 ---
 
 <section id="hero" class="hero-section">
   <div class="hero-topography" aria-hidden="true"></div>
+  <p class="hero-side" aria-hidden="true"><span>Wageningen</span><i>·</i><span>51.97° N</span><i>·</i><span>5.66° E</span><i>·</i><span>MMXXVI</span></p>
   <div class="hero-shell">
     <div class="hero-grid">
       <div class="hero-copy">
         <div class="hero-eyebrow">
           <span class="status-dot" aria-hidden="true"></span>
-          <span data-i18n="hero.eyebrow">MSc, Wageningen · Open to PhD positions · Photographer</span>
+          <span data-i18n="hero.eyebrow">{profile.title}</span>
         </div>
         <h1 class="hero-title">
-          <span>Yiyang</span>
-          <span class="hero-surname">Shen<span class="hero-alias">沈亦旸 <i aria-hidden="true">/</i> Daniel</span></span>
+          <span><span class="hero-word">Yiyang</span></span>
+          <span class="hero-surname"><span class="hero-word">Shen</span><span class="hero-alias">沈亦旸 <i aria-hidden="true">/</i> Daniel</span><Seal size={40} class="hero-seal" /></span>
         </h1>
-        <p class="hero-tagline" data-i18n="hero.tagline">{profile.tagline}</p>
+        <p class="hero-tagline">
+          <span data-i18n="hero.tagline.a">Modelling what rivers keep and soils give back. Photographing the</span>
+          <span class="ink"><em data-i18n="hero.tagline.b">quiet light</em><svg class="ink-stroke" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 40 2, 80 11, 120 6 S 175 3, 198 8" pathLength="100" /></svg></span>
+          <span data-i18n="hero.tagline.c">that falls on both.</span>
+        </p>
         <p class="hero-description" data-i18n="hero.subtitle">{profile.subtitle}</p>
         <div class="hero-actions">
           <a href="#journey" class="btn btn-primary">
@@ -79,25 +85,28 @@ const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.
   .hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 56px; }
   .hero-copy { min-width: 0; animation: hero-arrive 900ms cubic-bezier(.22,1,.36,1) both; }
   @keyframes hero-arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-  .hero-eyebrow { display: flex; align-items: center; gap: .75rem; color: #a8c5b5; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; line-height: 1.8; }
+  .hero-eyebrow { display: flex; align-items: center; gap: .75rem; color: #a8c5b5; font-size: 10px; letter-spacing: .2em; font-family: 'JetBrains Mono', ui-monospace, monospace; text-transform: uppercase; line-height: 1.8; }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #b7dab6; box-shadow: 0 0 0 4px #b7dab60d; flex-shrink: 0; }
-  .hero-title { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-size: clamp(5rem, 8.7vw, 8rem); line-height: .95; letter-spacing: -.065em; color: #f0f3e9; margin-top: 30px; }
+  .hero-title { font-family: 'Fraunces', Georgia, serif; font-weight: 300; font-optical-sizing: auto; font-variation-settings: 'opsz' 144, 'SOFT' 40, 'WONK' 1; font-size: clamp(5rem, 9.2vw, 8.6rem); line-height: .92; letter-spacing: -.06em; color: #f0f3e9; margin-top: 30px; }
   .hero-title > span { display: block; }
-  .hero-surname { font-style: italic; color: #c3dbc7; }
-  .hero-alias { display: inline-block; font-family: 'Inter', sans-serif; font-size: 11px; font-style: normal; letter-spacing: .12em; color: #9caf9f; margin-left: 24px; vertical-align: middle; white-space: nowrap; }
+  .hero-surname { font-style: italic; color: #c3dbc7; font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
+  .hero-alias { display: inline-block; font-size: 13px; font-style: normal; letter-spacing: .22em; color: #9caf9f; margin-left: 24px; vertical-align: middle; white-space: nowrap; }
   .hero-alias i { padding: 0 .45rem; color: #5a7266; font-style: normal; }
-  .hero-tagline { font-family: 'Fraunces', Georgia, serif; margin-top: 32px; font-size: 21px; line-height: 1.5; color: #d4dfd6; max-width: 465px; font-weight: 300; }
-  .hero-description { margin-top: 16px; max-width: 460px; font-size: 12px; line-height: 1.9; color: #a2b1aa; }
+  .hero-seal { display: inline-block; vertical-align: middle; margin-left: 18px; }
+  .hero-tagline { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 32, 'SOFT' 60; margin-top: 32px; font-size: 22px; line-height: 1.45; color: #d4dfd6; max-width: 480px; font-weight: 300; text-wrap: balance; }
+  .hero-description { margin-top: 16px; max-width: 470px; font-size: 14px; line-height: 1.8; color: #a2b1aa; }
   .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-  .hero-actions .btn { font-size: 12px; padding: 14px 22px; gap: 1rem; }
-  .hero-gallery-link { display: inline-flex; align-items: center; gap: 16px; margin-top: 18px; color: #bed8ca; font-size: 10px; }
+  .hero-actions .btn { font-size: 13px; padding: 14px 24px; gap: 1rem; }
+  .hero-gallery-link { display: inline-flex; align-items: center; gap: 14px; margin-top: 20px; color: #bed8ca; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .hero-gallery-link > :last-child { transition: transform .5s var(--ease-film); }
+  .hero-gallery-link:hover > :last-child { transform: translate(3px, -3px); }
   .hero-gallery-link:hover { color: #edf6ed; }
   .hero-documents { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px; max-width: 510px; }
   .hero-document { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 16px; color: #b6cbbb; }
   .hero-document > svg { flex-shrink: 0; }
   .hero-document > span { min-width: 0; }
-  .hero-document strong { display: block; font-size: 10px; font-weight: 500; color: #d8e5da; }
-  .hero-document small { display: block; margin-top: 5px; font-size: 8px; line-height: 1.6; color: #9cab9f; }
+  .hero-document strong { display: block; font-size: 12px; font-weight: 500; color: #d8e5da; }
+  .hero-document small { display: block; margin-top: 4px; font-size: 10px; line-height: 1.6; color: #9cab9f; font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .06em; }
   .hero-document .document-arrow { margin-left: auto; color: #9ab9a7; font-size: 15px; flex-shrink: 0; }
   .hero-art { position: relative; min-width: 0; padding-top: 20px; }
   .hero-orbit { position: relative; padding: 28px 0 110px; }
@@ -107,14 +116,14 @@ const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.
   .hero-film-frame img { width: 100%; height: 100%; object-fit: cover; }
   .hero-film-play { position: absolute; inset: 0; display: grid; place-items: center; color: white; background: #00000026; font-size: 10px; }
   .hero-film-copy { flex: 1; min-width: 0; }
-  .hero-film-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: .16em; text-transform: uppercase; color: #a7bcad; }
+  .hero-film-label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: #a7bcad; }
   .hero-film-title { display: block; font-family: 'Fraunces', Georgia, serif; font-size: 14px; color: #dce5d9; line-height: 1.3; margin-top: 5px; }
   .hero-film > svg { color: #aecab6; flex-shrink: 0; }
   .hero-footer { margin-top: 44px; padding-top: 24px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #d9e8d412; }
   .hero-stats { display: flex; gap: 40px; }
   .hero-stat { display: flex; align-items: center; gap: 12px; }
-  .hero-stat > span { font-family: 'Fraunces', Georgia, serif; font-size: 28px; font-weight: 300; color: #d6e5d3; }
-  .hero-stat small { max-width: 90px; font-size: 8px; color: #94a59b; line-height: 1.7; letter-spacing: .1em; text-transform: uppercase; }
+  .hero-stat > span { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 144, 'SOFT' 50; font-size: 34px; font-weight: 300; color: #d6e5d3; }
+  .hero-stat small { max-width: 96px; font-size: 9px; color: #94a59b; line-height: 1.6; letter-spacing: .14em; text-transform: uppercase; }
   .hero-scroll { display: flex; align-items: center; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .13em; text-transform: uppercase; color: #a1b1a5; }
   .scroll-line { width: 55px; height: 1px; background: #99b6a538; }
   @media (min-width: 1600px) { .hero-shell { padding-top: max(160px, calc((100svh - 650px) / 2)); } }
@@ -124,9 +133,9 @@ const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.
     .hero-grid { grid-template-columns: 1fr; gap: 50px; }
     .hero-title { font-size: clamp(85px, 18vw, 120px); }
     .hero-alias { display: inline-block; margin: 0 0 0 20px; font-size: 10px; }
-    .hero-eyebrow { font-size: 8px; letter-spacing: .09em; }
+    .hero-eyebrow { font-size: 9px; letter-spacing: .12em; }
     .hero-tagline { font-size: 21px; margin-top: 26px; }
-    .hero-description { font-size: 12px; }
+    .hero-description { font-size: 13px; }
     .hero-actions .btn { font-size: 11px; padding: 13px 16px; gap: 12px; }
     .hero-art { max-width: 510px; width: 100%; margin: 0 auto; padding-top: 0; }
     .hero-orbit { position: relative; padding: 28px 0 110px; }
@@ -136,7 +145,7 @@ const statKeys = ['stat.countries', 'stat.universities', 'stat.projects', 'stat.
     .hero-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 35px; }
     .hero-scroll { gap: 10px; } .scroll-line { display: none; }
     .hero-document { padding: 13px 10px; gap: 8px; }
-    .hero-document strong { font-size: 9px; } .hero-document small { font-size: 8px; }
+    .hero-document strong { font-size: 11px; } .hero-document small { font-size: 9px; }
   }
   @media (max-width: 359px) { .hero-title { font-size: 80px; } .hero-alias { margin-left: 14px; font-size: 8px; } .hero-documents { grid-template-columns: 1fr; } }
 </style>

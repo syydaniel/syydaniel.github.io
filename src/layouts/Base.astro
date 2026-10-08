@@ -1,6 +1,9 @@
 ---
 import '../styles/global.css';
 import '../styles/liquid-glass.css';
+import '../styles/kinetics.css';
+import Atmosphere from '../components/Atmosphere.astro';
+import Intro from '../components/Intro.astro';
 import GlassEffects from '../components/GlassEffects.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -98,16 +101,34 @@ const siteLd = {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <!-- Only the glyphs we set in display sizes (the name, the seal, chapter numerals): a few kilobytes of Noto Serif SC. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500&text=%E6%B2%88%E4%BA%A6%E6%97%B8%E5%8D%B0%E5%A3%B9%E8%B4%B0%E5%8F%81%E8%82%86%E4%BC%8D%E9%99%86%E6%9F%92%E6%8D%8C%E7%8E%96&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Decide before first paint whether the cinematic intro plays (once per session). -->
+    <script is:inline>
+      (function () {
+        var seen = false;
+        try { seen = !!sessionStorage.getItem('intro-seen'); } catch (e) {}
+        var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.documentElement.dataset.intro = seen || still ? 'done' : 'pending';
+      })();
+    </script>
 
     <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
     <script type="application/ld+json" set:html={JSON.stringify(siteLd)} />
   </head>
   <body class="ambient-noise min-h-screen">
+    <Intro />
     <GlassEffects />
+    <Atmosphere />
     <div class="aurora" aria-hidden="true"></div>
+    <div id="spotlight" aria-hidden="true"></div>
+    <canvas id="ink-trail" aria-hidden="true"></canvas>
     <a href="#main-content" class="skip-link" data-i18n="nav.skip">Skip to content</a>
     <div id="reading-progress" aria-hidden="true"></div>
     <Nav />
@@ -123,6 +144,7 @@ const siteLd = {
 
       import '../scripts/site-interactions';
       import '../scripts/liquid-motion';
+      import '../scripts/kinetics';
     </script>
   </body>
 </html>

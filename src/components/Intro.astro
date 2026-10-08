@@ -1,0 +1,60 @@
+---
+// A short cinematic opening, once per browser session: the name rises letter by
+// letter while a thin line draws across, then the curtain lifts into the hero.
+// Base.astro decides before first paint (html[data-intro]) whether it plays;
+// reduced-motion users and returning visitors never see it. Click or any key skips.
+import Seal from './Seal.astro';
+const en = 'Yiyang Shen';
+---
+
+<div id="intro" class="intro" aria-hidden="true">
+  <div class="intro-stage">
+    <p class="intro-cn" aria-hidden="true">沈亦旸</p>
+    <p class="intro-en">
+      {en.split('').map((ch, i) => <span class="intro-ch" style={`--i:${i}`}>{ch === ' ' ? ' ' : ch}</span>)}
+    </p>
+    <p class="intro-meta"><span>Soil</span><i>·</i><span>Water</span><i>·</i><span>Light</span></p>
+    <Seal size={54} class="intro-seal" stamp={false} />
+    <span class="intro-line" aria-hidden="true"><i></i></span>
+  </div>
+  <span class="intro-counter" aria-hidden="true"><b>00</b><small>%</small></span>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const intro = document.getElementById('intro');
+  if (intro && root.dataset.intro === 'pending') {
+    root.dataset.intro = 'playing';
+    try { sessionStorage.setItem('intro-seen', '1'); } catch {}
+    const counter = intro.querySelector<HTMLElement>('.intro-counter b');
+    const began = performance.now();
+    const DURATION = 1500;
+    let done = false;
+    let tick = 0;
+
+    function finish() {
+      if (done) return;
+      done = true;
+      cancelAnimationFrame(tick);
+      if (counter) counter.textContent = '100';
+      intro.classList.add('intro-leave');
+      root.dataset.intro = 'done';
+      window.dispatchEvent(new CustomEvent('intro:done'));
+      setTimeout(() => intro.remove(), 1100);
+    }
+    function count(now: number) {
+      const t = Math.min(1, (now - began) / DURATION);
+      const eased = 1 - Math.pow(1 - t, 3);
+      if (counter) counter.textContent = String(Math.round(eased * 100)).padStart(2, '0');
+      if (t < 1) tick = requestAnimationFrame(count);
+      else setTimeout(finish, 260);
+    }
+    tick = requestAnimationFrame(count);
+    // Never hold the page hostage: fonts or not, the curtain lifts.
+    setTimeout(finish, 2600);
+    intro.addEventListener('click', finish);
+    addEventListener('keydown', finish, { once: true });
+  } else {
+    intro?.remove();
+  }
+</script>

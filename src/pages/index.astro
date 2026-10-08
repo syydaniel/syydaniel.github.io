@@ -11,18 +11,38 @@ import Filmstrip from '../components/Filmstrip.astro';
 import Notes from '../components/Notes.astro';
 import NyaLang from '../components/NyaLang.astro';
 import Contact from '../components/Contact.astro';
+import Marquee from '../components/Marquee.astro';
+import Statement from '../components/Statement.astro';
+
+const fieldWords = [
+  { key: 'marquee.soils', en: 'Soils' },
+  { key: 'marquee.water', en: 'Water' },
+  { key: 'marquee.climate', en: 'Climate' },
+  { key: 'marquee.light', en: 'Light' },
+  { key: 'marquee.fieldwork', en: 'Fieldwork' }
+];
+const talkWords = [
+  { key: 'marquee.talk', en: "Let's talk" },
+  { key: 'marquee.phd', en: 'PhD, 2026' },
+  { key: 'marquee.collab', en: 'Collaborate' },
+  { key: 'marquee.photography', en: 'Photography' },
+  { key: 'marquee.film', en: 'Film' }
+];
 ---
 
 <Base>
   <Hero />
   <About />
+  <Statement />
   <Filmstrip />
   <Journey />
+  <Marquee words={fieldWords} />
   <Places />
   <GalleryInvitation />
   <Photography />
   <Films />
   <Notes />
   <NyaLang />
+  <Marquee words={talkWords} direction="right" fill />
   <Contact />
 </Base>

@@ -20,8 +20,9 @@ html {
 body {
   background: #05060a;
   color: #d0d3e4;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  font-family: 'Instrument Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'kern', 'liga';
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
@@ -67,16 +68,18 @@ main { overflow-x: clip; }
 .font-display {
   font-family: 'Fraunces', Georgia, serif;
   font-optical-sizing: auto;
-  font-variation-settings: 'opsz' 72, 'SOFT' 50;
+  font-variation-settings: 'opsz' 144, 'SOFT' 40, 'WONK' 1;
   letter-spacing: -0.02em;
 }
+.font-display.italic, .font-display i, .font-display em { font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
 
 .text-gradient {
-  background: linear-gradient(120deg, #c7e5ce, #8dd2c5 55%, #dcd6b3);
-  background-size: 200% 200%;
+  background: linear-gradient(110deg, #e6f3e2 0%, #9fdccb 28%, #e9dcae 52%, #b6e3d0 76%, #f0f4e8 100%);
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: gradient-shift 14s ease-in-out infinite;
 }
 
 @keyframes gradient-shift {
@@ -175,11 +178,16 @@ main { overflow-x: clip; }
 /* ---------- Section plate ---------- */
 .section-title {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(2.2rem, 5vw, 3.6rem);
-  letter-spacing: -0.03em;
+  font-size: clamp(2.5rem, 5.6vw, 4.3rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
   color: #eef0fa;
-  font-weight: 400;
+  font-weight: 300;
+  font-optical-sizing: auto;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 1;
+  text-wrap: balance;
 }
+.section-title .italic, .section-title .text-gradient { font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
 
 .section-eyebrow {
   display: inline-flex;
@@ -483,7 +491,7 @@ html[data-lang='cat'] .section-title,
 html[data-lang='cat'] .font-mono,
 html[data-lang='cat'] .btn,
 html[data-lang='cat'] .meta-line {
-  font-family: 'NyaGlyph', 'Baloo 2', 'Inter', system-ui, sans-serif !important;
+  font-family: 'NyaGlyph', 'Baloo 2', 'Instrument Sans', system-ui, sans-serif !important;
   font-variation-settings: normal !important;
   letter-spacing: 0.08em;
 }

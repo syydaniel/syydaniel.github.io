@@ -1,0 +1,12 @@
+---
+// Full-viewport shader background. See scripts/atmosphere.ts.
+---
+<canvas id="atmosphere" aria-hidden="true"></canvas>
+
+<script>
+  import { initAtmosphere } from '../scripts/atmosphere';
+  const canvas = document.getElementById('atmosphere') as HTMLCanvasElement | null;
+  if (canvas) {
+    try { initAtmosphere(canvas); } catch { /* the CSS aurora remains */ }
+  }
+</script>

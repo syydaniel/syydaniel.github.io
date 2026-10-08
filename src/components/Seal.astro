@@ -1,0 +1,26 @@
+---
+// A carved name seal, 沈亦旸印, in the 白文 manner: the characters cut out of
+// vermilion ground, read top-right, bottom-right, top-left, bottom-left as a seal
+// is read. The roughened edge comes from #seal-rough in GlassEffects.astro.
+interface Props { size?: number; class?: string; stamp?: boolean }
+const { size = 44, class: className = '', stamp = true } = Astro.props;
+---
+
+<svg
+  class:list={['seal', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 100 100"
+  role="img"
+  aria-label="沈亦旸印 (name seal)"
+  data-seal={stamp ? '' : undefined}
+  tabindex={stamp ? 0 : undefined}
+>
+  <g filter="url(#seal-rough)">
+    <rect x="4" y="4" width="92" height="92" rx="7" fill="#b8321f" />
+    <rect x="10" y="10" width="80" height="80" rx="3" fill="none" stroke="#f4e7d3" stroke-width="2.2" opacity="0.55" />
+    <text font-family="'Noto Serif SC', 'Songti SC', 'SimSun', serif" font-weight="500" font-size="33" fill="#f7ecd9" text-anchor="middle">
+      <tspan x="71" y="47">沈</tspan><tspan x="29" y="47">旸</tspan><tspan x="71" y="85">亦</tspan><tspan x="29" y="85">印</tspan>
+    </text>
+  </g>
+</svg>

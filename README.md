@@ -10,6 +10,7 @@ Personal site of Yiyang Shen (Daniel, 沈亦旸): environmental researcher and p
 - [Tailwind CSS](https://tailwindcss.com)
 - [MapLibre GL JS](https://maplibre.org): interactive maps (no API key, lazy loaded)
 - [Three.js](https://threejs.org): interactive hero globe and a separate particle atmosphere
+- Raw WebGL shader for the full-page atmosphere (no library)
 - [exifr](https://github.com/MikeKovarik/exifr): EXIF extraction for photos
 - [sharp](https://sharp.pixelplumbing.com): builds the social share card
 
@@ -71,6 +72,35 @@ npm run og:image   # scripts/build-og-image.mjs
 ```
 
 Per-post previews use the post's `cover` automatically.
+
+## Visual layer (2026 redesign)
+
+Type: [Fraunces](https://fonts.google.com/specimen/Fraunces) with its full variable axes
+(`opsz`, `wght`, `SOFT`, `WONK`) for display, [Instrument Sans](https://fonts.google.com/specimen/Instrument+Sans)
+for text, JetBrains Mono for metadata, and a three-glyph subset of Noto Serif SC for 沈亦旸.
+
+- **Atmosphere** (`src/scripts/atmosphere.ts`, `Atmosphere.astro`): a raw WebGL fragment shader
+  of domain-warped noise, lit by the pointer, rendered at ≤640 px wide and 30 fps. It stops in hidden
+  tabs, draws one still frame for reduced motion, and leaves the CSS aurora in place where WebGL fails.
+- **Opening** (`Intro.astro`): plays once per session (`sessionStorage`), decided before first paint
+  by an inline script in `Base.astro`; click or any key skips it. Reduced motion never sees it.
+- **Kinetics** (`src/scripts/kinetics.ts`, `src/styles/kinetics.css`): the hero name is split into
+  letters that rise in sequence and respond to the pointer through the variable font's weight and
+  softness axes; section titles rise out of masks phrase by phrase; chapter numbers float behind
+  each section with a scroll-driven parallax (`animation-timeline: view()` where supported);
+  `Marquee.astro` ribbons drift and lean with scroll velocity; buttons are magnetic; the hero stats
+  count up; a cursor lamp follows the pointer; the navigation slips away while scrolling down and
+  returns on the way up; the footer carries the name at display size and a live Wageningen clock.
+  The hero tagline's accent carries a hand-drawn ink underline that draws itself, and
+  `Statement.astro` sets a three-line typographic statement in alternating upright, italic and
+  outlined Fraunces. Everything is skipped or static under `prefers-reduced-motion`, and the text
+  is simply visible without JavaScript.
+- **Chinese elements, kept quiet**: `Seal.astro` is a carved name seal, 沈亦旸印, that stamps in
+  at the end of the opening, sits beside the alias in the hero and signs the footer (press it and
+  it stamps again); the footer clock also names the current solar term, 节气, computed from the
+  Sun's ecliptic longitude; chapter watermarks use the financial numerals 壹 贰 叁; fast pointer
+  strokes leave an ink trail and buttons ripple with ink when pressed. The atmosphere warms at
+  dawn and dusk in Wageningen and cools at night.
 
 ## Visual interactions
 
@@ -136,7 +166,7 @@ src/
 ├── data/           # profile, journey, photos, films, travel, i18n
 ├── layouts/        # Base
 ├── pages/          # index.astro, nya-translator.astro, sitemap.xml.ts
-└── styles/         # global.css
+└── styles/         # global.css, liquid-glass.css, kinetics.css
 scripts/
 ├── build-photo-manifest.mjs   # EXIF -> photos.generated.json + copies to public/photos
 ├── build-og-image.mjs         # branded social share card

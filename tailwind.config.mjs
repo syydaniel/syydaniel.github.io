@@ -4,7 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Instrument Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        serif: ['"Fraunces"', '"Noto Serif SC"', 'Georgia', 'serif'],
         display: ['"Fraunces"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
       },

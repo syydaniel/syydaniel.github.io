@@ -50,17 +50,27 @@ export const dict: Record<string, Record<Lang, string>> = {
 
   // Hero
   'hero.eyebrow': {
-    en: 'MSc, Wageningen · Open to PhD positions · Photographer',
-    zh: '瓦大硕士 · 寻找博士机会 · 摄影师'
+    en: 'MSc Wageningen 2026 · Seeking a PhD in environmental modelling · Photographer & filmmaker',
+    zh: '瓦大硕士 2026 · 寻找环境建模方向的博士机会 · 摄影与影像'
   },
-  'hero.tagline': {
-    en: 'Soils, water, climate, and the quiet choreography of light on landscapes.',
-    zh: '研究土壤、水与气候，也在光影落于大地的那一刻按下快门。'
+  // The tagline is set in three parts so the middle one can carry the ink underline.
+  'hero.tagline.a': {
+    en: 'Modelling what rivers keep and soils give back. Photographing the',
+    zh: '计量河流所留、土壤所还；再用镜头留住'
   },
+  'hero.tagline.b': { en: 'quiet light', zh: '安静的光' },
+  'hero.tagline.c': { en: 'that falls on both.', zh: '。' },
   'hero.subtitle': {
-    en: 'MSc in Urban Environmental Management from Wageningen University & Research. I model how human activity shapes water and soils, and I photograph the places I study.',
-    zh: '瓦赫宁根大学城市环境管理硕士。我用模型研究人类活动如何改变水与土壤，也用镜头记录我研究过的土地。'
+    en: 'MSc in Urban Environmental Management, Wageningen University & Research. I build models of how human activity moves through water and soil, from microplastics in rivers to greenhouse gases from farmland, and I carry a camera to every landscape I study.',
+    zh: '瓦赫宁根大学城市环境管理硕士。我用模型追踪人类活动如何穿过水与土壤：从河流中的微塑料，到农田排放的温室气体。而每一片我研究的土地，我都带着相机走过。'
   },
+  // Typographic statement between About and the archive strip.
+  'statement.1': { en: 'Rivers keep', zh: '河流留下' },
+  'statement.2': { en: 'what we drop.', zh: '我们丢弃的；' },
+  'statement.3': { en: 'Soils breathe out', zh: '土壤呼出' },
+  'statement.4': { en: 'what we farm.', zh: '我们耕种的。' },
+  'statement.5': { en: 'I count both,', zh: '我计量这两者，' },
+  'statement.6': { en: 'and photograph the light left over.', zh: '也拍下剩下的光。' },
   'hero.cta.primary': { en: 'Explore journey', zh: '探索我的历程' },
   'hero.cta.secondary': { en: 'Photography map', zh: '摄影地图' },
   'hero.cta.cv': { en: 'Download CV (PDF)', zh: '下载简历 (PDF)' },
@@ -180,7 +190,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   // Films
   'films.eyebrow': { en: 'Films', zh: '影像' },
   'films.title.a': { en: 'The same places,', zh: '同样的地方，' },
-  'films.title.b': { en: 'in motion.', zh: '动起来。' },
+  'films.title.b': { en: 'with the wind', zh: '连风' },
+  'films.title.c': { en: 'left in.', zh: '也留在了画面里。' },
   'films.intro': {
     en: 'Short films I shoot, edit and grade myself, from the Arctic to the southern tip of Africa. They live on Bilibili; press play to watch them here.',
     zh: '从北极圈到非洲南端，由我自己拍摄、剪辑和调色的短片。视频放在哔哩哔哩，点击播放即可在这里观看。'
@@ -197,9 +208,9 @@ export const dict: Record<string, Record<Lang, string>> = {
   'films.on_bilibili': { en: 'Bilibili', zh: '哔哩哔哩' },
 
   'places.eyebrow': { en: 'Places', zh: '足迹' },
-  'places.title.a': { en: 'Everywhere my', zh: '我的' },
-  'places.title.b': { en: 'footsteps', zh: '脚步' },
-  'places.title.c': { en: 'have been.', zh: '到过的地方。' },
+  'places.title.a': { en: 'Ten-kilometre squares of', zh: '每一个亮起的方格，' },
+  'places.title.b': { en: 'everywhere', zh: '都是我走过的' },
+  'places.title.c': { en: "I've walked.", zh: '十公里。' },
   'places.intro': {
     en: "Drawn from years of GPS tracks I've recorded. Each glowing square is a roughly 10 km patch of the world I've passed through. Brighter means more time spent there.",
     zh: '由我多年记录的 GPS 轨迹绘制而成。每一个发光的小方块，代表我走过的一片约 10 公里见方的土地；越亮，说明在那里停留得越久。'
@@ -236,7 +247,22 @@ export const dict: Record<string, Record<Lang, string>> = {
     zh: '瓦赫宁根大学硕士 · 正在寻找博士机会'
   },
 
+  // Marquee ribbons between chapters
+  'marquee.soils': { en: 'Soils', zh: '土壤' },
+  'marquee.water': { en: 'Water', zh: '水' },
+  'marquee.climate': { en: 'Climate', zh: '气候' },
+  'marquee.light': { en: 'Light', zh: '光' },
+  'marquee.fieldwork': { en: 'Fieldwork', zh: '野外' },
+  'marquee.talk': { en: "Let's talk", zh: '聊聊' },
+  'marquee.phd': { en: 'PhD, 2026', zh: '2026 博士' },
+  'marquee.collab': { en: 'Collaborate', zh: '合作' },
+  'marquee.photography': { en: 'Photography', zh: '摄影' },
+  'marquee.film': { en: 'Film', zh: '影像' },
+
   // Footer
+  'footer.local_time': { en: 'Local time, Wageningen', zh: '瓦赫宁根当地时间' },
+  'footer.top': { en: 'Back to top', zh: '回到顶部' },
+  'footer.term': { en: 'Solar term', zh: '节气' },
   'footer.title.a': { en: "Let's collaborate on", zh: '让我们一起探索' },
   'footer.title.b': {
     en: 'soils, water, climate, and the world we photograph',

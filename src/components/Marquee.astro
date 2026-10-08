@@ -1,0 +1,22 @@
+---
+// A ribbon of outlined display type between chapters. It drifts on its own and
+// speeds up and leans with the scroll (scripts/kinetics.ts). Decorative: hidden
+// from assistive technology, and still with reduced motion.
+interface Props {
+  words: { key: string; en: string }[];
+  direction?: 'left' | 'right';
+  fill?: boolean;
+}
+const { words, direction = 'left', fill = false } = Astro.props;
+---
+
+<div class:list={['marquee', { 'marquee--fill': fill }]} aria-hidden="true" data-marquee data-direction={direction}>
+  <div class="marquee-track">
+    {[0, 1].map(() => words.map(w => (
+      <Fragment>
+        <span class="marquee-word" data-i18n={w.key}>{w.en}</span>
+        <span class="marquee-dot">✦</span>
+      </Fragment>
+    )))}
+  </div>
+</div>

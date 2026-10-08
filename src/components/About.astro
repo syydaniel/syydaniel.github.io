@@ -11,15 +11,26 @@ const frames = [...photos]
   .filter((p) => (places.has(p.location.country) ? false : (places.add(p.location.country), true)))
   .slice(0, 3);
 
+// Line icons drawn to one 24px grid, so the tiles read as a set.
+const ICON: Record<string, string> = {
+  water: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
+  microplastics: '<circle cx="7" cy="7" r="2.6"/><circle cx="17" cy="9" r="2.2"/><circle cx="10" cy="17" r="2.4"/><path d="M9.3 8.4l5.5 0.1M8.2 9.4l1.2 5.2M15.5 10.9l-3.6 4.4"/>',
+  scenario: '<path d="M3 19h18"/><path d="M4 15l4.5-5 3.5 3 4-6 4 4"/><circle cx="20" cy="11" r="1"/>',
+  climate: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  ml: '<rect x="6" y="6" width="12" height="12" rx="2.5"/><path d="M9 9h6v6H9zM12 2v4M12 18v4M2 12h4M18 12h4M5 5l2 2M17 17l2 2M19 5l-2 2M5 19l2-2"/>',
+  gis: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/><circle cx="12" cy="11" r="1.5"/>',
+  boreal: '<path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v4h-4"/><path d="M4 12a8 8 0 0 0 2.3 5.7"/><path d="M4 20v-4h4"/>',
+  urban: '<path d="M12 21V11"/><path d="M12 11c0-3 2.5-5 5-5-0 3-2.5 5-5 5zM12 15c0-3-2.5-5-5-5 0 3 2.5 5 5 5z"/><path d="M4 21h16"/>'
+};
 const skills = [
-  { label: 'Water Quality', icon: '💧', key: 'about.skill.water' },
-  { label: 'Microplastics', icon: '🧬', key: 'about.skill.microplastics' },
-  { label: 'Environmental Modelling', icon: '📈', key: 'about.skill.scenario' },
-  { label: 'Climate Change', icon: '🌍', key: 'about.skill.climate' },
-  { label: 'Machine Learning', icon: '🤖', key: 'about.skill.ml' },
-  { label: 'GIS Analysis', icon: '🗺️', key: 'about.skill.gis' },
-  { label: 'Carbon & Nutrient Cycles', icon: '🔄', key: 'about.skill.boreal' },
-  { label: 'Soils & Agriculture', icon: '🌾', key: 'about.skill.urban' }
+  { label: 'Water Quality', icon: 'water', key: 'about.skill.water' },
+  { label: 'Microplastics', icon: 'microplastics', key: 'about.skill.microplastics' },
+  { label: 'Environmental Modelling', icon: 'scenario', key: 'about.skill.scenario' },
+  { label: 'Climate Change', icon: 'climate', key: 'about.skill.climate' },
+  { label: 'Machine Learning', icon: 'ml', key: 'about.skill.ml' },
+  { label: 'GIS Analysis', icon: 'gis', key: 'about.skill.gis' },
+  { label: 'Carbon & Nutrient Cycles', icon: 'boreal', key: 'about.skill.boreal' },
+  { label: 'Soils & Agriculture', icon: 'urban', key: 'about.skill.urban' }
 ];
 ---
 
@@ -90,10 +101,11 @@ const skills = [
 
         <div class="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
           {
-            skills.map((s) => (
-              <div class="glass-soft rounded-xl p-3 text-center card-hover group">
-                <div class="text-2xl group-hover:scale-110 transition-transform">{s.icon}</div>
-                <div class="mt-1.5 text-[11px] uppercase tracking-[0.15em] text-ink-300" data-i18n={s.key}>{s.label}</div>
+            skills.map((s, i) => (
+              <div class="skill-tile glass-soft card-hover">
+                <span class="skill-index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={ICON[s.icon]} />
+                <span class="skill-label" data-i18n={s.key}>{s.label}</span>
               </div>
             ))
           }
