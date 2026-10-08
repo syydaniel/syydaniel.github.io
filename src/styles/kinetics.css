@@ -387,6 +387,8 @@ html[data-lang='zh'] .hero-film-title, html[data-lang='zh'] .invitation-copy h2,
   font-family: var(--font-cjk); font-weight: 300; font-variation-settings: normal; letter-spacing: 0.02em;
 }
 html[data-lang='zh'] .section-title { font-size: clamp(2.2rem, 4.8vw, 3.7rem); line-height: 1.22; letter-spacing: 0.01em; }
+/* Chinese display lines break only between phrases (after punctuation or a zero-width space set in the copy), never inside a word; anywhere is the last resort on a narrow screen. */
+html[data-lang='zh'] [data-i18n-flush] { word-break: keep-all; overflow-wrap: anywhere; }
 /* CJK punctuation: full-width marks hang at line ends and tuck in at line starts; Latin inside Chinese gets its thin space. */
 html[data-lang='zh'] .section-title, html[data-lang='zh'] .hero-tagline, html[data-lang='zh'] .statement-text, html[data-lang='zh'] p, html[data-lang='zh'] .poster-title, html[data-lang='zh'] .film-title { text-spacing-trim: trim-start; text-autospace: normal; hanging-punctuation: allow-end; }
 html[data-lang='zh'] .hero-tagline { font-size: 21px; line-height: 1.6; }

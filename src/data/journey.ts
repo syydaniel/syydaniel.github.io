@@ -32,7 +32,7 @@ export const journey: JourneyItem[] = [
     },
     org: {
       en: 'Looking for a position',
-      zh: '正在寻找机会'
+      zh: '在找机会'
     },
     location: {
       en: 'Europe',
@@ -43,10 +43,10 @@ export const journey: JourneyItem[] = [
     end: '2026-06',
     ongoing: false,
     summary: {
-      en: 'What I want to work on: how land use shapes the environment at large scale, what farming practices do to soil health and the services soils provide, and the nitrous oxide and methane that farming systems give off. It follows on from the catchment-scale water and microplastic modelling I did at Wageningen.',
-      zh: '想做的方向：土地利用在大尺度上怎样改变环境，耕作方式对土壤健康和土壤生态系统服务有什么影响，以及农业系统排出的氧化亚氮和甲烷。这接着我在瓦赫宁根做的流域尺度水与微塑料建模往下走。'
+      en: 'Large-scale modelling of agriculture, water and other environmental systems, following on from the catchment-scale water and microplastic modelling I did at Wageningen.',
+      zh: '农业、水和其他环境问题的大尺度建模，接着我在瓦赫宁根做的流域尺度水与微塑料建模往下走。'
     },
-    tags: ['Soil Ecosystem Services', 'Agricultural Practices', 'Non-CO₂ GHGs', 'Large-scale Modelling'],
+    tags: ['Agriculture', 'Water', 'Large-scale Modelling'],
     status: 'upcoming'
   },
   {
@@ -70,7 +70,7 @@ export const journey: JourneyItem[] = [
     ongoing: false,
     summary: {
       en: 'Specialization: Water Systems and Global Change. WIMEK Honours research programme 2025-2026. Focus on water quality, microplastic fate, and scenario analysis at catchment scale. Graduated end of May 2026.',
-      zh: '专业方向：水系统与全球变化。2025-2026 年 WIMEK 荣誉研究项目。聚焦水质、微塑料归趋以及流域尺度的情景分析。2026 年 5 月底毕业。'
+      zh: '方向是水系统与全球变化，2025–2026 年在 WIMEK 荣誉研究项目。主要做水质、微塑料去向和流域尺度的情景分析。2026 年 5 月底毕业。'
     },
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Water Systems', 'Global Change', 'Microplastics', 'WIMEK Honours'],
@@ -97,7 +97,7 @@ export const journey: JourneyItem[] = [
     ongoing: false,
     summary: {
       en: 'Developed a hybrid framework to estimate spatially explicit microplastic river retention at the sub-basin scale worldwide, combining large-language-model (LLM) data extraction with machine learning (LightGBM) and benchmarking against the MARINA-Multi model. Graded 9.0/10, in the Water Systems and Global Change Group.',
-      zh: '构建了一套混合框架，用于在全球次流域尺度上估算具有空间分辨率的河流微塑料截留，将大语言模型（LLM）数据抽取与机器学习（LightGBM）相结合，并以 MARINA-Multi 模型作为对照基准。成绩 9.0/10，于水系统与全球变化研究组完成。'
+      zh: '做了一套混合框架，估算全球每个次流域里河流截留多少微塑料：先用大语言模型从文献里抽数据，再用 LightGBM 建模，拿 MARINA-Multi 模型做对照。成绩 9.0/10，在水系统与全球变化组完成。'
     },
     supervisor: 'Dr. Maryna Strokal & Dr. Ilaria Micella',
     tags: ['Machine Learning', 'LLM', 'MARINA-Multi', 'Microplastics', 'River Retention'],
@@ -121,7 +121,7 @@ export const journey: JourneyItem[] = [
     end: '2025-08',
     summary: {
       en: 'Co-taught an AI4Science lecture and supported students through the international summer school programme.',
-      zh: '共同讲授 AI4Science 课程，并在国际暑期学校项目中为学生提供支持。'
+      zh: '和老师一起上了 AI4Science 的课，暑期学校期间带学生做练习。'
     },
     tags: ['Teaching', 'AI4Science', 'Summer School'],
     status: 'complete'
@@ -143,21 +143,17 @@ export const journey: JourneyItem[] = [
     end: '2025-09',
     summary: {
       en: 'Boreal-forest fieldwork in Lapland focused on dissolved organic carbon (DOC) in subarctic catchments, plus lab work and GIS watershed analysis.',
-      zh: '在拉普兰开展北方针叶林野外工作，聚焦亚北极流域中的溶解有机碳（DOC），并进行实验室分析与 GIS 流域分析。'
+      zh: '在拉普兰做北方针叶林的野外工作，看亚北极流域里的溶解有机碳（DOC）；也做实验室分析和 GIS 流域分析。'
     },
     supervisor: 'Prof. Frank Berninger',
     bullets: [
       {
         en: 'Field sampling in Lapland: water samples for DOC measurement',
-        zh: '在拉普兰进行野外采样：采集水样以测定 DOC'
+        zh: '在拉普兰采水样，测 DOC'
       },
       {
         en: 'Lab preparation and instrument work for DOC analysis',
-        zh: '为 DOC 分析进行实验室制备与仪器操作'
-      },
-      {
-        en: 'Manuscript in preparation: "Hydraulic Shunting and the Mobilization of Terrestrial Dissolved Organic Carbon in Subarctic Boreal Catchments"',
-        zh: '撰写中的论文：“Hydraulic Shunting and the Mobilization of Terrestrial Dissolved Organic Carbon in Subarctic Boreal Catchments”'
+        zh: 'DOC 分析的前处理和仪器操作'
       }
     ],
     tags: ['Field Research', 'Boreal Forest', 'DOC', 'GIS'],
@@ -180,7 +176,7 @@ export const journey: JourneyItem[] = [
     end: '2024-05',
     summary: {
       en: "GPA 83.7 / 100. Graduated with honors and named to the Dean's Honor List. Supervisor: Dr. Andrew Almas.",
-      zh: 'GPA 83.7 / 100。以荣誉毕业，并入选院长荣誉榜。导师：Dr. Andrew Almas。'
+      zh: 'GPA 83.7 / 100，荣誉毕业，上了院长荣誉榜。导师：Dr. Andrew Almas。'
     },
     tags: ['Urban Forestry', 'Green Space', 'GIS'],
     status: 'complete'
@@ -202,7 +198,7 @@ export const journey: JourneyItem[] = [
     end: '2024-04',
     summary: {
       en: '130,000+ tree inventory analysis for the City of Surrey: mortality, species, life-span patterns.',
-      zh: '为萨里市（City of Surrey）分析逾 13 万棵树木的清查数据：死亡率、树种与寿命格局。'
+      zh: '帮萨里市（City of Surrey）分析 13 万多棵树的清查数据：死亡率、树种、寿命规律。'
     },
     supervisor: 'Dr. Andrew Adams',
     tags: ['Tree Inventory', 'Data Analysis', 'GIS'],
@@ -225,7 +221,7 @@ export const journey: JourneyItem[] = [
     end: '2024-04',
     summary: {
       en: 'Mapped UBC campus urban structure at 30 m resolution and analyzed land-use change impact on surface temperature 2014-2022. Group project applied a random-forest model to predict future LST in Wesbrook Village.',
-      zh: '以 30 米分辨率绘制 UBC 校园的城市结构，分析 2014-2022 年土地利用变化对地表温度的影响。小组项目运用随机森林模型预测 Wesbrook Village 未来的地表温度（LST）。'
+      zh: '用 30 米分辨率画出 UBC 校园的城市结构，看 2014–2022 年土地利用变化对地表温度的影响。小组项目里用随机森林预测 Wesbrook Village 以后的地表温度。'
     },
     supervisor: 'Prof. Melissa McHale & Cody Bingham (MSc)',
     tags: ['Urban Forestry', 'Climate', 'Remote Sensing', 'Random Forest'],
@@ -248,7 +244,7 @@ export const journey: JourneyItem[] = [
     end: '2023-08',
     summary: {
       en: 'Field survey of insect and bumble-bee interactions with plants across 18 urban parks in Vancouver, with the Faculty of Land and Food Systems.',
-      zh: '在温哥华 18 个城市公园开展野外调查，研究昆虫与熊蜂同植物的相互作用，与土地与食品系统学院合作。'
+      zh: '在温哥华 18 个城市公园做野外调查，看昆虫和熊蜂怎么访花；和土地与食品系统学院合作。'
     },
     supervisor: 'Prof. Risa Sargant & Dr. Jens Ulrich',
     tags: ['Pollinators', 'Bumble Bees', 'Urban Ecology', 'Climate'],
@@ -271,7 +267,7 @@ export const journey: JourneyItem[] = [
     end: '2024-06',
     summary: {
       en: 'GPA 87.7 / 100. Multiple national, provincial and institutional scholarships and life-science competition awards. Supervisors: Prof. Yeqing Ying & Prof. Wenhui Shi.',
-      zh: 'GPA 87.7 / 100。获得多项国家级、省级与校级奖学金及生命科学竞赛奖项。导师：Prof. Yeqing Ying 与 Prof. Wenhui Shi。'
+      zh: 'GPA 87.7 / 100，拿过国家、省和学校的几项奖学金，还有生命科学竞赛的奖。导师：Prof. Yeqing Ying 和 Prof. Wenhui Shi。'
     },
     tags: ['Forestry', 'Biology', 'Scholarships'],
     status: 'complete'
@@ -293,17 +289,17 @@ export const journey: JourneyItem[] = [
     end: '2021-08',
     summary: {
       en: 'Two consecutive projects in the State Key Laboratory of Subtropical Silviculture, on phosphorus-solubilizing microorganism (PSM) ecology in moso bamboo (Phyllostachys edulis) systems.',
-      zh: '在亚热带森林培育国家重点实验室参与两个连续项目，研究毛竹（Phyllostachys edulis）系统中解磷微生物（PSM）的生态。'
+      zh: '在亚热带森林培育国家重点实验室先后做了两个项目，都是毛竹林里解磷微生物（PSM）的生态。'
     },
     supervisor: 'Prof. Yeqing Ying & Prof. Wenhui Shi',
     bullets: [
       {
         en: '2019-10 → 2020-11, PSM × Phyllostachys edulis: field work and data analysis',
-        zh: '2019-10 → 2020-11，PSM × Phyllostachys edulis：野外工作与数据分析'
+        zh: '2019-10 → 2020-11，PSM 与毛竹：野外工作和数据分析'
       },
       {
         en: '2020-10 → 2021-08, PSM strain interactions: team leader, proposal writing, leading the team to completion',
-        zh: '2020-10 → 2021-08，PSM 菌株相互作用：担任组长、撰写项目申请，带领团队完成项目'
+        zh: '2020-10 → 2021-08，PSM 菌株之间的相互作用：当组长，写申请书，带着组里把项目做完'
       }
     ],
     tags: ['Microbiology', 'Plant-Microbe', 'Forestry', 'Team Lead'],
@@ -344,9 +340,8 @@ export const tagT: Record<string, Loc> = {
   'Microbiology': { en: 'Microbiology', zh: '微生物学' },
   'Plant-Microbe': { en: 'Plant-Microbe', zh: '植物-微生物' },
   'Team Lead': { en: 'Team Lead', zh: '团队负责人' },
-  'Soil Ecosystem Services': { en: 'Soil Ecosystem Services', zh: '土壤生态系统服务' },
-  'Agricultural Practices': { en: 'Agricultural Practices', zh: '农业管理方式' },
-  'Non-CO₂ GHGs': { en: 'Non-CO₂ GHGs', zh: '非 CO₂ 温室气体' },
+  'Agriculture': { en: 'Agriculture', zh: '农业' },
+  'Water': { en: 'Water', zh: '水' },
   'Large-scale Modelling': { en: 'Large-scale Modelling', zh: '大尺度建模' }
 };
 
@@ -365,7 +360,7 @@ export const researchCities: ResearchCity[] = [
     country: { en: 'Netherlands', zh: '荷兰' },
     coords: [5.6645, 51.9692],
     role: {
-      en: 'MSc & thesis, graduated May 2026', zh: '硕士与论文，2026 年 5 月毕业'
+      en: 'MSc & thesis, graduated May 2026', zh: '硕士，2026 年 5 月毕业'
     }
   },
   {
@@ -383,7 +378,7 @@ export const researchCities: ResearchCity[] = [
     country: { en: 'Canada', zh: '加拿大' },
     coords: [-123.246, 49.2606],
     role: {
-      en: 'BSc, urban forestry research', zh: '学士，城市林业研究'
+      en: 'BSc, urban forestry research', zh: '本科，城市林业'
     }
   },
   {
@@ -392,7 +387,7 @@ export const researchCities: ResearchCity[] = [
     country: { en: 'China', zh: '中国' },
     coords: [119.7249, 30.2588],
     role: {
-      en: 'Forestry BSc & microbiology RA', zh: '林学学士与微生物学研究助理'
+      en: 'Forestry BSc & microbiology RA', zh: '林学本科，做过微生物研究助理'
     }
   }
 ];
