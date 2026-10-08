@@ -168,7 +168,8 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
 </section>
 
 <script>
-  // Filter chips
+  import { reflow } from '../scripts/reflow';
+  // Filter chips: the cards slide into their new places rather than jump.
   const filterBtns = document.querySelectorAll<HTMLButtonElement>('.journey-filter');
   const items = document.querySelectorAll<HTMLElement>('.journey-item');
   filterBtns.forEach((btn) => {
@@ -176,9 +177,11 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
       const f = btn.dataset.filter;
       filterBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-      items.forEach((i) => {
-        const match = f === 'all' || i.dataset.kind === f;
-        i.style.display = match ? '' : 'none';
+      reflow(items, () => {
+        items.forEach((i) => {
+          const match = f === 'all' || i.dataset.kind === f;
+          i.style.display = match ? '' : 'none';
+        });
       });
     });
   });
