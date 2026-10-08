@@ -12,7 +12,7 @@
 .gallery-ambient { position: absolute; inset: 15% -10% 0; background-position: center; background-size: cover; filter: blur(100px) saturate(.8); opacity: .15; pointer-events: none; transition: background-image .5s; z-index: -1; }
 #gallery-particles { display: none; }
 .spatial-gallery[data-enhanced] { height: max(760px, 100svh); padding: 134px 24px 24px; --frame-width: 580px; --frame-height: 387px; }
-.spatial-gallery[data-enhanced] .gallery-stage { position: absolute; top: 240px; bottom: 190px; left: 0; right: 0; perspective: 1600px; overflow: hidden; touch-action: pan-y; user-select: none; cursor: grab; }
+.spatial-gallery[data-enhanced] .gallery-stage { position: absolute; top: 264px; bottom: 172px; left: 0; right: 0; perspective: 1600px; overflow: hidden; touch-action: pan-y; user-select: none; cursor: grab; }
 .spatial-gallery[data-dragging] .gallery-stage { cursor: grabbing; }
 .spatial-gallery[data-enhanced] .gallery-wall { position: absolute; inset: 0; display: block; margin: 0; max-width: none; transform-style: preserve-3d; }
 .spatial-gallery[data-enhanced] .gallery-plane { position: absolute; left: 50%; top: 50%; width: var(--frame-width); height: var(--frame-height); transform-style: preserve-3d; border-radius: 5px; transition: transform 850ms var(--ease-liquid), opacity 600ms, filter 700ms; will-change: transform; }
@@ -62,7 +62,7 @@ html[data-lang="cat"] .gallery-intro h1 { overflow: hidden; max-height: 90px; }
   .spatial-gallery[data-enhanced] { height: max(670px, 100svh); padding-top: 125px; }
   .gallery-intro h1 { font-size: 48px; }
   .gallery-instructions { max-width: 270px; margin-inline: auto; font-size: 9px; }
-  .spatial-gallery[data-enhanced] .gallery-stage { top: 245px; bottom: 200px; perspective: 900px; }
+  .spatial-gallery[data-enhanced] .gallery-stage { top: 262px; bottom: 190px; perspective: 900px; }
   .gallery-caption { bottom: 143px; }
   #gallery-current-caption { font-size: 16px; }
   #gallery-current-place { font-size: 8px; }

@@ -8,9 +8,9 @@ const covers = [galleryPhotos[1], galleryPhotos[0], galleryPhotos[5]].filter(Boo
     <a href="/gallery/" class="gallery-invitation-link glass card-hover group mounted">
       <div class="invitation-copy">
         <span class="section-eyebrow" data-i18n="gallery.eyebrow">Selected photographs</span>
-        <h2 id="gallery-invitation-title" data-i18n="gallery.invitation">A room for light.</h2>
-        <p data-i18n="gallery.invitation.body">Step inside a spatial exhibition of landscapes, wildlife and fleeting light.</p>
-        <span class="invitation-cta"><span data-i18n="gallery.enter">Enter the gallery</span><span aria-hidden="true">↗</span></span>
+        <h2 id="gallery-invitation-title" data-i18n="gallery.invitation">The ones I would print.</h2>
+        <p data-i18n="gallery.invitation.body">A small 3D room with the photographs I like best. Drag to look around, click one to open it.</p>
+        <span class="invitation-cta"><span data-i18n="gallery.enter">Go in</span><span aria-hidden="true">↗</span></span>
       </div>
       <div class="invitation-frames" aria-hidden="true">
         {covers.map((p, i) => <img src={p.thumb} width="480" height="320" alt="" loading="lazy" decoding="async" style={`--frame:${i}`} />)}

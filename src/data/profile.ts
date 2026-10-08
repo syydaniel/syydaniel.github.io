@@ -5,9 +5,9 @@ export const profile = {
     nickname: 'Daniel'
   },
   title: 'MSc Wageningen 2026 · Environmental modelling · Open to PhD positions',
-  tagline: 'Environmental modelling, interested in soils, water and the climate of farmland. Photographing the quiet light that falls on all three.',
+  tagline: 'I model soil, water and the climate of farmland. Wherever that takes me, I bring a camera.',
   subtitle:
-    'MSc in Urban Environmental Management, Wageningen University & Research. My work is environmental modelling: how human activity moves through water and soil, from microplastics in rivers to greenhouse gases from farmland. I carry a camera to every landscape I study.',
+    'MSc in Urban Environmental Management, Wageningen University & Research. I do environmental modelling: what people do to water and soil, from microplastics in rivers to greenhouse gases from farmland. I take a camera to the places I study.',
   location: 'Wageningen, Netherlands',
   email: {
     personal: 'syydaniel@gmail.com'

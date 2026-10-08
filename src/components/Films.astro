@@ -28,10 +28,10 @@ const dot = (d: string) => d.replaceAll('-', '.');
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 reveal">
       <div>
         <span class="section-eyebrow" data-chapter="05" data-i18n="films.eyebrow">Films</span>
-        <h2 class="section-title mt-4 max-w-3xl">
+        <h2 class="section-title mt-4 max-w-3xl" data-i18n-flush>
           <span data-i18n="films.title.a">The same places,</span>
-          <span class="text-gradient italic font-display" data-i18n="films.title.b">with the wind</span>
-          <span data-i18n="films.title.c">left in.</span>
+          <span class="text-gradient italic font-display" data-i18n="films.title.b">moving,</span>
+          <span data-i18n="films.title.c">with sound.</span>
         </h2>
         <p class="mt-5 text-ink-300 max-w-2xl" data-i18n="films.intro">
           Short films I shoot, edit and grade myself, from the Arctic to the southern tip of Africa. They live on
@@ -69,7 +69,7 @@ const dot = (d: string) => d.replaceAll('-', '.');
                   loading="lazy"
                   decoding="async"
                   class="film-still absolute inset-0 w-full h-full object-cover"
-                  style={`object-position:${f.featured!.focus ?? '50% 50%'}`}
+                  style={`--focus-x:${(f.featured!.focus ?? '50% 50%').split(' ')[0]};--focus-y:${(f.featured!.focus ?? '50% 50%').split(' ')[1] ?? '50%'}`}
                 />
                 <span class="film-shade absolute inset-0" aria-hidden="true" />
                 <span class="grain" aria-hidden="true" />
@@ -127,7 +127,7 @@ const dot = (d: string) => d.replaceAll('-', '.');
       <ul id="film-grid" class="grid gap-x-5 gap-y-9 grid-cols-2 lg:grid-cols-4">
         {
           archive.map((f, i) => (
-            <li class="film-card" data-year={f.date.slice(0, 4)} data-rank={i} hidden={i >= ARCHIVE_PREVIEW}>
+            <li class="film-card" data-year={f.date.slice(0, 4)} data-rank={i} style={`--i:${i}`} hidden={i >= ARCHIVE_PREVIEW}>
               <FilmPoster bvid={f.bvid} caption />
             </li>
           ))
@@ -162,10 +162,23 @@ const dot = (d: string) => d.replaceAll('-', '.');
   .film-stage.is-playing { aspect-ratio: 16 / 9; }
 
   .film-still {
+    object-position: var(--focus-x, 50%) var(--focus-y, 50%);
     transform: scale(1.04);
     transition: transform 1.6s var(--ease-film), filter 0.8s ease;
     filter: saturate(1) contrast(1.05) brightness(1.04);
   }
+  /* The still slides a little inside its frame as the frame crosses the screen. */
+  .film-stage { view-timeline: --film-stage block; }
+  @supports (animation-timeline: view()) {
+    .film-still { animation: still-drift linear both; animation-timeline: --film-stage; animation-range: entry 0% exit 100%; }
+  }
+  @keyframes still-drift {
+    from { object-position: var(--focus-x, 50%) calc(var(--focus-y, 50%) - 9%); }
+    to { object-position: var(--focus-x, 50%) calc(var(--focus-y, 50%) + 9%); }
+  }
+  /* Archive posters arrive one after another. */
+  .film-card { transition: opacity 800ms var(--ease-liquid) calc(var(--i, 0) * 70ms), transform 900ms var(--ease-out-expo) calc(var(--i, 0) * 70ms); }
+  .reveal.will-reveal:not(.is-visible) .film-card { opacity: 0; transform: translateY(18px); }
   .film-stage:hover .film-still {
     transform: scale(1);
     filter: saturate(1.08) contrast(1.07) brightness(1.06);
@@ -209,7 +222,9 @@ const dot = (d: string) => d.replaceAll('-', '.');
   .film-year.active { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
 
   @media (prefers-reduced-motion: reduce) {
-    .film-stage, .film-still, .film-play, .film-play::after { transition: none; }
+    .film-stage, .film-still, .film-play, .film-play::after, .film-card { transition: none; }
+    .film-still { animation: none; }
+    .reveal.will-reveal:not(.is-visible) .film-card { opacity: 1; transform: none; }
   }
 </style>
 

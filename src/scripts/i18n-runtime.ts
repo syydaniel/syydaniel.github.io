@@ -104,6 +104,15 @@ function apply(lang: UILang) {
     el.textContent = value.replace(/\{year\}/g, YEAR);
   });
 
+  // Titles set in parts: the whitespace between the parts is a word space in
+  // English and nothing at all in Chinese, where a visible gap would split the
+  // sentence. (Punctuation always ends a part, so no line opens with one.)
+  document.querySelectorAll<HTMLElement>('[data-i18n-flush]').forEach((box) => {
+    box.childNodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE && !/\S/.test(node.textContent ?? '')) node.textContent = lang === 'zh' ? '' : ' ';
+    });
+  });
+
   // attribute translation (placeholders, aria-labels, etc.)
   document.querySelectorAll<HTMLElement>('[data-i18n-attr]').forEach((el) => {
     try {

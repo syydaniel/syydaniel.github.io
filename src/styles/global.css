@@ -189,6 +189,9 @@ main { overflow-x: clip; }
    the work. Body copy stays within a reading measure. */
 .chapter { padding-top: clamp(6rem, 13vh, 8rem); padding-bottom: clamp(4rem, 9vh, 6rem); scroll-margin-top: 0; }
 .chapter p { max-width: 64ch; }
+@media (max-width: 767px) {
+  .chapter { padding-top: clamp(4.5rem, 10vh, 6rem); padding-bottom: clamp(3rem, 7vh, 4.5rem); }
+}
 
 /* ---------- Section plate ---------- */
 .section-title {

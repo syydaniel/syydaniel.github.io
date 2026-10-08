@@ -25,24 +25,24 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.films': { en: 'Films', zh: '影像' },
 
   'gallery.eyebrow': { en: 'Selected photographs', zh: '摄影精选' },
-  'gallery.invitation': { en: 'A room for light.', zh: '一间，盛放光的展厅。' },
-  'gallery.invitation.body': { en: 'Step inside a spatial exhibition of landscapes, wildlife and fleeting light.', zh: '走进山海、野生动物与转瞬即逝的光，组成的空间摄影展。' },
-  'gallery.enter': { en: 'Enter the gallery', zh: '进入空间展厅' },
-  'gallery.title': { en: 'Field of light.', zh: '光的旷野。' },
+  'gallery.invitation': { en: 'The ones I would print.', zh: '想打印出来的那几张。' },
+  'gallery.invitation.body': { en: 'A small 3D room with the photographs I like best. Drag to look around, click one to open it.', zh: '最喜欢的几张照片，挂在一间 3D 小屋里。拖着看，点开放大。' },
+  'gallery.enter': { en: 'Go in', zh: '进去看看' },
+  'gallery.title': { en: 'The ones I would print.', zh: '想打印出来的那几张。' },
   'gallery.instructions': { en: 'Drag to explore · Scroll to change · Select a frame to open', zh: '拖动浏览 · 滚轮切换 · 点击照片展开' },
   'gallery.open': { en: 'View photograph', zh: '展开照片' },
   'gallery.previous': { en: 'Previous photograph', zh: '上一张照片' },
   'gallery.next': { en: 'Next photograph', zh: '下一张照片' },
-  'gallery.return': { en: 'Back to the photography map', zh: '返回摄影地图' },
-  'gallery.back': { en: 'Return to gallery', zh: '返回空间展厅' },
+  'gallery.return': { en: 'Back to the map', zh: '回到地图' },
+  'gallery.back': { en: 'Back to the room', zh: '回到展厅' },
   'gallery.photograph': { en: 'Photograph', zh: '摄影作品' },
   'nav.menu': { en: 'Navigation menu', zh: '导航菜单' },
-  'places.map_hint': { en: 'Drag to turn the table · Each column is time spent in a 10 km square', zh: '拖动旋转 · 每根柱子是在一个 10 公里方格里停留的时间' },
+  'places.map_hint': { en: 'Drag to turn it · The taller the column, the longer I stayed in that square', zh: '拖动旋转 · 柱子越高，在那个格子里待得越久' },
   'chapter.next': { en: 'Next', zh: '下一章' },
   'cursor.rain': { en: 'Rain', zh: '下雨' },
   'cursor.turn': { en: 'Turn', zh: '转动' },
-  'theme.dark': { en: 'Switch to night ink', zh: '切换到夜间（墨色）' },
-  'theme.light': { en: 'Switch to day ink', zh: '切换到日间（纸色）' },
+  'theme.dark': { en: 'Switch to dark', zh: '切换到深色' },
+  'theme.light': { en: 'Switch to light', zh: '切换到浅色' },
   'nav.skip': { en: 'Skip to content', zh: '跳至正文' },
 
   // Hero
@@ -52,29 +52,29 @@ export const dict: Record<string, Record<Lang, string>> = {
   },
   // The tagline is set in three parts so the middle one can carry the ink underline.
   'hero.tagline.a': {
-    en: 'Environmental modelling, interested in soils, water and the climate of farmland. Photographing the',
-    zh: '环境建模，关注土壤、水与农田气候；再用镜头留住'
+    en: 'I model soil, water and the climate of farmland. Wherever that takes me, I bring a',
+    zh: '我做土壤、水和农田气候的建模，去哪儿都带着'
   },
-  'hero.tagline.b': { en: 'quiet light', zh: '安静的光' },
-  'hero.tagline.c': { en: 'that falls on all three.', zh: '。' },
-  'hero.hint': { en: 'Move to rain on the model · Hold for a downpour · Water finds the valley', zh: '移动即降雨 · 按住成暴雨 · 水自会找到谷地' },
+  'hero.tagline.b': { en: 'camera', zh: '相机' },
+  'hero.tagline.c': { en: '.', zh: '。' },
+  'hero.hint': { en: 'Move the mouse to make it rain · Hold for a downpour · The water finds its own way down', zh: '动一动鼠标就下雨 · 按住是暴雨 · 水会自己往低处走' },
   'ticker.local_time': { en: 'Local time, Wageningen', zh: '瓦赫宁根当地时间' },
   'ticker.frames': { en: 'Frames', zh: '照片' },
   'ticker.films': { en: 'Films', zh: '影片' },
   'ticker.km': { en: 'km tracked', zh: '公里轨迹' },
   'ticker.latest_film': { en: 'Latest film', zh: '最新影片' },
   'hero.subtitle': {
-    en: 'MSc in Urban Environmental Management, Wageningen University & Research. My work is environmental modelling: how human activity moves through water and soil, from microplastics in rivers to greenhouse gases from farmland. I carry a camera to every landscape I study.',
-    zh: '瓦赫宁根大学城市环境管理硕士。我做环境建模：追踪人类活动如何穿过水与土壤，从河流中的微塑料到农田排放的温室气体。每一片我研究的土地，我都带着相机走过。'
+    en: 'MSc in Urban Environmental Management, Wageningen University & Research. I do environmental modelling: what people do to water and soil, from microplastics in rivers to greenhouse gases from farmland. I take a camera to the places I study.',
+    zh: '瓦赫宁根大学城市环境管理硕士。我做环境建模：人对水和土壤做了什么，从河里的微塑料到农田排出的温室气体。研究去哪儿，相机就带到哪儿。'
   },
   // Typographic statement between About and the archive strip.
-  'statement.1': { en: 'Rivers keep', zh: '河流留下' },
-  'statement.2': { en: 'what we drop.', zh: '我们丢弃的；' },
-  'statement.3': { en: 'Soils breathe out', zh: '土壤呼出' },
-  'statement.4': { en: 'what we farm.', zh: '我们耕种的。' },
-  'statement.5': { en: 'I model both,', zh: '我为这两者建模，' },
-  'statement.6': { en: 'and photograph the light left over.', zh: '也拍下剩下的光。' },
-  'hero.cta.primary': { en: 'Explore the work', zh: '探索我的研究' },
+  'statement.1': { en: 'Rivers hold on to', zh: '河流留着' },
+  'statement.2': { en: 'the plastic we lose.', zh: '我们丢的塑料；' },
+  'statement.3': { en: 'Farm soils give off', zh: '农田呼出' },
+  'statement.4': { en: 'what we feed them.', zh: '我们施进去的东西。' },
+  'statement.5': { en: 'I model both,', zh: '两件事我都在算，' },
+  'statement.6': { en: 'and take pictures on the way.', zh: '顺路也拍些照片。' },
+  'hero.cta.primary': { en: 'See what I do', zh: '看看我做的事' },
   'hero.cta.secondary': { en: 'Photography', zh: '摄影' },
   'hero.cta.cv': { en: 'Download CV (PDF)', zh: '下载简历 (PDF)' },
   'hero.docs.eyebrow': {
@@ -105,36 +105,37 @@ export const dict: Record<string, Record<Lang, string>> = {
 
   // About
   'about.eyebrow': { en: 'About me', zh: '关于我' },
-  'about.title.a': { en: 'Researching the', zh: '研究那些' },
-  'about.title.b': { en: 'quiet systems', zh: '静默运转' },
+  // Title parts sit in one line box: punctuation stays at the end of a part, never at the start.
+  'about.title.a': { en: 'I study', zh: '我研究' },
+  'about.title.b': { en: 'soil and water,', zh: '土壤和水，' },
   'about.title.c': {
-    en: 'we take for granted.',
-    zh: '却被我们视为理所当然的系统。'
+    en: 'and what farming does to them.',
+    zh: '还有农业怎样改变它们。'
   },
   'about.p1': {
-    en: "I graduated with an MSc in Urban Environmental Management from Wageningen in May 2026 and I'm now looking for a PhD position. My thesis estimated how much microplastic rivers retain, sub-basin by sub-basin worldwide, with machine learning benchmarked against the MARINA-Multi model.",
-    zh: '我于 2026 年 5 月从瓦赫宁根大学城市环境管理硕士毕业，目前正在寻找博士机会。我的硕士论文用机器学习估算全球每个次流域中河流对微塑料的截留量，并以 MARINA-Multi 模型为基准进行比较。'
+    en: "I finished my MSc in Urban Environmental Management at Wageningen in May 2026, and I'm now looking for a PhD. My thesis estimated how much microplastic rivers hold back, sub-basin by sub-basin across the world, using machine learning checked against the MARINA-Multi model.",
+    zh: '2026 年 5 月，我在瓦赫宁根拿到了城市环境管理硕士，现在在找博士机会。硕士论文算的是全球每个次流域里，河流能截留多少微塑料：用机器学习做，拿 MARINA-Multi 模型来对照。'
   },
   'about.p2': {
-    en: "Before Wageningen, I studied forestry in China and Canada, where my first lab work was on soil microbes, and I monitored dissolved organic carbon in the wetland forests of Lapland with the University of Eastern Finland. I've been lucky to learn in four very different landscapes, and I carry a camera to each of them.",
-    zh: '来瓦大之前，我在中国和加拿大学习林学，最早的实验室工作就是研究土壤微生物；之后随东芬兰大学到拉普兰的湿地森林监测溶解性有机碳。我很幸运能在四种截然不同的地貌中求学，而每一次我都带着相机。'
+    en: "Before that I studied forestry in Hangzhou and Vancouver. My first lab work was on soil microbes, and later I spent a summer in Lapland with the University of Eastern Finland, measuring dissolved organic carbon in wetland forests. Four places, four quite different landscapes. I took a camera to all of them.",
+    zh: '再往前，我在杭州和温哥华学林学，最早在实验室做的是土壤微生物；后来跟东芬兰大学去拉普兰待了一个夏天，测湿地森林里的溶解性有机碳。四个地方，四种完全不一样的地貌，相机都带着。'
   },
   'about.next': {
-    en: "Where I want to go next is the land side of global change: how farming practices shape soil health and the services soils provide, and how agriculture's non-CO₂ greenhouse gases, nitrous oxide and methane, can be quantified, modelled and reduced, from single fields up to the scale of Europe.",
-    zh: '接下来我最想深入的，是全球变化中“土地”的那一面：农业管理方式如何影响土壤健康及土壤提供的生态系统服务；农业排放的非二氧化碳温室气体（氧化亚氮与甲烷）如何被量化、建模并减少，从单块农田一直到欧洲尺度。'
+    en: "What I want to do next is the land side of it: how the way we farm changes soil health and what soils can do for us, and how to count, model and cut the nitrous oxide and methane that farming gives off, from one field up to the whole of Europe.",
+    zh: '接下来想做的是“土地”这一边：耕作方式怎样改变土壤的健康和它能给我们的东西；农业排出的氧化亚氮和甲烷怎么算清楚、怎么建模、怎么减下来，从一块田到整个欧洲。'
   },
   'about.p3': {
-    en: "This site is a working notebook: my research, the places I've stood in, and the photographs I've made there.",
-    zh: '这个网站就是我的工作笔记：我的研究、我驻足过的地方，以及我在那里拍下的照片。'
+    en: "This site is where I keep all of it: the research, the places, and the photos from them.",
+    zh: '这个网站就是放这些东西的地方：研究、去过的地方，还有在那儿拍的照片。'
   },
 
   // Journey
   'journey.eyebrow': { en: 'Research journey', zh: '研究历程' },
-  'journey.title.a': { en: 'Four countries. Four universities.', zh: '四个国家，四所高校。' },
-  'journey.title.b': { en: 'One question', zh: '一个问题' },
+  'journey.title.a': { en: 'Four universities, four countries,', zh: '四个国家、四所学校，问的一直是' },
+  'journey.title.b': { en: 'the same question', zh: '同一个问题。' },
   'journey.title.c': {
-    en: ': how do land, water and climate respond to human pressure?',
-    zh: '：在人类活动的压力下，土地、水与气候如何回应？'
+    en: 'every time.',
+    zh: ''
   },
   'journey.filter.all': { en: 'All', zh: '全部' },
   'journey.filter.education': { en: 'Education', zh: '教育' },
@@ -152,12 +153,12 @@ export const dict: Record<string, Record<Lang, string>> = {
 
   // Photography
   'photo.eyebrow': { en: 'Photography', zh: '摄影' },
-  'photo.title.a': { en: 'A', zh: '一本' },
-  'photo.title.b': { en: 'field notebook', zh: '野外笔记' },
-  'photo.title.c': { en: 'in light and silver.', zh: '，以光与银盐写就。' },
+  'photo.title.a': { en: 'Taken in the field,', zh: '野外拍的，' },
+  'photo.title.b': { en: 'and on the way there.', zh: '还有路上拍的。' },
+  'photo.title.c': { en: '', zh: '' },
   'photo.intro': {
-    en: "Every pin on the map is a place I've stood with a camera; the amber frames are films. Click one to open it. Drag the time range to travel through the months, or switch to the timeline view, where the photographs and films share one chronological ribbon.",
-    zh: '地图上的每一个图钉，都是我曾举起相机的地方，琥珀色的方框是影片。点击即可打开；拖动时间范围按月穿越；也可以切换到时间线视图，照片和影片按时间顺序排在一起。'
+    en: "Pins are places I took a photo; the ones with a frame are films. Click to open. Drag the time range to narrow it down, or switch to the timeline.",
+    zh: '图钉是拍过照片的地方，带框的是影片，点开就能看。拖时间范围可以筛选，也可以切到时间线。'
   },
   'photo.stat.frames': { en: 'Frames', zh: '张' },
   'photo.stat.countries': { en: 'Countries', zh: '国家' },
@@ -179,44 +180,45 @@ export const dict: Record<string, Record<Lang, string>> = {
   'strip.label': { en: 'From the archive', zh: '胶片档案' },
   'strip.all': { en: 'All frames', zh: '全部照片' },
   'about.now_showing': { en: 'Now showing', zh: '正在放映' },
-  'journey.films': { en: 'Filmed in this chapter', zh: '这段时期拍的影片' },
+  'journey.films': { en: 'Films from this time', zh: '这段时间拍的片子' },
   'places.frames': { en: 'frames', zh: '张照片' },
   // Notes (LinkedIn)
   'notes.eyebrow': { en: 'Notes', zh: '随笔' },
-  'notes.title.a': { en: 'Thinking out loud,', zh: '公开地' },
-  'notes.title.b': { en: 'in public.', zh: '想一想。' },
+  'notes.title.a': { en: "Things I've", zh: '最近' },
+  'notes.title.b': { en: 'written down', zh: '写下的' },
+  'notes.title.c': { en: 'lately.', zh: '一些东西。' },
   'notes.intro': {
-    en: "Short posts from LinkedIn: the science I'm reading, the end of one chapter, and the places in between.",
-    zh: '来自 LinkedIn 的短帖：我在读的科学、一段旅程的结束，以及途经的那些地方。'
+    en: "Posts from LinkedIn: papers I've read, where I've been, what's changed.",
+    zh: 'LinkedIn 上发过的：读到的论文、去了哪儿、有什么新变化。'
   },
   'notes.all': { en: 'All posts on LinkedIn', zh: '在 LinkedIn 查看全部' },
   // Films
   'films.eyebrow': { en: 'Films', zh: '影像' },
   'films.title.a': { en: 'The same places,', zh: '同样的地方，' },
-  'films.title.b': { en: 'with the wind', zh: '连风' },
-  'films.title.c': { en: 'left in.', zh: '也留在了画面里。' },
+  'films.title.b': { en: 'moving,', zh: '会动的，' },
+  'films.title.c': { en: 'with sound.', zh: '有声音。' },
   'films.intro': {
-    en: 'Short films I shoot, edit and grade myself, from the Arctic to the southern tip of Africa. They live on Bilibili; press play to watch them here.',
-    zh: '从北极圈到非洲南端，由我自己拍摄、剪辑和调色的短片。视频放在哔哩哔哩，点击播放即可在这里观看。'
+    en: 'Short films, shot and cut by me, on Bilibili. Press play and they open here.',
+    zh: '短片都是自己拍自己剪的，放在 B 站。点播放，直接在这里看。'
   },
   'films.stat.films': { en: 'Films', zh: '部作品' },
   'films.stat.minutes': { en: 'Minutes', zh: '分钟' },
   'films.stat.since': { en: 'Since', zh: '始于' },
   'films.watch': { en: 'Watch the film', zh: '观看影片' },
-  'films.archive.title': { en: 'The archive', zh: '全部作品' },
-  'films.archive.intro': { en: "Everything else I've put on Bilibili, newest first.", zh: '我在哔哩哔哩发布的其他视频，按时间从新到旧。' },
+  'films.archive.title': { en: 'Everything else', zh: '其他的' },
+  'films.archive.intro': { en: "The rest of what I've put on Bilibili, newest first.", zh: '放在 B 站上的其他视频，新的在前。' },
   'films.all': { en: 'All', zh: '全部' },
   'films.more': { en: 'Show all films', zh: '显示全部' },
   'films.channel': { en: 'Follow on Bilibili', zh: '在哔哩哔哩关注我' },
   'films.on_bilibili': { en: 'Bilibili', zh: '哔哩哔哩' },
 
   'places.eyebrow': { en: 'Places', zh: '足迹' },
-  'places.title.a': { en: 'Ten-kilometre squares of', zh: '每一个亮起的方格，' },
-  'places.title.b': { en: 'everywhere', zh: '都是我走过的' },
-  'places.title.c': { en: "I've walked.", zh: '十公里。' },
+  'places.title.a': { en: "Everywhere I've been,", zh: '去过的地方，' },
+  'places.title.b': { en: 'ten kilometres', zh: '十公里一格。' },
+  'places.title.c': { en: 'at a time.', zh: '' },
   'places.intro': {
-    en: "Drawn from years of GPS tracks I've recorded. Each glowing square is a roughly 10 km patch of the world I've passed through. Brighter means more time spent there.",
-    zh: '由我多年记录的 GPS 轨迹绘制而成。每一个发光的小方块，代表我走过的一片约 10 公里见方的土地；越亮，说明在那里停留得越久。'
+    en: "Years of GPS tracks, cut into 10 km squares. The taller the column, the longer I stayed.",
+    zh: '多年的 GPS 轨迹，切成 10 公里见方的格子。柱子越高，待得越久。'
   },
   'places.stat.countries': { en: 'Countries', zh: '国家' },
   'places.stat.cities': { en: 'Cities', zh: '城市' },
@@ -225,25 +227,26 @@ export const dict: Record<string, Record<Lang, string>> = {
 
   // Contact
   'contact.eyebrow': { en: 'Contact', zh: '联系我' },
-  'contact.title.a': { en: 'Say', zh: '说句' },
-  'contact.title.b': { en: 'hello', zh: '你好' },
+  'contact.title.a': { en: 'Say', zh: '来' },
+  'contact.title.b': { en: 'hello.', zh: '聊聊。' },
+  'contact.title.c': { en: '', zh: '' },
   'contact.intro': {
-    en: "I'm looking for a PhD position in environmental modelling, and I'm always glad to talk about research collaborations, photography licensing, or anything to do with soils, water and climate. Pick whichever channel fits.",
-    zh: '我正在寻找环境建模方向的博士机会，也欢迎科研合作、图片授权，或者聊聊土壤、水与气候。选一个你方便的方式就好。'
+    en: "I'm looking for a PhD position in environmental modelling. I'm also glad to hear about collaborations, photo licensing, or anything to do with soil and water. Use whichever of these suits you.",
+    zh: '我在找环境建模方向的博士机会。合作、图片授权，或者就聊聊土壤和水，都欢迎。下面哪个方便用哪个。'
   },
   'contact.channel.bilibili': { en: 'Bilibili', zh: '哔哩哔哩' },
-  'contact.channel.hint.bilibili': { en: 'The short films, in full quality. Follow for new ones.', zh: '我拍摄剪辑的短片，高清完整版。关注我看新片。' },
+  'contact.channel.hint.bilibili': { en: 'The films, in full quality.', zh: '片子的高清完整版。' },
   'contact.channel.personal': { en: 'Personal', zh: '个人邮箱' },
   'contact.channel.linkedin': { en: 'LinkedIn', zh: 'LinkedIn' },
   'contact.channel.cv': { en: 'CV (PDF)', zh: '简历 (PDF)' },
   'contact.channel.transcript': { en: 'Transcript (PDF)', zh: '成绩单 (PDF)' },
-  'contact.channel.hint.personal': { en: 'For collaborations, photo licensing, open talk.', zh: '合作、图片授权，或随意聊聊。' },
-  'contact.channel.hint.linkedin': { en: 'The long-form version of my journey.', zh: '更完整的履历版本。' },
+  'contact.channel.hint.personal': { en: 'Collaborations, photo licensing, or just to say hi.', zh: '合作、图片授权，或者打个招呼。' },
+  'contact.channel.hint.linkedin': { en: 'The full CV, in LinkedIn form.', zh: '更完整的履历。' },
   'contact.channel.hint.cv': {
     en: 'Latest version, September 2026. Education, research, awards.',
     zh: '最新版本，2026 年 9 月。教育、科研、奖项。'
   },
-  'contact.channel.hint.transcript': { en: 'WUR academic record, kept current as new grades land.', zh: '瓦大成绩记录，有新成绩会同步更新。' },
+  'contact.channel.hint.transcript': { en: 'Grades from Wageningen, updated as they come in.', zh: '瓦大的成绩，出一门更新一门。' },
   'contact.based': { en: 'Based in', zh: '常驻' },
   'contact.current': {
     en: 'MSc, Wageningen University · Looking for a PhD position',
@@ -271,14 +274,15 @@ export const dict: Record<string, Record<Lang, string>> = {
   'cursor.view': { en: 'View', zh: '查看' },
   'cursor.enter': { en: 'Enter', zh: '进入' },
   'cursor.drag': { en: 'Drag', zh: '拖动' },
-  'footer.title.a': { en: "Let's collaborate on", zh: '让我们一起探索' },
+  'footer.title.a': { en: 'If you work on', zh: '如果你也做' },
   'footer.title.b': {
-    en: 'soils, water, climate, and the world we photograph',
-    zh: '土壤、水、气候，以及我们用镜头凝视的世界'
+    en: 'soil, water or climate,',
+    zh: '土壤、水或气候，'
   },
+  'footer.title.c': { en: 'write to me.', zh: '给我写信。' },
   'footer.location_hint': {
-    en: 'Open to PhD positions, research collaborations and editorial photo use.',
-    zh: '寻找博士机会，也接受科研合作与编辑类图片授权。'
+    en: 'Looking for a PhD. Open to collaborations and editorial use of the photos.',
+    zh: '在找博士机会；也欢迎科研合作和编辑类图片授权。'
   },
   'footer.rights': {
     en: '© {year} Yiyang Shen · Built with Astro',
@@ -290,7 +294,7 @@ export const dict: Record<string, Record<Lang, string>> = {
     en: "Yiyang Shen", zh: "沈亦旸"
   },
   'globe.hint': {
-    en: "Drag to rotate · colored dots: countries I've been", zh: "拖动旋转 · 彩色的点是我去过的国家"
+    en: "Drag to turn · The coloured dots are countries I've been to", zh: "拖动旋转 · 彩色的点是去过的国家"
   },
   'about.skill.water': {
     en: "Water Quality", zh: "水质"
@@ -409,20 +413,20 @@ export const dict: Record<string, Record<Lang, string>> = {
 
   // ---- 猫猫语 (Nya) intro module ----
   'nya.eyebrow': {
-    en: "A made language", zh: "一门自创语言"
+    en: "A made-up language", zh: "自己编的一门语言"
   },
   'nya.title.a': {
-    en: "Nya, a", zh: "Nya，一门"
+    en: "Nya,", zh: "Nya，"
   },
   'nya.title.b': {
-    en: "cat language", zh: "猫的语言"
+    en: "a cat language", zh: "一门猫语，"
   },
   'nya.title.c': {
-    en: "where every word is one cat.", zh: "每个词都是一只猫。"
+    en: "I made up.", zh: "我自己编的。"
   },
   'nya.intro': {
-    en: "For fun, I built a small constructed language. It has its own words, a little grammar, and one writing system where each word is drawn as a single cat. The cat's body encodes the word: its sound and its meaning at once. Switch the site language to 猫语 to read the whole page in it.",
-    zh: "出于好玩，我做了一门小小的人造语言。它有自己的词汇、一点语法，还有一套文字：每个词都画成一只猫。猫的身体同时编码这个词的读音和含义。把网站语言切到「猫语」，整页都会用它来显示。"
+    en: "I made a small language for fun. It has its own words, a bit of grammar, and a script where each word is drawn as one cat: the cat's body spells out the sound and the meaning. Switch the site to 猫语 and the whole page turns into it.",
+    zh: "闲着没事编了一门小语言。有自己的词、一点语法，还有一套文字：每个词画成一只猫，猫的身体同时写出读音和意思。把网站语言切到「猫语」，整页都会变成它。"
   },
   'nya.try': {
     en: "Type something", zh: "输入点什么"
