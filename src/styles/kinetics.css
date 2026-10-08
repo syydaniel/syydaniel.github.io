@@ -155,6 +155,11 @@ html[data-lang="zh"] .ink-stroke { bottom: -0.34em; }
 .hero-title:not([data-kinetic]) ~ .hero-tagline .ink-stroke path { stroke-dashoffset: 0; }
 @keyframes ink-draw { to { stroke-dashoffset: 0; } }
 
+/* ---------- Arrival: after a jump, the chapter's number flashes cinnabar and settles ---------- */
+.is-arrived .section-eyebrow[data-chapter] { animation: eyebrow-arrive 1800ms ease-out both; }
+@keyframes eyebrow-arrive { 0%, 30% { color: var(--zhusha); } 100% { color: var(--ink-3); } }
+@media (prefers-reduced-motion: reduce) { .is-arrived .section-eyebrow[data-chapter] { animation: none; } }
+
 /* ---------- Chapter watermark (水印): the numeral, large and faint, behind the head ---------- */
 .chapter[data-has-mark] { isolation: isolate; }
 .chapter-watermark { position: absolute; z-index: -1; right: clamp(0.5rem, 7vw, 7rem); top: clamp(1rem, 4vh, 2.5rem); font-family: var(--font-cjk); font-weight: 200; font-size: clamp(9rem, 22vw, 20rem); line-height: 1; letter-spacing: -0.04em; color: color-mix(in srgb, var(--ink) 4.5%, transparent); pointer-events: none; user-select: none; }
