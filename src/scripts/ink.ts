@@ -84,18 +84,23 @@ void main () {
 // a warm glow where the cinnabar fell. The sky over Wageningen tints both: the
 // paper warms while the Sun is low (uGolden), cools and dims once it has set
 // (uNight), and leans warm or cold with the day's temperature (uWarmth).
-const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uGolden; uniform float uNight; uniform float uWarmth; uniform float uFlash; uniform float uDim; uniform float uDark;
+const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uGolden; uniform float uNight; uniform float uWarmth; uniform float uCloud; uniform float uRain; uniform float uSnow; uniform float uFlash; uniform float uDim; uniform float uDark;
 void main () {
   vec3 a = texture2D(uTexture, vUv).rgb;
   vec3 paper = vec3(0.953, 0.937, 0.902) * (1.0 + uFlash * 0.16);
-  paper = mix(paper, paper * vec3(1.0, 0.965, 0.90), uGolden * 0.45);
-  paper = mix(paper, paper * vec3(0.95, 0.965, 1.0), uNight * 0.3);
-  paper *= mix(vec3(1.0), vec3(1.0, 0.985, 0.955), max(uWarmth, 0.0) * 0.6);
-  paper *= mix(vec3(1.0), vec3(0.97, 0.985, 1.0), max(-uWarmth, 0.0) * 0.6);
+  paper = mix(paper, paper * vec3(1.0, 0.935, 0.84), uGolden * 0.7);
+  paper = mix(paper, paper * vec3(0.93, 0.955, 1.0), uNight * 0.45);
+  paper *= mix(vec3(1.0), vec3(1.0, 0.98, 0.94), max(uWarmth, 0.0) * 0.8);
+  paper *= mix(vec3(1.0), vec3(0.955, 0.975, 1.0), max(-uWarmth, 0.0) * 0.8);
+  paper = mix(paper, paper * vec3(0.915, 0.925, 0.935), uCloud * 0.55);
+  paper = mix(paper, paper * vec3(0.90, 0.94, 1.0), uRain * 0.5);
+  paper = mix(paper, vec3(0.975, 0.98, 0.985), uSnow * 0.35);
   vec3 absorb = clamp(a * 0.6 * uDim, 0.0, 0.9);
   vec3 day = paper * (vec3(1.0) - absorb) * mix(1.0, 0.955, uNight);
   vec3 lamp = vec3(0.071, 0.082, 0.086) + uFlash * vec3(0.16, 0.17, 0.2);
   lamp = mix(lamp, lamp * vec3(1.12, 1.0, 0.9), uGolden * 0.4);
+  lamp = mix(lamp, lamp * vec3(0.88, 0.94, 1.08), uRain * 0.5);
+  lamp = mix(lamp, lamp * vec3(1.06, 1.08, 1.12), uSnow * 0.5);
   float dye = dot(a, vec3(0.3333));
   vec3 glow = dye * vec3(0.40, 0.60, 0.56) * 0.5 * uDim;
   float warm = max(a.g + a.b - a.r * 2.2, 0.0);
@@ -342,9 +347,9 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
 
   // The sky over Wageningen (scripts/sky.ts): the Sun's height tints the paper;
   // rain there lands as drops here; a wind there is a slow drift here.
-  let golden = 0, night = 0, warmth = 0, rain = 0, windX = 0, windY = 0, storm = false, flash = 0, nextFlash = 0;
+  let golden = 0, night = 0, warmth = 0, rain = 0, cloud = 0, snow = 0, windX = 0, windY = 0, storm = false, flash = 0, nextFlash = 0;
   // Each reading is an aim; the paper tints and the rain sets in over a couple of seconds.
-  const skyAim = { golden: 0, night: 0, warmth: 0, rain: 0 };
+  const skyAim = { golden: 0, night: 0, warmth: 0, rain: 0, cloud: 0, snow: 0 };
   function readSky() {
     const sky = (window as any).__sky;
     if (!sky) return;
@@ -353,7 +358,10 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     const w = sky.weather;
     if (w) {
       skyAim.warmth = Math.max(-1, Math.min(1, (w.temp - 12) / 14));
-      skyAim.rain = w.rain ?? 0;
+      const snowing = (w.code >= 71 && w.code <= 77) || w.code === 85 || w.code === 86;
+      skyAim.rain = snowing ? 0 : w.rain ?? 0;
+      skyAim.snow = snowing ? 1 : 0;
+      skyAim.cloud = w.cloud ?? 0;
       storm = w.code >= 95;
       const blowsTo = ((w.windDir ?? 0) + 180) * Math.PI / 180;
       const k = w.wind >= 12 ? Math.min(1, w.wind / 45) : 0;
@@ -374,6 +382,9 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     gl!.uniform1f(P.display.u.uGolden, golden);
     gl!.uniform1f(P.display.u.uNight, night);
     gl!.uniform1f(P.display.u.uWarmth, warmth);
+    gl!.uniform1f(P.display.u.uCloud, cloud);
+    gl!.uniform1f(P.display.u.uRain, rain);
+    gl!.uniform1f(P.display.u.uSnow, snow);
     gl!.uniform1f(P.display.u.uFlash, flash);
     gl!.uniform1f(P.display.u.uDim, 1 - 0.7 * Math.min(1, scrollY / Math.max(1, innerHeight)));
     draw(null);
@@ -458,6 +469,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     const ks = 1 - Math.exp(-dt * 0.9);
     golden += (skyAim.golden - golden) * ks; night += (skyAim.night - night) * ks;
     warmth += (skyAim.warmth - warmth) * ks; rain += (skyAim.rain - rain) * ks;
+    cloud += (skyAim.cloud - cloud) * ks; snow += (skyAim.snow - snow) * ks;
     // The governor: a second of long frames in a row steps the quality down.
     if (scrollY < innerHeight * 1.6) {
       slowFrames = elapsed > 0.027 ? slowFrames + 1 : Math.max(0, slowFrames - 2);
@@ -468,12 +480,12 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     }
     if (now > nextDrop) {
       // Rain in Wageningen lands here too: more often and a little heavier.
-      drop(0.1 + Math.random() * 0.8, 0.15 + Math.random() * 0.7, 0.1 + Math.random() * 0.08 + rain * 0.1, 3 + Math.random() * 4);
-      nextDrop = now + (5000 + Math.random() * 6000) * (1 - 0.78 * rain);
+      drop(0.1 + Math.random() * 0.8, 0.15 + Math.random() * 0.7, 0.1 + Math.random() * 0.08 + rain * 0.14, 3 + Math.random() * 4);
+      nextDrop = now + (5000 + Math.random() * 6000) * (1 - 0.88 * rain);
     }
     // A thunderstorm there: now and then the paper lights up twice and fades.
     if (storm) {
-      if (now > nextFlash) { flash = 1; nextFlash = now + 14000 + Math.random() * 26000; setTimeout(() => { flash = Math.max(flash, 0.7); }, 90 + Math.random() * 120); }
+      if (now > nextFlash) { flash = 1; nextFlash = now + 7000 + Math.random() * 16000; setTimeout(() => { flash = Math.max(flash, 0.7); }, 90 + Math.random() * 120); }
       flash *= Math.exp(-dt * 7);
       if (flash < 0.002) flash = 0;
     } else flash = 0;

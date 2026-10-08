@@ -171,6 +171,17 @@ function moonSvg(m: Moon): string {
   return `<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55"/><path d="${lit}" fill="currentColor"/></svg>`;
 }
 const lang = () => root.dataset.lang ?? 'en';
+// Small weather glyphs for the chip in the navigation, drawn with one stroke width.
+const G = (body: string) => `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+const CLOUD = 'M5 12.5h6.5a2.5 2.5 0 0 0 .3-4.98A4 4 0 0 0 4.2 8.6 2 2 0 0 0 5 12.5z';
+const GLYPHS: Record<string, string> = {
+  clear: G('<circle cx="8" cy="8" r="2.6"/><path d="M8 1.8v1.6M8 12.6v1.6M1.8 8h1.6M12.6 8h1.6M3.6 3.6l1.1 1.1M11.3 11.3l1.1 1.1M3.6 12.4l1.1-1.1M11.3 4.7l1.1-1.1"/>'),
+  cloud: G(`<path d="${CLOUD}"/>`),
+  rain: G(`<path d="${CLOUD.replace('12.5', '11').replace('12.5', '11')}"/><path d="M6 13l-.8 1.6M9 13l-.8 1.6M12 13l-.8 1.6"/>`),
+  snow: G(`<path d="${CLOUD.replace('12.5', '11').replace('12.5', '11')}"/><path d="M6 13.4h.01M9 14.2h.01M12 13.4h.01"/>`),
+  storm: G(`<path d="${CLOUD.replace('12.5', '11').replace('12.5', '11')}"/><path d="M8.6 11l-1.4 2.4h2L7.8 16"/>`),
+  fog: G('<path d="M2.5 6h11M2.5 9h8M5.5 12h8"/>')
+};
 // A translated string from the page's dictionary, with the English to fall back on.
 function phrase(key: string, en: string): string {
   const t = (window as any).__t as ((k: string) => string) | undefined;
@@ -220,8 +231,10 @@ function paint() {
   const through = 1 - cloud * (kind === 'fog' || kind === 'storm' ? 0.95 : 0.8);
   const glow = sky.night ? 0.35 * through : (0.3 + 0.7 * sky.golden) * through;
   const glowColor = sky.night ? '#5f7a99' : sky.phase === 'dawn' ? '#f0bc98' : sky.phase === 'dusk' ? '#e9a476' : '#f2d6a2';
-  const veil = Math.min(1, cloud * 0.6 + (w ? w.rain * 0.5 : 0) + (kind === 'fog' ? 0.5 : 0) + (kind === 'storm' ? 0.4 : 0));
-  const veilColor = kind === 'snow' ? '#aeb8c4' : kind === 'rain' || kind === 'storm' ? '#5a6a78' : '#6a7076';
+  const veil = Math.min(1, cloud * 0.6 + (w ? w.rain * 0.5 : 0) + (kind === 'fog' ? 0.5 : 0) + (kind === 'storm' ? 0.5 : 0));
+  const veilColor = kind === 'snow' ? '#aeb8c4' : kind === 'storm' ? '#3f4a55' : kind === 'rain' ? '#5a6a78' : '#6a7076';
+  // Fog rises from the foot of the page; snow lays a cold whiteness there too.
+  root.style.setProperty('--sky-fog', (kind === 'fog' ? 1 : kind === 'snow' ? 0.5 : 0).toFixed(1));
   root.style.setProperty('--sky-x', Math.max(0, Math.min(1, (sky.azimuth - 70) / 220)).toFixed(3));
   root.style.setProperty('--sky-glow', glow.toFixed(3));
   root.style.setProperty('--sky-glow-color', glowColor);
@@ -272,6 +285,17 @@ function paint() {
     // Once the note is live it leaves the dictionary's hands (the runtime re-applies
     // data-i18n after late DOM changes and would put the standing text back).
     if (note) { delete el.dataset.i18n; el.textContent = note; }
+  });
+  // The chip in the navigation: the weather's glyph (the Moon's phase on a clear night) and the temperature.
+  document.querySelectorAll<HTMLElement>('[data-sky-chip]').forEach((el) => {
+    if (!w) { el.setAttribute('hidden', ''); return; }
+    const kind = weatherKind(w.code);
+    const glyph = sky.night && (kind === 'clear' || kind === 'cloud') && sky.moon ? moonSvg(sky.moon).replace('width="12" height="12"', 'width="14" height="14"') : GLYPHS[kind] ?? GLYPHS.cloud;
+    el.innerHTML = `${glyph}<b>${Math.round(w.temp)}°</b>`;
+    el.removeAttribute('hidden');
+  });
+  document.querySelectorAll<HTMLElement>('[data-sky-theme]').forEach((el) => {
+    el.textContent = sky.night ? phrase('sky.card.night', 'night ink until sunrise {t}').replace('{t}', sky.sunrise ?? '') : phrase('sky.card.day', 'day ink until sunset {t}').replace('{t}', sky.sunset ?? '');
   });
   // Tonight's Moon, in the toggle: the bite sits where the shadow is.
   if (sky.moon) {

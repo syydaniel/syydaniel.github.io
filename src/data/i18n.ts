@@ -45,6 +45,14 @@ export const dict: Record<string, Record<Lang, string>> = {
   'theme.follows': { en: 'follows the sky over Wageningen until', zh: '跟着瓦赫宁根的天色，直到' },
   'theme.pinned': { en: 'kept until', zh: '保持到' },
   'sky.sunrise': { en: 'sunrise', zh: '日出' },
+  'sky.chip': { en: 'The sky over Wageningen, and what it does to the page', zh: '瓦赫宁根的天色，以及它对网页做了什么' },
+  'sky.card.title': { en: 'Wageningen right now', zh: '此刻的瓦赫宁根' },
+  'sky.card.moon': { en: 'Moon', zh: '月相' },
+  'sky.card.theme': { en: 'Ink', zh: '墨色' },
+  'sky.card.weather': { en: 'Weather', zh: '天气' },
+  'sky.card.sun': { en: 'Sun', zh: '日出日落' },
+  'sky.card.day': { en: 'day ink until sunset {t}', zh: '日墨，到日落 {t} 为止' },
+  'sky.card.night': { en: 'night ink until sunrise {t}', zh: '夜墨，到日出 {t} 为止' },
   'sky.hour.dawn': { en: 'Dawn in Wageningen', zh: '瓦赫宁根的清晨' },
   'sky.hour.morning': { en: 'Morning in Wageningen', zh: '瓦赫宁根的上午' },
   'sky.hour.afternoon': { en: 'Afternoon in Wageningen', zh: '瓦赫宁根的下午' },
@@ -69,8 +77,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   },
   // The tagline is set in three parts so the middle one can carry the ink underline.
   'hero.tagline.a': {
-    en: 'I model soil, water and the climate of farmland. Wherever that takes me, I bring a',
-    zh: '我做环境建模，农业、水这些；走到哪儿都带着'
+    en: 'I do environmental modelling. Wherever that takes me, I bring a',
+    zh: '我做环境建模；走到哪儿都带着'
   },
   'hero.tagline.b': { en: 'camera', zh: '相机' },
   'hero.tagline.c': { en: '.', zh: '。' },

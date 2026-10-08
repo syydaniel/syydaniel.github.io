@@ -27,15 +27,45 @@ html[data-atmosphere] .aurora { opacity: 0.35; }
 @property --sky-veil { syntax: '<number>'; inherits: true; initial-value: 0; }
 @property --sky-glow-color { syntax: '<color>'; inherits: true; initial-value: #f2d6a2; }
 @property --sky-veil-color { syntax: '<color>'; inherits: true; initial-value: #6a7076; }
+@property --sky-fog { syntax: '<number>'; inherits: true; initial-value: 0; }
 @property --lamp-scale { syntax: '<number>'; inherits: true; initial-value: 1; }
 @property --lamp-strength { syntax: '<number>'; inherits: true; initial-value: 1; }
-html { transition: --sky-x 2.4s ease, --sky-glow 2.4s ease, --sky-veil 2.4s ease, --sky-glow-color 2.4s ease, --sky-veil-color 2.4s ease, --lamp-scale 1.2s ease, --lamp-strength 1.2s ease; }
+html { transition: --sky-x 2.4s ease, --sky-glow 2.4s ease, --sky-veil 2.4s ease, --sky-fog 2.4s ease, --sky-glow-color 2.4s ease, --sky-veil-color 2.4s ease, --lamp-scale 1.2s ease, --lamp-strength 1.2s ease; }
 .skylight {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 72% 58% at calc(var(--sky-x) * 100%) -12%, color-mix(in srgb, var(--sky-glow-color) calc(var(--sky-glow) * 16%), transparent), transparent 72%),
-    linear-gradient(180deg, color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 9%), transparent), color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 3%), transparent) 55%, transparent);
+    radial-gradient(ellipse 85% 70% at calc(var(--sky-x) * 100%) -12%, color-mix(in srgb, var(--sky-glow-color) calc(var(--sky-glow) * 30%), transparent), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 18%), transparent), color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 6%), transparent) 55%, transparent),
+    linear-gradient(0deg, color-mix(in srgb, #e6e9ec calc(var(--sky-fog) * 26%), transparent), color-mix(in srgb, #e6e9ec calc(var(--sky-fog) * 8%), transparent) 40%, transparent 70%);
 }
+:root[data-theme="dark"] .skylight { background:
+    radial-gradient(ellipse 85% 70% at calc(var(--sky-x) * 100%) -12%, color-mix(in srgb, var(--sky-glow-color) calc(var(--sky-glow) * 22%), transparent), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 14%), transparent), transparent 55%),
+    linear-gradient(0deg, color-mix(in srgb, #8d969e calc(var(--sky-fog) * 16%), transparent), transparent 60%);
+}
+/* The chip: the sky's glyph and the temperature, in the navigation; the card under it has the rest. */
+.sky-cluster { position: relative; }
+.sky-chip { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 11px 0 9px; border-radius: 999px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; color: var(--ink-2); background: color-mix(in srgb, var(--paper-hi) 60%, transparent); border: 1px solid var(--line); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hi) 60%, transparent); transition: color 300ms ease, border-color 300ms ease, background 300ms ease, transform 500ms var(--ease-out-back); animation: sky-card-in 700ms var(--ease-out-expo) both; }
+.sky-chip[hidden] { display: none; }
+.sky-chip:hover, .sky-chip[aria-expanded="true"] { color: var(--ink); border-color: var(--line-strong); }
+.sky-chip:active { transform: scale(0.94); }
+.sky-chip b { font-weight: 400; font-variant-numeric: tabular-nums; }
+.sky-chip svg { flex-shrink: 0; }
+.sky-card { position: absolute; right: 0; top: calc(100% + 10px); width: 300px; padding: 14px 16px 13px; border-radius: 14px; z-index: 60;
+  background: color-mix(in srgb, var(--paper-hi) 92%, transparent); backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--line); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hi) 60%, transparent), 0 24px 48px -28px color-mix(in srgb, var(--shadow) 45%, transparent);
+  transform-origin: top right; animation: sky-card-in 420ms var(--ease-out-expo) both; }
+.sky-card[hidden] { display: none; }
+@keyframes sky-card-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
+.sky-card-title { margin: 0 0 10px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--zhusha); }
+.sky-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0; padding: 5px 0; border-top: 1px solid var(--line); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); }
+.sky-row b { font-weight: 400; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0.08em; }
+.sky-row b .sky-mark { color: var(--ink-4); margin: 0 0.3em; }
+.sky-row b [lang="zh"] { font-family: var(--font-cjk); letter-spacing: 0.1em; }
+.sky-card-note { margin: 10px 0 0; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 13px; line-height: 1.45; color: var(--ink-3); }
+.sky-card-note:empty { display: none; }
+html[data-lang='zh'] .sky-card-note { font-family: var(--font-cjk); font-style: normal; font-size: 12px; letter-spacing: 0.04em; }
+html[data-lang='zh'] .sky-card-title, html[data-lang='zh'] .sky-row span { font-family: var(--font-cjk); letter-spacing: 0.12em; }
 /* The cursor lamp is the light in the room: a cool daylight, warmer and smaller
    at the lamp-lit hours, broad and dim under an overcast sky. */
 html[data-sky='dawn'], html[data-sky='dusk'] { --lamp-color: var(--ochre-2); }
