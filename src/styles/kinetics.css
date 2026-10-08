@@ -244,6 +244,11 @@ section[data-has-mark] { isolation: isolate; }
 .chapter-slip i { display: block; width: 1px; height: 14px; background: color-mix(in srgb, var(--ink) 25%, transparent); }
 .chapter-slip-label { writing-mode: vertical-rl; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
 html[data-lang='cat'] .chapter-slip-label { writing-mode: horizontal-tb; }
+/* The Chinese slip is written in the CJK face, upright, at a size the characters can be read at. */
+/* The Chinese slip stacks one character per line in the CJK face: a column laid
+   out by line-height, which does not depend on the web font carrying vertical
+   metrics (without them, vertical-rl stacks every character on the same spot). */
+html[data-lang='zh'] .chapter-slip-label { writing-mode: horizontal-tb; width: 1em; white-space: normal; word-break: break-all; text-align: center; font-family: var(--font-cjk); font-size: 11px; line-height: 1.55; letter-spacing: 0; text-transform: none; color: var(--ink-2); }
 @supports (animation-timeline: view()) {
   .chapter-slip { animation: slip-drift linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
   @keyframes slip-drift { from { translate: 0 2.5rem; } to { translate: 0 -3.5rem; } }
@@ -460,6 +465,7 @@ html[data-lang='zh'] .italic[data-i18n-self], html[data-lang='zh'] .film-title, 
 .chapter-rail-item b { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; background: var(--paper); border: 1px solid var(--line-strong); font-family: var(--font-cjk); font-weight: 500; font-size: 10px; line-height: 1; color: var(--ink-3); transition: background 300ms ease, border-color 300ms ease, color 300ms ease, transform 500ms var(--ease-out-back); }
 .chapter-rail-item span { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; white-space: nowrap; padding: 4px 8px 4px 9px; border-radius: 3px; background: color-mix(in srgb, var(--paper-hi) 94%, transparent); border: 1px solid var(--line); box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--shadow) 35%, transparent); opacity: 0; transform: translateX(-6px); transition: opacity 300ms ease, transform 500ms var(--ease-out-expo), color 300ms ease; }
 .chapter-rail:hover .chapter-rail-item span, .chapter-rail-item:focus-visible span { opacity: 1; transform: none; }
+html[data-lang='zh'] .chapter-rail-item span { font-family: var(--font-cjk); font-size: 11px; letter-spacing: 0.2em; padding: 3px 8px 4px; }
 .chapter-rail-item.is-current b { background: var(--seal); border-color: var(--seal); color: var(--on-seal); animation: rail-stamp 520ms cubic-bezier(0.2, 0.9, 0.3, 1.3); }
 @keyframes rail-stamp { 0% { transform: scale(1.5); } 60% { transform: scale(0.92); } 100% { transform: scale(1); } }
 .chapter-rail-item.is-current span { color: var(--ink); }
