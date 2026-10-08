@@ -172,6 +172,18 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   const lightRest = LAMP.clone();
   const lightAim = lightRest.clone();
   let handX = 0, handZ = 0, handOn = false, pressAim = 0;
+  // The weather eases into the catchment over a couple of seconds rather than
+  // snapping when it arrives: the water rises, the snow settles, the mist closes in.
+  const skyAim = { diffuse: 0, rain: 0, water: WATER, snow: 0, fogNear: 4.5, fogFar: 9.5 };
+  function settleSky(k: number) {
+    const u = uniforms;
+    u.uDiffuse.value += (skyAim.diffuse - u.uDiffuse.value) * k;
+    u.uRain.value += (skyAim.rain - u.uRain.value) * k;
+    u.uWater.value += (skyAim.water - u.uWater.value) * k;
+    u.uSnow.value += (skyAim.snow - u.uSnow.value) * k;
+    u.uFogRange.value.x += (skyAim.fogNear - u.uFogRange.value.x) * k;
+    u.uFogRange.value.y += (skyAim.fogFar - u.uFogRange.value.y) * k;
+  }
   function readSky() {
     const sky = (window as any).__sky;
     if (!sky) return;
@@ -181,15 +193,16 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     lightRest.copy(LAMP).lerp(sun, sky.daylight).normalize();
     if (!handOn) lightAim.copy(lightRest);
     const w = sky.weather;
-    uniforms.uDiffuse.value = w ? w.cloud : 0;
+    skyAim.diffuse = w ? w.cloud : 0;
     // Real rain fills the valley a little; snow lies on the heights; fog or heavy cloud brings the mist in.
     const kind = w ? (w.code >= 71 && w.code <= 77) || w.code === 85 || w.code === 86 ? 'snow' : w.code === 45 || w.code === 48 ? 'fog' : 'other' : 'other';
     const rain = w && kind !== 'snow' ? w.rain : 0;
-    uniforms.uRain.value = rain;
-    uniforms.uWater.value = WATER + rain * 0.07;
-    uniforms.uSnow.value = kind === 'snow' ? 1 : 0;
+    skyAim.rain = rain;
+    skyAim.water = WATER + rain * 0.07;
+    skyAim.snow = kind === 'snow' ? 1 : 0;
     const mist = kind === 'fog' ? 1 : w ? Math.max(0, w.cloud - 0.7) * 0.6 : 0;
-    uniforms.uFogRange.value.set(4.5 - mist * 1.2, 9.5 - mist * 2.4);
+    skyAim.fogNear = 4.5 - mist * 1.2; skyAim.fogFar = 9.5 - mist * 2.4;
+    if (reduced.matches) settleSky(1);
     wake();
   }
   function locate(clientX: number, clientY: number): boolean {
@@ -213,6 +226,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   }
   function easeInputs(dt: number) {
     const k = 1 - Math.exp(-dt * 4.5);
+    settleSky(1 - Math.exp(-dt * 0.9));
     uniforms.uLight.value.lerp(lightAim, k);
     const press = uniforms.uPress.value;
     if (handOn) { press.x += (handX - press.x) * k; press.y += (handZ - press.y) * k; }
