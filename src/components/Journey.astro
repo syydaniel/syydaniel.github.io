@@ -40,13 +40,13 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 reveal">
       <div>
         <span class="section-eyebrow" data-chapter="02" data-i18n="journey.eyebrow">Research journey</span>
-        <h2 class="section-title mt-4 max-w-2xl" data-i18n-flush>
+        <h2 class="section-title mt-4 max-w-xl" data-i18n-flush>
           <span data-i18n="journey.title.a">Four universities, four countries,</span>
           <span class="text-gradient" data-i18n="journey.title.b">the same question</span>
           <span data-i18n="journey.title.c">every time.</span>
         </h2>
       </div>
-      <div class="flex gap-2 flex-wrap" id="journey-filters">
+      <div class="flex gap-2 flex-wrap lg:flex-nowrap lg:shrink-0" id="journey-filters">
         <button class="journey-filter chip active" data-filter="all" data-i18n="journey.filter.all">All</button>
         <button class="journey-filter chip chip-sol" data-filter="education" data-i18n="journey.filter.education">Education</button>
         <button class="journey-filter chip chip-moss" data-filter="experience" data-i18n="journey.filter.experience">Experience</button>
@@ -172,6 +172,11 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
   // Filter chips: the cards slide into their new places rather than jump.
   const filterBtns = document.querySelectorAll<HTMLButtonElement>('.journey-filter');
   const items = document.querySelectorAll<HTMLElement>('.journey-item');
+  // Each chip says how many cards it shows, so the choice is made knowing its size.
+  filterBtns.forEach((btn) => {
+    const f = btn.dataset.filter;
+    btn.dataset.count = String(Array.from(items).filter((i) => f === 'all' || i.dataset.kind === f).length);
+  });
   filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const f = btn.dataset.filter;
@@ -229,7 +234,19 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
 </script>
 
 <style>
-  .journey-filter.active {
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--daiqing) 60%, transparent);
-  }
+  /* The filters are a legend, not a set of alerts: a quiet chip with the category's
+     dot, the chosen one filled with ink, and the count of what it shows. The one
+     accent on this page stays with what is next. */
+  .journey-filter { gap: 0.5rem; background: transparent; color: var(--ink-3); border-color: var(--line-strong); transition: color 300ms ease, border-color 300ms ease, background 300ms ease; }
+  .journey-filter::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--dot, var(--ink-4)); flex-shrink: 0; transition: transform 500ms var(--ease-out-back), background 300ms ease; }
+  .journey-filter[data-filter='all']::before { display: none; }
+  .journey-filter.chip-sol { --dot: var(--zhusha); }
+  .journey-filter.chip-moss { --dot: var(--moss); }
+  .journey-filter[data-filter='project'] { --dot: var(--daiqing); }
+  .journey-filter::after { content: attr(data-count); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.62rem; letter-spacing: 0; color: var(--ink-4); transition: color 300ms ease; }
+  .journey-filter:not([data-count])::after { content: none; }
+  .journey-filter:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 42%, transparent); }
+  .journey-filter:hover::before { transform: scale(1.35); }
+  .journey-filter.active { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: none; }
+  .journey-filter.active::after { color: color-mix(in srgb, var(--paper) 70%, transparent); }
 </style>

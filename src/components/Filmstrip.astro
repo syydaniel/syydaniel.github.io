@@ -33,7 +33,7 @@ const dot = (d: string) => d.slice(0, 10).replaceAll('-', '.');
   <div class="mx-auto max-w-7xl px-6 mb-4 flex items-center gap-4">
     <span class="meta-line !text-sol-400/90" data-i18n={labelKey}>{label}</span>
     <span class="h-px flex-1 bg-gradient-to-r from-line to-transparent"></span>
-    <a href={href} class="meta-line hover:!text-ink-100 transition-colors"><span data-i18n="strip.all">All frames</span>&nbsp;→</a>
+    <a href={href} class="meta-line strip-all transition-colors"><span data-i18n="strip.all">All frames</span>&nbsp;<i class="strip-arrow">→</i></a>
   </div>
   <div class="strip-viewport overflow-hidden">
     <ul class="strip-track flex w-max">
@@ -62,6 +62,10 @@ const dot = (d: string) => d.slice(0, 10).replaceAll('-', '.');
 </div>
 
 <style>
+  .strip-all:hover { color: var(--zhusha) !important; }
+  .strip-arrow { display: inline-block; font-style: normal; transition: transform 500ms var(--ease-out-expo); }
+  .strip-all:hover .strip-arrow { transform: translateX(4px); }
+
   .strip-viewport {
     mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);

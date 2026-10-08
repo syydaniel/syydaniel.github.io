@@ -104,8 +104,8 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
         </button>
       </div>
       <div class="text-xs text-ink-400 font-mono">
-        <span id="photo-count">{total}</span> <span data-i18n="photo.frames_visible">frames visible</span>
-        <span id="film-count-wrap"> · <span id="film-count">{films.length}</span> <span data-i18n="photo.films_visible">films</span></span>
+        <i class="legend-dot legend-photo" aria-hidden="true"></i><span id="photo-count">{total}</span> <span data-i18n="photo.frames_visible">frames visible</span>
+        <span id="film-count-wrap"> · <i class="legend-dot legend-film" aria-hidden="true"></i><span id="film-count">{films.length}</span> <span data-i18n="photo.films_visible">films</span></span>
       </div>
     </div>
 
@@ -758,6 +758,10 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
   .pin-preview-place { display: block; margin-top: 8px; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 15px; line-height: 1.2; color: var(--ink); }
   .pin-preview-meta { margin-top: 4px; }
   .lightbox-btn { transition: background 0.3s ease, color 0.3s ease, transform 0.4s var(--ease-film); }
+  /* The counts carry the histogram's colours: frames in 黛青, films in 朱砂. */
+  .legend-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin: 0 0.45em 1px 0; vertical-align: middle; }
+  .legend-photo { background: var(--daiqing); }
+  .legend-film { background: var(--zhusha); }
   .lightbox-btn:hover { background: var(--zhusha); color: var(--paper); transform: scale(1.06); }
   .view-toggle {
     color: var(--ink-4);
