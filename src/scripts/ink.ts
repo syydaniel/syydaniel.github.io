@@ -1,10 +1,12 @@
 // Ink in water: a real-time fluid simulation behind the whole site. Velocity is
 // advected, curled and projected on a small grid (semi-Lagrangian advection, a
 // Jacobi pressure solve) and dye is carried on a larger one, all in WebGL
-// ping-pong framebuffers. The pointer drags ink, scrolling stirs it, a drop lands
-// on its own now and then, and the opening ends with one drop blooming in the
-// middle. It needs half-float render targets; where they are missing the noise
-// atmosphere (atmosphere.ts) takes over. ~30 fps, paused in hidden tabs.
+// ping-pong framebuffers. The pointer drags ink (its path is resampled into an
+// even trail of splats, so a fast stroke is one continuous filament, not a row
+// of blobs), scrolling stirs it, a drop lands on its own now and then, and the
+// opening ends with one drop blooming in the middle. It needs half-float render
+// targets; where they are missing the noise atmosphere (atmosphere.ts) takes
+// over. Runs at the display's rate, paused in hidden tabs.
 
 type GL = WebGLRenderingContext | WebGL2RenderingContext;
 type Target = { fbo: WebGLFramebuffer; tex: WebGLTexture; w: number; h: number; texel: [number, number] };
@@ -245,7 +247,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   let simW = 0, simH = 0, dyeW = 0, dyeH = 0;
   function allocate() {
     const aspect = innerWidth / Math.max(1, innerHeight);
-    const sim = 128, dyeSide = Math.min(640, Math.round(innerWidth * 0.5));
+    const sim = 176, dyeSide = Math.min(1024, Math.round(innerWidth * 0.66));
     simW = aspect >= 1 ? Math.round(sim * aspect) : sim;
     simH = aspect >= 1 ? sim : Math.round(sim / aspect);
     dyeW = aspect >= 1 ? dyeSide : Math.round(dyeSide * aspect);
@@ -259,7 +261,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   }
   allocate();
 
-  const CONFIG = { dyeDissipation: 0.5, velocityDissipation: 0.45, pressureIterations: 16, pressureDamping: 0.8, curl: 18, splatRadius: 0.0026, splatForce: 5200 };
+  const CONFIG = { dyeDissipation: 0.42, velocityDissipation: 0.3, pressureIterations: 20, pressureDamping: 0.8, curl: 22, splatRadius: 0.0022, splatForce: 90 };
 
   function splat(x: number, y: number, dx: number, dy: number, color: [number, number, number], radius = CONFIG.splatRadius) {
     gl!.useProgram(P.splat.p);
@@ -350,18 +352,36 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   }
 
   // ---- inputs ----
-  let px = 0.5, py = 0.5, hasPointer = false;
+  // The pointer's path is resampled: every coalesced sample is joined to the
+  // last by splats a fraction of a radius apart, each carrying the stroke's
+  // velocity (screen fractions per second, smoothed), so the trail is even.
+  let px = 0.5, py = 0.5, pt = 0, hasPointer = false, smoothV = 0, strokeColor = pickColor(), strokeLeft = 0;
   if (fine.matches) {
     addEventListener('pointermove', e => {
-      const x = e.clientX / innerWidth, y = 1 - e.clientY / innerHeight;
-      if (!hasPointer) { px = x; py = y; hasPointer = true; return; }
-      const dx = x - px, dy = y - py;
-      px = x; py = y;
-      const speed = Math.hypot(dx, dy);
-      if (speed < 0.0006) return;
-      const c = pickColor();
-      const k = Math.min(1, speed * 90) * 0.22 + 0.04;
-      pending.push({ x, y, dx: dx * CONFIG.splatForce, dy: dy * CONFIG.splatForce, color: [c[0] * k, c[1] * k, c[2] * k], radius: CONFIG.splatRadius * (0.8 + Math.min(2.2, speed * 40)) });
+      const samples = (e as any).getCoalescedEvents?.() as PointerEvent[] | undefined;
+      for (const s of samples && samples.length ? samples : [e]) {
+        const x = s.clientX / innerWidth, y = 1 - s.clientY / innerHeight, t = s.timeStamp || performance.now();
+        if (!hasPointer) { px = x; py = y; pt = t; hasPointer = true; continue; }
+        const dx = x - px, dy = y - py, dist = Math.hypot(dx, dy);
+        const dtS = Math.max(0.004, (t - pt) / 1000);
+        pt = t;
+        if (dist < 0.0004) continue;
+        const v = Math.min(3, dist / dtS);
+        smoothV += (v - smoothV) * 0.35;
+        // one ink per stroke; the colour changes only after the pointer rests
+        if (strokeLeft <= 0) strokeColor = pickColor();
+        strokeLeft = 0.35;
+        const radius = CONFIG.splatRadius * (1.0 + Math.min(1.8, smoothV * 1.1));
+        const stepLen = Math.sqrt(radius) * 0.55;
+        const n = Math.max(1, Math.min(24, Math.ceil(dist / stepLen)));
+        const k = (Math.min(1, smoothV * 0.7) * 0.2 + 0.035) / Math.sqrt(n);
+        const ux = dx / dist * smoothV * CONFIG.splatForce, uy = dy / dist * smoothV * CONFIG.splatForce;
+        for (let i = 1; i <= n; i++) {
+          const f = i / n;
+          pending.push({ x: px + dx * f, y: py + dy * f, dx: ux, dy: uy, color: [strokeColor[0] * k, strokeColor[1] * k, strokeColor[2] * k], radius });
+        }
+        px = x; py = y;
+      }
     }, { passive: true });
   }
   let lastScroll = scrollY;
@@ -370,8 +390,8 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     lastScroll = scrollY;
     if (Math.abs(d) < 12) return;
     const c = pickColor();
-    const k = Math.min(1, Math.abs(d) / 400) * 0.22;
-    pending.push({ x: 0.15 + Math.random() * 0.7, y: 0.2 + Math.random() * 0.6, dx: (Math.random() - 0.5) * 600, dy: Math.sign(d) * Math.min(2400, Math.abs(d) * 6), color: [c[0] * k, c[1] * k, c[2] * k], radius: CONFIG.splatRadius * 3 });
+    const k = Math.min(1, Math.abs(d) / 400) * 0.18;
+    pending.push({ x: 0.15 + Math.random() * 0.7, y: 0.2 + Math.random() * 0.6, dx: (Math.random() - 0.5) * 400, dy: Math.sign(d) * Math.min(1600, Math.abs(d) * 5), color: [c[0] * k, c[1] * k, c[2] * k], radius: CONFIG.splatRadius * 3.5 });
   }, { passive: true });
 
   type Splat = { x: number; y: number; dx: number; dy: number; color: [number, number, number]; radius: number };
@@ -399,9 +419,9 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   function tick(now: number) {
     frame = 0;
     if (!visible) return;
-    if (now - last < 31) { frame = requestAnimationFrame(tick); return; }
     const dt = Math.min(0.033, last ? (now - last) / 1000 : 0.016);
     last = now;
+    strokeLeft -= dt;
     if (now > nextDrop) { drop(0.1 + Math.random() * 0.8, 0.15 + Math.random() * 0.7, 0.1 + Math.random() * 0.08, 3 + Math.random() * 4); nextDrop = now + 5000 + Math.random() * 6000; }
     while (pending.length) { const s = pending.shift()!; splat(s.x, s.y, s.dx, s.dy, s.color, s.radius); }
     step(dt);

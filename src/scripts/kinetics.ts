@@ -302,7 +302,6 @@ const ROLES: [string, string][] = [
   ['a, button, [data-seal], input, textarea, .hero-copy, .hero-signature', ''],
   ['[data-film], .hero-film', 'cursor.play'],
   ['#places-map', 'cursor.turn'],
-  ['#hero', 'cursor.rain'],
   ['.gallery-invitation-link, .hero-gallery-link', 'cursor.enter'],
   ['.strip-cell a, .photo-pin, .film-pin, #lightbox-figure, .gallery-plane', 'cursor.view'],
   ['#globe-canvas, .gallery-stage', 'cursor.drag']

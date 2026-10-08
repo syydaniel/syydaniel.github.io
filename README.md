@@ -85,15 +85,15 @@ from Google on demand for its headings.
 
 - **The catchment, 流域** (`Catchment.astro`, `src/scripts/catchment.ts`): the hero is a living
   3D ink-wash height field drawn as contour lines, a five-density wash (墨分五色), a hillshade and
-  one vermilion shoreline. The pointer is a rain cloud: each drop lands on the terrain and runs
-  downhill along the gradient, the way runoff is routed in a hydrological model, until it reaches
-  the water in the valley, pools and seeps into the ink of the page background. Hold to pour.
-  The camera lands from above after the opening and climbs away as the page scrolls. Three.js
-  loads only when the hero is on screen; reduced motion gets one still frame.
+  one vermilion shoreline. The pointer carries the light: the hillshade turns to follow it, and
+  the ground gives a little under it, so the contours bend around the hand like paper under a
+  finger. The camera lands from above after the opening and climbs away as the page scrolls.
+  Three.js loads only when the hero is on screen; reduced motion gets one still frame.
 - **Ink** (`Atmosphere.astro`, `src/scripts/ink.ts`): a real-time fluid simulation (velocity
   advected, curled and projected on a small grid, dye on a larger one) behind the whole site, in
-  月白, mist grey and 黛青 with one drop in twenty of 朱砂. The pointer drags it, scrolling stirs
-  it, a drop lands on its own now and then, a pressed seal and the catchment's pooled water pour
+  月白, mist grey and 黛青 with one drop in twenty of 朱砂. The pointer drags it (its path is
+  resampled into an even trail of splats, so a fast stroke is one filament, not a row of blobs),
+  scrolling stirs it, a drop lands on its own now and then, and a pressed seal pours
   into it, and the opening ends with one drop blooming in the middle. Where half-float render
   targets are missing, `src/scripts/atmosphere.ts` draws a noise atmosphere instead.
 - **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
