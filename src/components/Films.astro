@@ -230,6 +230,7 @@ const dot = (d: string) => d.replaceAll('-', '.');
 
 <script>
   import { bilibiliPlayer } from '../data/films';
+  import { reflow } from '../scripts/reflow';
 
   const makeFrame = (bvid: string) => {
     const iframe = document.createElement('iframe');
@@ -270,12 +271,12 @@ const dot = (d: string) => d.replaceAll('-', '.');
     btn.addEventListener('click', () => {
       year = btn.dataset.year || 'all';
       document.querySelectorAll('.film-year').forEach((b) => b.classList.toggle('active', b === btn));
-      render();
+      reflow(cards, render);
     });
   });
   more?.addEventListener('click', () => {
     expanded = true;
-    render();
+    reflow(cards, render);
   });
 
 </script>

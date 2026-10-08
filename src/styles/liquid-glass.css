@@ -126,6 +126,7 @@
 /* No masks remain around fixed overlays or interactive content after entrance. */
 .reveal.is-visible { clip-path: none; }
 html[data-transition="chapter"] .reveal { transition: none; }
+
 html[data-transition="chapter"] .reveal.is-visible { opacity: 1; transform: none; filter: none; clip-path: none; }
 section[data-arriving]:focus { outline: none; }
 /* Native cross-document transitions keep ordinary page loading and WebGL lifecycle. */
