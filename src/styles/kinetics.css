@@ -302,10 +302,11 @@ footer { overflow: hidden; }
 .footer-giant-en {
   display: block; flex: 0 1 auto; min-width: 0; font-family: var(--font-display); font-weight: 300; font-variation-settings: 'opsz' 144, 'SOFT' 60, 'WONK' 1;
   font-size: var(--giant); line-height: 0.86; letter-spacing: -0.06em; white-space: nowrap; color: var(--ink);
-  clip-path: inset(0 0 100% 0); transition: clip-path 1.4s var(--ease-out-expo);
+  /* The reveal clips from below; the mask reaches well past the descenders and the ascenders. */
+  clip-path: inset(-30% 0 100% 0); transition: clip-path 1.4s var(--ease-out-expo);
 }
 .footer-giant-en em { font-style: italic; color: var(--daiqing); font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
-.footer-giant.is-inview .footer-giant-en { clip-path: inset(0 0 -10% 0); }
+.footer-giant.is-inview .footer-giant-en { clip-path: inset(-30% 0 -50% 0); }
 /* 落款: everything in the column is a fraction of the name's size; the column stands on the baseline and reaches the cap line. */
 .footer-kuan { display: flex; flex-direction: column; align-items: center; gap: calc(var(--giant) * 0.06); flex-shrink: 0; padding-bottom: calc(var(--giant) * 0.07); pointer-events: auto; }
 .footer-kuan-name { writing-mode: vertical-rl; font-family: var(--font-cjk); font-weight: 500; font-size: calc(var(--giant) * 0.112); line-height: 1; letter-spacing: 0.26em; color: var(--ink); }
