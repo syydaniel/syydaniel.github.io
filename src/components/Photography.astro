@@ -322,7 +322,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
       if (thumb) {
         el.style.backgroundImage = `url(${thumb})`;
       } else {
-        el.style.background = 'linear-gradient(135deg, #5f948f, #cf5a3e)';
+        el.style.background = 'linear-gradient(135deg, #2f5e5a, #a52c18)';
       }
       el.addEventListener('click', () => openLightbox(g.photos, 0));
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(g.coords).addTo(map);
@@ -345,7 +345,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
       const lead = group[0];
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `Play: ${lead.fullTitle.en}`);
-      el.style.backgroundImage = `linear-gradient(rgba(5,6,10,.25), rgba(5,6,10,.25)), url(${lead.cover})`;
+      el.style.backgroundImage = `linear-gradient(rgba(243, 239, 230,.25), rgba(243, 239, 230,.25)), url(${lead.cover})`;
       let popup: any = null;
       if (group.length === 1) {
         el.dataset.film = lead.bvid;
@@ -385,7 +385,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
         sources: {
           basemap: {
             type: 'raster',
-            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
+            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
             tileSize: 256,
             maxzoom: 16,
             attribution: 'Tiles © Esri, HERE, Garmin, © OpenStreetMap contributors'
@@ -731,19 +731,19 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
 
 <style>
   .lightbox-btn { transition: background 0.3s ease, color 0.3s ease, transform 0.4s var(--ease-film); }
-  .lightbox-btn:hover { background: #d9735b; color: #06080a; transform: scale(1.06); }
+  .lightbox-btn:hover { background: #b8341f; color: #f3efe6; transform: scale(1.06); }
   .view-toggle {
-    color: #6f7d78;
+    color: #7f8a86;
   }
   .view-toggle.active {
-    background: rgba(95, 148, 143, 0.15);
-    color: #8fbdb6;
+    background: rgba(47, 94, 90, 0.15);
+    color: #3f7570;
   }
   .scrubber-thumb {
     transition: transform 160ms ease;
     touch-action: none;
   }
-  .scrubber-thumb:focus-visible { outline: 2px solid #d9735b; outline-offset: 2px; }
+  .scrubber-thumb:focus-visible { outline: 2px solid #b8341f; outline-offset: 2px; }
   .scrub-bar { opacity: 0.9; transition: opacity 0.3s ease, filter 0.3s ease; cursor: pointer; }
   .scrub-bar:hover { filter: brightness(1.3); }
   .scrub-bar.is-out { opacity: 0.18; }

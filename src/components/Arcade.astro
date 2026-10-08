@@ -228,9 +228,9 @@
 
   function drawSnake() {
     // bg grid (subtle)
-    sCtx.fillStyle = '#090c0d';
+    sCtx.fillStyle = '#efebe2';
     sCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-    sCtx.strokeStyle = 'rgba(95, 148, 143,0.05)';
+    sCtx.strokeStyle = 'rgba(47, 94, 90,0.05)';
     sCtx.lineWidth = 1;
     for (let i = 1; i < GRID; i++) {
       sCtx.beginPath();
@@ -244,11 +244,11 @@
     }
 
     // food (microplastic particle)
-    sCtx.fillStyle = '#cf5a3e';
+    sCtx.fillStyle = '#a52c18';
     sCtx.beginPath();
     sCtx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.3, 0, Math.PI * 2);
     sCtx.fill();
-    sCtx.shadowColor = '#d9735b';
+    sCtx.shadowColor = '#b8341f';
     sCtx.shadowBlur = 12;
     sCtx.beginPath();
     sCtx.arc(food.x * CELL + CELL / 2, food.y * CELL + CELL / 2, CELL * 0.2, 0, Math.PI * 2);
@@ -258,7 +258,7 @@
     // snake (water drop body)
     snakeBody.forEach((seg, i) => {
       const alpha = 1 - (i / snakeBody.length) * 0.55;
-      sCtx.fillStyle = i === 0 ? `rgba(95, 148, 143,1)` : `rgba(95, 148, 143,${alpha})`;
+      sCtx.fillStyle = i === 0 ? `rgba(47, 94, 90,1)` : `rgba(47, 94, 90,${alpha})`;
       sCtx.beginPath();
       sCtx.roundRect(seg.x * CELL + 2, seg.y * CELL + 2, CELL - 4, CELL - 4, 5);
       sCtx.fill();
@@ -517,10 +517,10 @@
 
 <style>
   .arcade-tab {
-    color: #6f7d78;
+    color: #7f8a86;
   }
   .arcade-tab.active {
-    background: rgba(95, 148, 143, 0.15);
-    color: #8fbdb6;
+    background: rgba(47, 94, 90, 0.15);
+    color: #3f7570;
   }
 </style>

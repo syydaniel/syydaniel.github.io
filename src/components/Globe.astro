@@ -96,7 +96,7 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
   // occludes the far-side land dots/lines instead of letting them bleed through
   // (a transparent core sorts unstably against the dots and looks see-through).
   const coreGeom = new THREE.SphereGeometry(1, 64, 64);
-  const coreMat = new THREE.MeshBasicMaterial({ color: 0x0a0e1c });
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0xe9e5db });
   const core = new THREE.Mesh(coreGeom, coreMat);
   globe.add(core);
 
@@ -197,9 +197,9 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     c.width = c.height = 64;
     const ctx = c.getContext('2d')!;
     const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(0.35, 'rgba(255,255,255,0.8)');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
+    g.addColorStop(0, 'rgba(21, 25, 26,1)');
+    g.addColorStop(0.35, 'rgba(21, 25, 26,0.8)');
+    g.addColorStop(1, 'rgba(21, 25, 26,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 64, 64);
     return new THREE.CanvasTexture(c);
@@ -248,7 +248,7 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
       );
     }
     const g = new THREE.BufferGeometry().setFromPoints(points);
-    const m = new THREE.LineBasicMaterial({ color: 0x5f948f, transparent: true, opacity: 0.08 });
+    const m = new THREE.LineBasicMaterial({ color: 0x2f5e5a, transparent: true, opacity: 0.08 });
     latGroup.add(new THREE.LineLoop(g, m));
   }
   globe.add(latGroup);
@@ -260,14 +260,14 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     eqPoints.push(new THREE.Vector3(Math.cos(t) * 1.01, 0, Math.sin(t) * 1.01));
   }
   const eqGeom = new THREE.BufferGeometry().setFromPoints(eqPoints);
-  const eqMat = new THREE.LineBasicMaterial({ color: 0x5f948f, transparent: true, opacity: 0.18 });
+  const eqMat = new THREE.LineBasicMaterial({ color: 0x2f5e5a, transparent: true, opacity: 0.18 });
   globe.add(new THREE.LineLoop(eqGeom, eqMat));
 
   // ---- Atmosphere glow (back-facing inverted sphere) ----
   const atmosGeom = new THREE.SphereGeometry(1.22, 64, 64);
   const atmosMat = new THREE.ShaderMaterial({
     uniforms: {
-      glowColor: { value: new THREE.Color(0x5f948f) }
+      glowColor: { value: new THREE.Color(0x2f5e5a) }
     },
     vertexShader: `
       varying vec3 vNormal;
@@ -311,13 +311,13 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     const primary = idx === 0;
     // core dot
     const mkGeom = new THREE.SphereGeometry(primary ? 0.035 : 0.022, 16, 16);
-    const mkMat = new THREE.MeshBasicMaterial({ color: primary ? 0xbd3620 : 0x5f948f });
+    const mkMat = new THREE.MeshBasicMaterial({ color: primary ? 0xbd3620 : 0x2f5e5a });
     const mk = new THREE.Mesh(mkGeom, mkMat);
     g.add(mk);
     // glow ring
     const ringGeom = new THREE.RingGeometry(0.05, 0.065, 32);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: primary ? 0xbd3620 : 0x5f948f,
+      color: primary ? 0xbd3620 : 0x2f5e5a,
       transparent: true,
       opacity: 0.5,
       side: THREE.DoubleSide
@@ -353,7 +353,7 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     for (let j = i + 1; j < markers.length; j++) {
       const geom = makeArc(markers[i].pos, markers[j].pos);
       const mat = new THREE.LineDashedMaterial({
-        color: 0x5f948f,
+        color: 0x2f5e5a,
         transparent: true,
         opacity: 0.35,
         dashSize: 0.04,
@@ -392,10 +392,10 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
     const cx = 64;
     const cy = 64;
     const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 64);
-    glow.addColorStop(0, 'rgba(255,255,255,1)');
-    glow.addColorStop(0.16, 'rgba(255,255,255,0.85)');
-    glow.addColorStop(0.42, 'rgba(255,255,255,0.22)');
-    glow.addColorStop(1, 'rgba(255,255,255,0)');
+    glow.addColorStop(0, 'rgba(21, 25, 26,1)');
+    glow.addColorStop(0.16, 'rgba(21, 25, 26,0.85)');
+    glow.addColorStop(0.42, 'rgba(21, 25, 26,0.22)');
+    glow.addColorStop(1, 'rgba(21, 25, 26,0)');
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, 128, 128);
     // four-point diffraction spikes for a "star" read
@@ -405,9 +405,9 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
       ctx.translate(cx, cy);
       ctx.rotate(angle);
       const grd = ctx.createLinearGradient(-60, 0, 60, 0);
-      grd.addColorStop(0, 'rgba(255,255,255,0)');
-      grd.addColorStop(0.5, 'rgba(255,255,255,0.7)');
-      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      grd.addColorStop(0, 'rgba(21, 25, 26,0)');
+      grd.addColorStop(0.5, 'rgba(21, 25, 26,0.7)');
+      grd.addColorStop(1, 'rgba(21, 25, 26,0)');
       ctx.strokeStyle = grd;
       ctx.lineWidth = 1.4;
       ctx.beginPath();
@@ -728,5 +728,5 @@ const visitedCountries = travel.countries.map(({ flag, en, zh, color, dots, spot
 <style>
   #globe-canvas { cursor: grab; display: block; }
   #globe-canvas:active { cursor: grabbing; }
-  .globe-wrap { filter: drop-shadow(0 20px 50px rgba(95, 148, 143, 0.15)); }
+  .globe-wrap { filter: drop-shadow(0 20px 50px rgba(47, 94, 90, 0.15)); }
 </style>

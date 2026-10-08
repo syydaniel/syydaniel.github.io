@@ -355,9 +355,9 @@ if (trail && fine.matches && !still()) {
         const r = d.r * (0.4 + ease * 1.2) * dpr;
         const g = ctx!.createRadialGradient(d.x * dpr, d.y * dpr, 0, d.x * dpr, d.y * dpr, r);
         const a = (1 - p) * 0.42;
-        g.addColorStop(0, `hsla(${d.hue}, ${d.hue < 60 ? 60 : 18}%, 72%, ${a})`);
-        g.addColorStop(0.6, `hsla(${d.hue}, ${d.hue < 60 ? 60 : 18}%, 62%, ${a * 0.45})`);
-        g.addColorStop(1, `hsla(${d.hue}, ${d.hue < 60 ? 60 : 18}%, 55%, 0)`);
+        g.addColorStop(0, `hsla(${d.hue}, ${d.hue < 60 ? 70 : 20}%, ${d.hue < 60 ? 42 : 26}%, ${a})`);
+        g.addColorStop(0.6, `hsla(${d.hue}, ${d.hue < 60 ? 70 : 20}%, ${d.hue < 60 ? 42 : 30}%, ${a * 0.45})`);
+        g.addColorStop(1, `hsla(${d.hue}, ${d.hue < 60 ? 70 : 20}%, 35%, 0)`);
         ctx!.fillStyle = g;
         ctx!.beginPath();
         ctx!.arc(d.x * dpr, d.y * dpr, r, 0, Math.PI * 2);

@@ -13,31 +13,31 @@ export default {
       },
       colors: {
         ink: {
-          950: '#06080a',
-          900: '#090c0d',
-          800: '#0f1414',
-          700: '#171d1c',
-          600: '#2a3330',
-          500: '#4a5652',
-          400: '#6f7d78',
-          300: '#9aa8a2',
-          200: '#cfd8d3',
-          100: '#eef2ec'
+          950: '#f3efe6',
+          900: '#efebe2',
+          800: '#e9e5db',
+          700: '#dcd9cf',
+          600: '#cfd2ca',
+          500: '#a7afaa',
+          400: '#7f8a86',
+          300: '#5c6763',
+          200: '#2a302f',
+          100: '#15191a'
         },
         aqua: {
-          400: '#8fbdb6',
-          500: '#5f948f',
-          600: '#3f6f6b'
+          400: '#3f7570',
+          500: '#2f5e5a',
+          600: '#214744'
         },
         sol: {
-          400: '#d9735b',
-          500: '#cf5a3e',
-          600: '#bd3620'
+          400: '#b8341f',
+          500: '#a52c18',
+          600: '#8f2412'
         },
         moss: {
-          400: '#b3c6b9',
-          500: '#7d9c8c',
-          600: '#587468'
+          400: '#52705f',
+          500: '#3f5a4b',
+          600: '#3f5a4b'
         }
       },
       animation: {
@@ -65,8 +65,8 @@ export default {
         }
       },
       backgroundImage: {
-        'radial-fade': 'radial-gradient(ellipse at top, rgba(95,148,143,0.15), transparent 60%)',
-        'grid-fade': 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)'
+        'radial-fade': 'radial-gradient(ellipse at top, rgba(47,94,90,0.12), transparent 60%)',
+        'grid-fade': 'linear-gradient(rgba(21,25,26,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(21,25,26,0.04) 1px, transparent 1px)'
       }
     }
   },

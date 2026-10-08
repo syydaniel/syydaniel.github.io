@@ -150,7 +150,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
           sources: {
             basemap: {
               type: 'raster',
-              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
+              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
               tileSize: 256,
               maxzoom: 16,
               attribution: 'Tiles © Esri, HERE, Garmin, © OpenStreetMap contributors · Natural Earth'
@@ -168,8 +168,8 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
       map.on('load', () => {
         map.addSource('outlines', { type: 'geojson', data: data.outlines });
         map.addSource('cells', { type: 'geojson', data: cellFeatures as any });
-        map.addLayer({ id: 'country-fill', type: 'fill', source: 'outlines', paint: { 'fill-color': '#8fbdb6', 'fill-opacity': 0.05 } });
-        map.addLayer({ id: 'country-line', type: 'line', source: 'outlines', paint: { 'line-color': '#cfd8d3', 'line-opacity': 0.28, 'line-width': 0.8 } });
+        map.addLayer({ id: 'country-fill', type: 'fill', source: 'outlines', paint: { 'fill-color': '#2f5e5a', 'fill-opacity': 0.06 } });
+        map.addLayer({ id: 'country-line', type: 'line', source: 'outlines', paint: { 'line-color': '#15191a', 'line-opacity': 0.35, 'line-width': 0.8 } });
         // Glow halo so single cells stay visible at world zoom, then the crisp squares.
         map.addLayer({
           id: 'cells-glow',
@@ -178,7 +178,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
           maxzoom: 6,
           paint: {
             'circle-radius': ['interpolate', ['linear'], ['zoom'], 0, 2.5, 5, 7],
-            'circle-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#5f948f', 0.6, '#eef2ec', 1, '#cf5a3e'],
+            'circle-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#2f5e5a', 0.6, '#15191a', 1, '#bd3620'],
             'circle-blur': 0.8,
             'circle-opacity': ['interpolate', ['linear'], ['zoom'], 0, 0.9, 6, 0]
           }
@@ -188,7 +188,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
           type: 'fill',
           source: 'cells',
           paint: {
-            'fill-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#5f948f', 0.6, '#eef2ec', 1, '#cf5a3e'],
+            'fill-color': ['interpolate', ['linear'], ['get', 'w'], 0, '#2f5e5a', 0.6, '#15191a', 1, '#bd3620'],
             'fill-opacity': ['interpolate', ['linear'], ['get', 'w'], 0, 0.6, 1, 1]
           }
         });
@@ -227,5 +227,5 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
 <style>
   .places-country { cursor: pointer; }
   .places-country > div > span[style] { filter: saturate(0.55) brightness(0.9); }
-  .places-country:hover .text-ink-100 { color: #d9735b; }
+  .places-country:hover .text-ink-100 { color: #b8341f; }
 </style>

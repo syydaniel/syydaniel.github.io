@@ -76,35 +76,32 @@ void main() {
   float fw5 = max(fwidth(lv5), 1e-4);
   float d5 = abs(fract(lv5 + 0.5) - 0.5);
   float major = 1.0 - smoothstep(0.0, fw5 * 1.6, d5);
-  float line = max(minor * 0.55, major * 0.95);
+  float line = max(minor * 0.5, major * 0.92);
   // 墨分五色: five densities of wash by elevation band, lit by the hillshade.
   float band = clamp(floor((vH + 0.7) / 1.4 * 5.0), 0.0, 4.0);
   float lit = smoothstep(-0.2, 0.9, vShade);
-  float wash = (0.05 + band * 0.06) * (0.3 + lit * 1.0);
-  float shadow = (1.0 - lit) * 0.55;
+  // On paper the wash is ink: deepest on the shadowed slopes and in the lowest band.
+  float wash = (0.04 + (4.0 - band) * 0.035) * (0.6 + (1.0 - lit) * 0.9);
+  float shadow = (1.0 - lit) * 0.34;
   float below = smoothstep(uWater, uWater - 0.22, vH);
   float shoreW = max(fwidth(vH), 1e-4) * 2.2;
   float shore = 1.0 - smoothstep(0.0, shoreW, abs(vH - uWater));
   float ripple = 0.5 + 0.5 * sin(vXZ.x * 7.0 + vXZ.y * 3.0 + uTime * 0.9);
-  vec3 paper = vec3(0.86, 0.91, 0.88);
-  vec3 ink = vec3(0.02, 0.03, 0.04);
-  vec3 water = vec3(0.16, 0.36, 0.38);
-  vec3 cinnabar = vec3(0.78, 0.24, 0.14);
-  // Start from the wash and the shadow, then the water, the lines, the shore.
-  vec3 color = mix(paper, ink, shadow / max(wash + shadow, 1e-4));
+  vec3 ink = vec3(0.09, 0.11, 0.11);
+  vec3 wet = vec3(0.24, 0.30, 0.30);
+  vec3 water = vec3(0.18, 0.37, 0.35);
+  vec3 cinnabar = vec3(0.74, 0.21, 0.13);
+  // Wash and shadow in ink, then the water, the lines, the shore. Mist is paper showing through.
+  vec3 color = mix(wet, ink, shadow / max(wash + shadow, 1e-4));
   float alpha = wash + shadow;
-  // Atmospheric perspective: the far ridges stand against a bank of mist.
-  float haze = (1.0 - vFog) * 0.55;
-  color = mix(color, vec3(0.62, 0.70, 0.68), haze);
-  alpha = alpha + haze * 0.5;
   color = mix(color, water, below);
-  alpha = mix(alpha, 0.5 + ripple * 0.08, below);
+  alpha = mix(alpha, 0.45 + ripple * 0.08, below);
   float lineA = line * (1.0 - below * 0.5);
-  color = mix(color, paper, lineA);
+  color = mix(color, ink, lineA);
   alpha = max(alpha, lineA);
   color = mix(color, cinnabar, shore);
   alpha = max(alpha, shore * 0.95);
-  gl_FragColor = vec4(color, alpha * max(vFog, haze * 0.6));
+  gl_FragColor = vec4(color, alpha * vFog);
 }`;
 
 const DROP_VERT = `
@@ -124,7 +121,7 @@ void main() {
   float d = length(gl_PointCoord - 0.5);
   if (d > 0.5) discard;
   float core = 1.0 - smoothstep(0.08, 0.5, d);
-  gl_FragColor = vec4(vec3(0.86, 0.93, 0.9), core * (0.35 + vLife * 0.65));
+  gl_FragColor = vec4(vec3(0.18, 0.37, 0.35), core * (0.35 + vLife * 0.65));
 }`;
 
 export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement): Promise<void> {
@@ -161,7 +158,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   dropGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
   dropGeometry.setAttribute('aLife', new THREE.BufferAttribute(lives, 1).setUsage(THREE.DynamicDrawUsage));
   const dropUniforms = { uPixelRatio: { value: 1 } };
-  const drops = new THREE.Points(dropGeometry, new THREE.ShaderMaterial({ uniforms: dropUniforms, vertexShader: DROP_VERT, fragmentShader: DROP_FRAG, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const drops = new THREE.Points(dropGeometry, new THREE.ShaderMaterial({ uniforms: dropUniforms, vertexShader: DROP_VERT, fragmentShader: DROP_FRAG, transparent: true, depthWrite: false, blending: THREE.NormalBlending }));
   drops.frustumCulled = false;
   scene.add(drops);
   const dx = new Float32Array(MAX), dz = new Float32Array(MAX), vx = new Float32Array(MAX), vz = new Float32Array(MAX), age = new Float32Array(MAX);
@@ -191,7 +188,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     const sx = (projected.x * 0.5 + 0.5) * rect.width + rect.left;
     const sy = (-projected.y * 0.5 + 0.5) * rect.height + rect.top;
     if (sx < 0 || sy < 0 || sx > innerWidth || sy > innerHeight) return;
-    hook(sx / innerWidth, 1 - sy / innerHeight, 0.07, [0.2, 0.4, 0.42]);
+    hook(sx / innerWidth, 1 - sy / innerHeight, 0.05, [0.8, 0.62, 0.64]);
   }
 
   let time = 0;

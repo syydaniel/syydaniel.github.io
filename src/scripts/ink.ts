@@ -81,29 +81,29 @@ void main () {
 // paper-dark base, a vignette, and the hour in Wageningen warming or cooling it.
 const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uHour; uniform float uDim;
 void main () {
-  vec3 c = texture2D(uTexture, vUv).rgb;
-  vec3 lc = texture2D(uTexture, vL).rgb, rc = texture2D(uTexture, vR).rgb, tc = texture2D(uTexture, vT).rgb, bc = texture2D(uTexture, vB).rgb;
-  float dx = length(rc) - length(lc), dy = length(tc) - length(bc);
+  vec3 a = texture2D(uTexture, vUv).rgb;
+  vec3 la = texture2D(uTexture, vL).rgb, ra = texture2D(uTexture, vR).rgb, ta = texture2D(uTexture, vT).rgb, ba = texture2D(uTexture, vB).rgb;
+  float dx = length(ra) - length(la), dy = length(ta) - length(ba);
   vec3 n = normalize(vec3(dx, dy, length(uRes) * 0.00035));
-  float relief = clamp(dot(n, normalize(vec3(-0.4, 0.7, 1.4))), 0.6, 1.25);
-  c *= relief;
+  float relief = 1.0;
   float dawn = smoothstep(4.5, 7.0, uHour) * (1.0 - smoothstep(8.0, 10.5, uHour));
   float dusk = smoothstep(16.5, 19.0, uHour) * (1.0 - smoothstep(20.0, 22.5, uHour));
   float night = 1.0 - smoothstep(5.0, 8.0, uHour) * (1.0 - smoothstep(19.5, 23.0, uHour));
-  c = mix(c, c * vec3(1.18, 0.98, 0.78), (dawn + dusk) * 0.35);
-  c = mix(c, c * vec3(0.8, 0.9, 1.15), night * 0.3);
-  c *= 0.5 * uDim;
-  c = c / (vec3(1.0) + c * 0.9);
-  float vig = 1.0 - 0.55 * smoothstep(0.25, 1.15, length(vUv - vec2(0.5, 0.45)) * 1.25);
-  vec3 base = vec3(0.022, 0.026, 0.038);
-  gl_FragColor = vec4(base + c * vig, 1.0);
+  vec3 paper = vec3(0.953, 0.937, 0.902);
+  paper = mix(paper, paper * vec3(1.0, 0.97, 0.92), (dawn + dusk) * 0.35);
+  paper = mix(paper, paper * vec3(0.95, 0.96, 0.98), night * 0.25);
+  vec3 absorb = clamp(a * 0.6 * uDim, 0.0, 0.9);
+  vec3 color = paper * (vec3(1.0) - absorb) * relief;
+  float vig = 1.0 - 0.08 * smoothstep(0.25, 1.15, length(vUv - vec2(0.5, 0.45)) * 1.25);
+  gl_FragColor = vec4(color * vig, 1.0);
 }`;
 
-// Ink, mostly: 月白 and mist greys with a breath of 黛青, and one drop in twenty of 朱砂.
+// Ink on paper. Each entry is what the ink absorbs (1 - its colour), so a drop
+// darkens the paper toward its own hue: 墨, 淡墨, 黛青, 清墨 and, one in twenty, 朱砂.
 const PALETTE: [number, number, number][] = [
-  [0.58, 0.66, 0.63], [0.40, 0.50, 0.48], [0.22, 0.38, 0.38], [0.72, 0.78, 0.75], [0.30, 0.40, 0.40], [0.52, 0.13, 0.08]
+  [0.86, 0.84, 0.82], [0.55, 0.50, 0.50], [0.80, 0.62, 0.64], [0.30, 0.26, 0.27], [0.62, 0.58, 0.58], [0.26, 0.80, 0.88]
 ];
-const PALETTE_WEIGHTS = [0.3, 0.26, 0.16, 0.14, 0.09, 0.05];
+const PALETTE_WEIGHTS = [0.24, 0.3, 0.2, 0.12, 0.09, 0.05];
 
 function pickColor(): [number, number, number] {
   let r = Math.random();
@@ -337,7 +337,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     gl!.uniform1i(P.display.u.uTexture, bind(dye.read, 0));
     gl!.uniform2f(P.display.u.uRes, canvas.width, canvas.height);
     gl!.uniform1f(P.display.u.uHour, hour);
-    gl!.uniform1f(P.display.u.uDim, 1 - 0.55 * Math.min(1, scrollY / Math.max(1, innerHeight)));
+    gl!.uniform1f(P.display.u.uDim, 1 - 0.7 * Math.min(1, scrollY / Math.max(1, innerHeight)));
     draw(null);
   }
 
@@ -352,7 +352,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
       const speed = Math.hypot(dx, dy);
       if (speed < 0.0006) return;
       const c = pickColor();
-      const k = Math.min(1, speed * 90) * 0.3 + 0.05;
+      const k = Math.min(1, speed * 90) * 0.22 + 0.04;
       pending.push({ x, y, dx: dx * CONFIG.splatForce, dy: dy * CONFIG.splatForce, color: [c[0] * k, c[1] * k, c[2] * k], radius: CONFIG.splatRadius * (0.8 + Math.min(2.2, speed * 40)) });
     }, { passive: true });
   }
@@ -375,7 +375,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   // The opening ends with one drop hitting the water in the middle of the page.
   function bloom() {
     const cx = 0.5, cy = 0.55;
-    pending.push({ x: cx, y: cy, dx: 0, dy: 0, color: [0.4, 0.5, 0.47], radius: CONFIG.splatRadius * 9 });
+    pending.push({ x: cx, y: cy, dx: 0, dy: 0, color: [0.5, 0.48, 0.46], radius: CONFIG.splatRadius * 9 });
     for (let i = 0; i < 10; i++) {
       const a = (i / 10) * Math.PI * 2 + Math.random() * 0.3;
       const c = PALETTE[i % 2 === 0 ? 0 : 2];

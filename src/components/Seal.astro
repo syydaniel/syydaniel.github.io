@@ -25,10 +25,11 @@ const ink = '#f4e8d4';
 const outline = tall
   ? 'M8 7 C 22 4, 40 4, 53 6 C 56 30, 56 66, 53 94 C 38 97, 22 96, 7 93 C 4 66, 4 32, 8 7 Z'
   : 'M7 10 C 24 6, 52 5, 93 8 C 95 32, 96 62, 92 93 C 62 96, 30 95, 9 91 C 5 62, 4 34, 7 10 Z';
+// Even margins: the glyph block sits centred in the field, with equal gutters between columns and rows.
 const glyphs = tall
-  ? [[chars[0], 30, 45], [chars[1], 30, 88]]
-  : [[chars[0], 72, 46], [chars[2], 28, 46], [chars[1], 72, 87], [chars[3], 28, 87]];
-const fontSize = tall ? 36 : 37;
+  ? [[chars[0], 30, 43], [chars[1], 30, 83]]
+  : [[chars[0], 71, 42], [chars[2], 29, 42], [chars[1], 71, 83], [chars[3], 29, 83]];
+const fontSize = tall ? 32 : 33;
 const viewBox = tall ? '0 0 60 100' : '0 0 100 100';
 const width = tall ? Math.round(size * 0.6) : size;
 ---
