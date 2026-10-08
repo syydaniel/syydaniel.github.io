@@ -16,10 +16,11 @@ const year = new Date().getFullYear();
   </svg>
   <div class="footer-giant" aria-hidden="true">
     <span class="footer-giant-en">Yiyang <em>Shen</em></span>
-    <!-- 落款: the signature column of a painting, the name written downward with the seals beneath it. -->
+    <!-- 落款: the signature column of a painting, the name written downward with the seal beneath it,
+         sized from the giant name so the column spans its cap height and sits on its baseline. -->
     <span class="footer-kuan">
       <span class="footer-kuan-name">沈亦旸</span>
-      <span class="footer-kuan-seals"><Seal size={44} class="footer-seal" /><Seal size={48} class="footer-leisure" variant="zhuwen" chars={['水', '土']} label="水土 (leisure seal)" /></span>
+      <Seal size={64} class="footer-seal" />
     </span>
   </div>
   <div class="mx-auto max-w-6xl px-6 pb-12 pt-10">

@@ -298,20 +298,18 @@ footer { overflow: hidden; }
   @keyframes ridge-far { from { transform: translateY(14%) scaleX(1.02); } to { transform: translateY(-4%); } }
   @keyframes ridge-near { from { transform: translateY(22%); } to { transform: translateY(-2%); } }
 }
-.footer-giant { position: relative; z-index: 1; display: flex; align-items: flex-end; gap: clamp(1rem, 3vw, 2.6rem); margin: 0 auto; max-width: 1152px; padding: 2rem 1.5rem 0; pointer-events: none; user-select: none; }
+.footer-giant { --giant: clamp(3.4rem, 13.2vw, 12.6rem); position: relative; z-index: 1; display: flex; align-items: flex-end; gap: calc(var(--giant) * 0.11); margin: 0 auto; max-width: 1152px; padding: 2rem 1.5rem 0; pointer-events: none; user-select: none; }
 .footer-giant-en {
   display: block; flex: 0 1 auto; min-width: 0; font-family: var(--font-display); font-weight: 300; font-variation-settings: 'opsz' 144, 'SOFT' 60, 'WONK' 1;
-  font-size: clamp(3.4rem, 13.2vw, 12.6rem); line-height: 0.86; letter-spacing: -0.06em; white-space: nowrap; color: var(--ink);
+  font-size: var(--giant); line-height: 0.86; letter-spacing: -0.06em; white-space: nowrap; color: var(--ink);
   clip-path: inset(0 0 100% 0); transition: clip-path 1.4s var(--ease-out-expo);
 }
 .footer-giant-en em { font-style: italic; color: var(--daiqing); font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
 .footer-giant.is-inview .footer-giant-en { clip-path: inset(0 0 -10% 0); }
-/* 落款 */
-.footer-kuan { display: flex; align-items: flex-end; gap: 0.85rem; padding-bottom: 0.12em; pointer-events: auto; flex-shrink: 0; }
-.footer-kuan-name { writing-mode: vertical-rl; font-family: var(--font-cjk); font-weight: 300; font-size: clamp(1.05rem, 1.8vw, 1.5rem); line-height: 1; letter-spacing: 0.34em; color: var(--ink); padding-bottom: 0.2em; }
-.footer-kuan-seals { display: flex; flex-direction: column; align-items: center; gap: 0.55rem; }
-.footer-seal { transform: rotate(-2deg); }
-.footer-leisure { transform: rotate(1.5deg); }
+/* 落款: everything in the column is a fraction of the name's size; the column stands on the baseline and reaches the cap line. */
+.footer-kuan { display: flex; flex-direction: column; align-items: center; gap: calc(var(--giant) * 0.06); flex-shrink: 0; padding-bottom: calc(var(--giant) * 0.07); pointer-events: auto; }
+.footer-kuan-name { writing-mode: vertical-rl; font-family: var(--font-cjk); font-weight: 500; font-size: calc(var(--giant) * 0.112); line-height: 1; letter-spacing: 0.26em; color: var(--ink); }
+.footer-seal { width: calc(var(--giant) * 0.28); height: calc(var(--giant) * 0.28); transform: rotate(-2deg); }
 .footer-meta { display: flex; flex-wrap: wrap; gap: 0.6rem 2.4rem; }
 .footer-clock { display: inline-flex; align-items: baseline; gap: 0.6rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-4); }
 .footer-clock b { font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -326,13 +324,12 @@ footer { overflow: hidden; }
 .to-top span:last-child { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent); transition: transform 600ms var(--ease-out-back), border-color 300ms ease, background 300ms ease; }
 .to-top:hover span:last-child { transform: translateY(-4px); border-color: var(--zhusha); background: color-mix(in srgb, var(--zhusha) 10%, transparent); }
 @media (max-width: 767px) {
-  .footer-giant { gap: 0.8rem; }
-  .footer-giant .footer-giant-en { font-size: clamp(2.6rem, 14.5vw, 5.2rem); }
-  .footer-kuan-name { font-size: 0.95rem; letter-spacing: 0.26em; }
-  .footer-kuan { gap: 0.6rem; }
-  .footer-kuan-seals { gap: 0.4rem; }
-  .footer-seal { width: 32px; height: 32px; }
-  .footer-leisure { width: 20px; height: 34px; }
+  /* The name alone on its line; the signature as a row beneath it. */
+  .footer-giant { --giant: clamp(2.8rem, 15.5vw, 5.6rem); flex-wrap: wrap; gap: 0.9rem 0; }
+  .footer-giant-en { width: 100%; }
+  .footer-kuan { flex-direction: row; align-items: center; gap: 0.9rem; padding: 0.2rem 0 0 0.1em; }
+  .footer-kuan-name { writing-mode: horizontal-tb; font-size: 1rem; letter-spacing: 0.3em; }
+  .footer-seal { width: 42px; height: 42px; }
 }
 
 /* ---------- Links that underline from the left ---------- */
