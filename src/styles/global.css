@@ -300,6 +300,9 @@ main { overflow-x: clip; }
 }
 .group:hover .rule-grow { width: 3.5rem; background: var(--zhusha); }
 
+/* 装裱: a hairline mat a few pixels inside every photograph and still. */
+.matted::after { content: ''; position: absolute; inset: 7px; border: 1px solid color-mix(in srgb, var(--paper-hi) 42%, transparent); border-radius: 3px; pointer-events: none; }
+
 /* Round play/arrow button that turns amber on hover. */
 .play-dot {
   display: inline-flex;

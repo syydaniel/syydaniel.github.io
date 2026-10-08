@@ -30,15 +30,19 @@ if (fine.matches && !reduced.matches && navigator.maxTouchPoints === 0) {
     applied = Math.round(y);
     scrollTo({ top: y, behavior: 'instant' as ScrollBehavior });
   }
-  function tick() {
+  let previous = 0;
+  function tick(now: number) {
     frame = 0;
     // Someone else moved the page (an anchor, a key, the scrollbar): let go at once.
-    if (Math.abs(scrollY - applied) > 1) { target = current = applied = scrollY; return; }
+    if (Math.abs(scrollY - applied) > 1) { target = current = applied = scrollY; previous = 0; return; }
     const max = root.scrollHeight - innerHeight;
     target = Math.max(0, Math.min(max, target));
     const diff = target - current;
-    if (Math.abs(diff) < 0.4) { place(target); return; }
-    place(current + diff * 0.15);
+    if (Math.abs(diff) < 0.4) { place(target); previous = 0; return; }
+    // The same ease at every refresh rate: a fixed fraction of the gap per unit of time.
+    const dt = previous ? Math.min(0.05, (now - previous) / 1000) : 1 / 60;
+    previous = now;
+    place(current + diff * (1 - Math.exp(-dt * 10)));
     frame = requestAnimationFrame(tick);
   }
   addEventListener('wheel', event => {

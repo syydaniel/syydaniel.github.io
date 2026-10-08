@@ -23,7 +23,7 @@ const tint = TINTS[[...f.bvid].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % 
 ---
 
 <button type="button" class:list={['film-open group block w-full text-left', className]} data-film={f.bvid} aria-label={`Play: ${f.title.en}`}>
-  <span class="poster-frame relative block aspect-[4/5] overflow-hidden rounded-2xl ring-1 ring-line transition-shadow duration-500 group-hover:ring-sol-400/30" style={`--poster-tint: var(${tint})`}>
+  <span class="poster-frame matted relative block aspect-[4/5] overflow-hidden rounded-2xl ring-1 ring-line transition-shadow duration-500 group-hover:ring-sol-400/30" style={`--poster-tint: var(${tint})`}>
     {!sm && <span class="poster-no" aria-hidden="true">{filmNumber(f.bvid)}</span>}
     <img
       src={coverThumb(f.cover, sm ? 320 : 640, sm ? 180 : 360)}

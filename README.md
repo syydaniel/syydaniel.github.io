@@ -96,6 +96,12 @@ from Google on demand for its headings.
   scrolling stirs it, a drop lands on its own now and then, and a pressed seal pours
   into it, and the opening ends with one drop blooming in the middle. Where half-float render
   targets are missing, `src/scripts/atmosphere.ts` draws a noise atmosphere instead.
+- **The sky, 天色** (`src/scripts/sky.ts`): the Sun's height and bearing over Wageningen are worked
+  out in the browser (no network), with today's sunrise and sunset; the weather comes from
+  Open-Meteo when it can be reached and is remembered for a quarter of an hour. The paper warms
+  while the Sun is low and cools and dims once it has set; the catchment is lit from where the Sun
+  stands, flatter under cloud; rain there lands as drops in the ink here and a wind there is a slow
+  drift; the globe shows the real day-night line; the footer and the ticker read it all out.
 - **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
   The name rises letter by letter in the display face, a counter runs, the seal stamps beside the
   name, the curtain lifts. Click or any key skips it.

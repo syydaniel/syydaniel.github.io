@@ -81,20 +81,21 @@ void main () {
 
 // By day the dye is absorbance: each drop darkens the paper toward its own hue.
 // By night (uDark) the same dye is light held in lamp-black: 黛青 for the inks,
-// a warm glow where the cinnabar fell. The hour in Wageningen tints both.
-const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uHour; uniform float uDim; uniform float uDark;
+// a warm glow where the cinnabar fell. The sky over Wageningen tints both: the
+// paper warms while the Sun is low (uGolden), cools and dims once it has set
+// (uNight), and leans warm or cold with the day's temperature (uWarmth).
+const DISPLAY = `precision highp float; varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uTexture; uniform vec2 uRes; uniform float uGolden; uniform float uNight; uniform float uWarmth; uniform float uDim; uniform float uDark;
 void main () {
   vec3 a = texture2D(uTexture, vUv).rgb;
-  float dawn = smoothstep(4.5, 7.0, uHour) * (1.0 - smoothstep(8.0, 10.5, uHour));
-  float dusk = smoothstep(16.5, 19.0, uHour) * (1.0 - smoothstep(20.0, 22.5, uHour));
-  float late = 1.0 - smoothstep(5.0, 8.0, uHour) * (1.0 - smoothstep(19.5, 23.0, uHour));
   vec3 paper = vec3(0.953, 0.937, 0.902);
-  paper = mix(paper, paper * vec3(1.0, 0.97, 0.92), (dawn + dusk) * 0.35);
-  paper = mix(paper, paper * vec3(0.95, 0.96, 0.98), late * 0.25);
+  paper = mix(paper, paper * vec3(1.0, 0.965, 0.90), uGolden * 0.45);
+  paper = mix(paper, paper * vec3(0.95, 0.965, 1.0), uNight * 0.3);
+  paper *= mix(vec3(1.0), vec3(1.0, 0.985, 0.955), max(uWarmth, 0.0) * 0.6);
+  paper *= mix(vec3(1.0), vec3(0.97, 0.985, 1.0), max(-uWarmth, 0.0) * 0.6);
   vec3 absorb = clamp(a * 0.6 * uDim, 0.0, 0.9);
-  vec3 day = paper * (vec3(1.0) - absorb);
+  vec3 day = paper * (vec3(1.0) - absorb) * mix(1.0, 0.955, uNight);
   vec3 lamp = vec3(0.071, 0.082, 0.086);
-  lamp = mix(lamp, lamp * vec3(1.12, 1.0, 0.9), (dawn + dusk) * 0.4);
+  lamp = mix(lamp, lamp * vec3(1.12, 1.0, 0.9), uGolden * 0.4);
   float dye = dot(a, vec3(0.3333));
   vec3 glow = dye * vec3(0.40, 0.60, 0.56) * 0.5 * uDim;
   float warm = max(a.g + a.b - a.r * 2.2, 0.0);
@@ -329,13 +330,24 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     draw(dye.write); dye.swap();
   }
 
-  const hourIn = new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: 'numeric', hour12: false, timeZone: 'Europe/Amsterdam' });
-  function localHour(): number {
-    const [h, m] = hourIn.format(new Date()).split(':').map(Number);
-    return (h % 24) + (m || 0) / 60;
+  // The sky over Wageningen (scripts/sky.ts): the Sun's height tints the paper;
+  // rain there lands as drops here; a wind there is a slow drift here.
+  let golden = 0, night = 0, warmth = 0, rain = 0, windX = 0, windY = 0;
+  function readSky() {
+    const sky = (window as any).__sky;
+    if (!sky) return;
+    golden = sky.golden ?? 0;
+    night = 1 - (sky.daylight ?? 1);
+    const w = sky.weather;
+    if (w) {
+      warmth = Math.max(-1, Math.min(1, (w.temp - 12) / 14));
+      rain = w.rain ?? 0;
+      const blowsTo = ((w.windDir ?? 0) + 180) * Math.PI / 180;
+      const k = w.wind >= 12 ? Math.min(1, w.wind / 45) : 0;
+      windX = Math.sin(blowsTo) * k; windY = Math.cos(blowsTo) * k;
+    }
+    wake();
   }
-  let hour = localHour();
-  setInterval(() => { hour = localHour(); }, 60000);
 
   const isDark = () => document.documentElement.dataset.theme === 'dark';
   let dark = isDark() ? 1 : 0;
@@ -346,7 +358,9 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     gl!.uniform2f(P.display.u.texelSize, 1 / dyeW, 1 / dyeH);
     gl!.uniform1i(P.display.u.uTexture, bind(dye.read, 0));
     gl!.uniform2f(P.display.u.uRes, canvas.width, canvas.height);
-    gl!.uniform1f(P.display.u.uHour, hour);
+    gl!.uniform1f(P.display.u.uGolden, golden);
+    gl!.uniform1f(P.display.u.uNight, night);
+    gl!.uniform1f(P.display.u.uWarmth, warmth);
     gl!.uniform1f(P.display.u.uDim, 1 - 0.7 * Math.min(1, scrollY / Math.max(1, innerHeight)));
     draw(null);
   }
@@ -413,6 +427,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   if (document.documentElement.dataset.intro === 'playing') addEventListener('intro:done', bloom, { once: true });
   else for (let i = 0; i < 4; i++) drop(0.2 + Math.random() * 0.6, 0.25 + Math.random() * 0.5, 0.14, 5);
   let nextDrop = performance.now() + 4000;
+  let nextGust = performance.now() + 3000;
 
   // ---- loop ----
   let last = 0, frame = 0, visible = !document.hidden;
@@ -422,7 +437,17 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     const dt = Math.min(0.033, last ? (now - last) / 1000 : 0.016);
     last = now;
     strokeLeft -= dt;
-    if (now > nextDrop) { drop(0.1 + Math.random() * 0.8, 0.15 + Math.random() * 0.7, 0.1 + Math.random() * 0.08, 3 + Math.random() * 4); nextDrop = now + 5000 + Math.random() * 6000; }
+    if (now > nextDrop) {
+      // Rain in Wageningen lands here too: more often and a little heavier.
+      drop(0.1 + Math.random() * 0.8, 0.15 + Math.random() * 0.7, 0.1 + Math.random() * 0.08 + rain * 0.1, 3 + Math.random() * 4);
+      nextDrop = now + (5000 + Math.random() * 6000) * (1 - 0.78 * rain);
+    }
+    if ((windX || windY) && now > nextGust) {
+      // The wind there is a slow drift here: a wide, weak push across the page.
+      const c = pickColor();
+      pending.push({ x: Math.random(), y: Math.random(), dx: windX * 700, dy: windY * 700, color: [c[0] * 0.02, c[1] * 0.02, c[2] * 0.02], radius: CONFIG.splatRadius * 7 });
+      nextGust = now + 1800 + Math.random() * 1600;
+    }
     while (pending.length) { const s = pending.shift()!; splat(s.x, s.y, s.dx, s.dy, s.color, s.radius); }
     step(dt);
     present();
@@ -448,6 +473,8 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     wake();
   };
   document.documentElement.dataset.atmosphere = 'ink';
+  readSky();
+  addEventListener('skychange', readSky);
   wake();
   return true;
 }

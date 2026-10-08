@@ -187,6 +187,13 @@ document.querySelectorAll<HTMLElement>('.section-eyebrow[data-chapter]').forEach
   slip.append(numeral, rule, label);
   section.dataset.hasMark = '';
   section.prepend(slip);
+  // The same numeral, written large and faint behind the chapter head (水印): a
+  // bearing you read without looking at it. It drifts slower than the page.
+  const mark = document.createElement('span');
+  mark.className = 'chapter-watermark';
+  mark.setAttribute('aria-hidden', 'true');
+  mark.textContent = numeral.textContent;
+  section.prepend(mark);
   slipped = true;
 });
 if (slipped && lang() !== 'en') (window as any).__applyI18n?.();
@@ -313,7 +320,9 @@ if (fine.matches && !still()) {
     x += (tx - x) * 0.12; y += (ty - y) * 0.12;
     bx += (tx - bx) * 0.3; by += (ty - by) * 0.3;
     if (spotlight) spotlight.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    if (badge) badge.style.transform = `translate3d(${bx}px, ${by}px, 0) scale(${role ? 1 : 0})`;
+    // The badge hangs off the pointer's lower right, so it never covers what is
+    // being pointed at, and it stays inside the window near the edges.
+    if (badge) badge.style.transform = `translate3d(${Math.min(innerWidth - 84, bx)}px, ${Math.min(innerHeight - 84, by)}px, 0) scale(${role ? 1 : 0})`;
     frame = Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(tx - bx) > 0.3 ? requestAnimationFrame(glide) : 0;
   }
   function setRole(next: string | null) {
@@ -466,7 +475,7 @@ if (giant) {
 
 // ---------- Time in Wageningen ----------
 const clockFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Amsterdam' });
-const clocks = document.querySelectorAll<HTMLElement>('.footer-clock b:not([data-solar-term]):not([data-lunar-date]), [data-intro-time], [data-ticker-time]');
+const clocks = document.querySelectorAll<HTMLElement>('.footer-clock b:not([data-solar-term]):not([data-lunar-date]):not([data-sky-sun]):not([data-sky-weather]), [data-intro-time], [data-ticker-time]');
 if (clocks.length) {
   const paint = () => clocks.forEach(el => { el.innerHTML = clockFormat.format(new Date()).replace(':', '<i>:</i>'); });
   paint();

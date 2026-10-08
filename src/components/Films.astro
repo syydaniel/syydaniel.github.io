@@ -59,7 +59,7 @@ const dot = (d: string) => d.replaceAll('-', '.');
       {
         featured.map((f) => (
           <article class="film-feature reveal" data-bvid={f.bvid}>
-            <div class="film-stage group relative overflow-hidden rounded-2xl bg-ink-950 ring-1 ring-line mounted">
+            <div class="film-stage matted group relative overflow-hidden rounded-2xl bg-ink-950 ring-1 ring-line mounted">
               <button type="button" class="film-play-target absolute inset-0 z-10 w-full h-full cursor-pointer text-left" aria-label={`Play: ${f.title.en}`}>
                 <img
                   src={f.featured!.still}

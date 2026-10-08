@@ -27,12 +27,12 @@ html[data-atmosphere] .aurora { opacity: 0.35; }
 html[data-spotlight="on"] #spotlight { opacity: 1; }
 #ink-trail { position: fixed; inset: 0; z-index: 60; pointer-events: none; mix-blend-mode: var(--ink-blend); }
 #cursor-badge {
-  position: fixed; left: 0; top: 0; z-index: 130; width: 78px; height: 78px; margin: -39px 0 0 -39px; border-radius: 50%;
+  position: fixed; left: 0; top: 0; z-index: 130; width: 62px; height: 62px; margin: 18px 0 0 18px; border-radius: 50%;
   display: grid; place-items: center; pointer-events: none;
   background: color-mix(in srgb, var(--ink) 86%, transparent); border: 1px solid color-mix(in srgb, var(--hi) 20%, transparent);
   backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
   font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--paper);
-  transform: scale(0); opacity: 0; transition: transform 420ms var(--ease-out-back), opacity 240ms ease; will-change: transform;
+  transform: scale(0); opacity: 0; transition: transform 420ms var(--ease-out-back), opacity 240ms ease; will-change: transform; transform-origin: 0 0;
 }
 #cursor-badge span { padding-left: 0.24em; }
 html[data-badge] #cursor-badge { opacity: 1; }
@@ -154,6 +154,17 @@ html[data-lang="zh"] .ink-stroke { bottom: -0.34em; }
 .hero-title.is-live ~ .hero-tagline .ink-stroke path { animation: ink-draw 1100ms var(--ease-out-expo) 1250ms forwards; }
 .hero-title:not([data-kinetic]) ~ .hero-tagline .ink-stroke path { stroke-dashoffset: 0; }
 @keyframes ink-draw { to { stroke-dashoffset: 0; } }
+
+/* ---------- Chapter watermark (水印): the numeral, large and faint, behind the head ---------- */
+.chapter[data-has-mark] { isolation: isolate; }
+.chapter-watermark { position: absolute; z-index: -1; right: clamp(0.5rem, 7vw, 7rem); top: clamp(1rem, 4vh, 2.5rem); font-family: var(--font-cjk); font-weight: 200; font-size: clamp(9rem, 22vw, 20rem); line-height: 1; letter-spacing: -0.04em; color: color-mix(in srgb, var(--ink) 4.5%, transparent); pointer-events: none; user-select: none; }
+[data-theme="dark"] .chapter-watermark { color: color-mix(in srgb, var(--ink) 5.5%, transparent); }
+@supports (animation-timeline: view()) {
+  .chapter-watermark { animation: watermark-drift linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
+  @keyframes watermark-drift { from { transform: translateY(9vh); } to { transform: translateY(-14vh); } }
+}
+@media (max-width: 767px) { .chapter-watermark { font-size: clamp(7rem, 34vw, 10rem); right: 3%; top: 2.25rem; } }
+@media (prefers-reduced-motion: reduce) { .chapter-watermark { animation: none; } }
 
 /* ---------- Navigation: a seal-red point under the chapter in view ---------- */
 .nav-link::after { content: ''; position: absolute; left: 50%; bottom: 3px; width: 3px; height: 3px; border-radius: 50%; background: var(--zhusha); transform: translateX(-50%) scale(0); transition: transform 450ms var(--ease-out-back); }
@@ -321,6 +332,8 @@ footer { overflow: hidden; }
 .footer-clock { display: inline-flex; align-items: baseline; gap: 0.6rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-4); }
 .footer-clock b { font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; }
 .footer-clock i { font-style: normal; animation: clock-blink 1s steps(2, start) infinite; }
+.footer-clock b .sky-mark, .ticker-item b .sky-mark { color: var(--ink-4); margin: 0 0.35em; }
+.footer-clock b [lang="zh"], .ticker-item b [lang="zh"] { font-family: var(--font-cjk); letter-spacing: 0.12em; }
 @keyframes clock-blink { to { visibility: hidden; } }
 .footer-term b, .footer-lunar b { color: var(--ochre); }
 .footer-term b span[lang="zh"], .footer-lunar b span[lang="zh"] { font-family: var(--font-cjk); font-size: 13px; letter-spacing: 0.3em; margin-right: 0.2em; }

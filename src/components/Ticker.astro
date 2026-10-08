@@ -9,11 +9,13 @@ import { films } from '../data/films';
 import travel from '../data/travel.generated.json';
 const latest = films.find((f) => f.featured) ?? films[0];
 const statKeys = ['stat.countries', 'stat.universities', 'stat.projects'];
-type Item = { key: string; label: string; value?: string; live?: 'time' | 'term' | 'lunar'; self?: Record<string, string> };
+type Item = { key: string; label: string; value?: string; live?: 'time' | 'term' | 'lunar' | 'sun' | 'weather'; self?: Record<string, string> };
 const items: Item[] = [
   { key: 'ticker.local_time', label: 'Local time, Wageningen', live: 'time' },
   { key: 'footer.term', label: 'Solar term', live: 'term' },
   { key: 'footer.lunar', label: 'Lunar date', live: 'lunar' },
+  { key: 'footer.sun', label: 'Sun', live: 'sun' },
+  { key: 'footer.weather', label: 'Weather', live: 'weather' },
   ...profile.stats.slice(0, 3).map((s, i) => ({ key: statKeys[i], label: s.label, value: s.value })),
   { key: 'ticker.frames', label: 'Frames', value: String(photos.length) },
   { key: 'ticker.films', label: 'Films', value: String(films.length) },
@@ -25,11 +27,13 @@ const items: Item[] = [
 <div class="hero-ticker marquee" aria-hidden="true" data-marquee data-speed="0.45">
   <div class="marquee-track">
     {[0, 1].map(() => items.map((item) => (
-      <span class="ticker-item">
+      <span class="ticker-item" hidden={item.live === 'sun' || item.live === 'weather'}>
         <span class="ticker-label" data-i18n={item.key}>{item.label}</span>
         {item.live === 'time' && <b data-ticker-time>--:--</b>}
         {item.live === 'term' && <b data-solar-term></b>}
         {item.live === 'lunar' && <b data-lunar-date></b>}
+        {item.live === 'sun' && <b data-sky-sun></b>}
+        {item.live === 'weather' && <b data-sky-weather></b>}
         {item.value && <b>{item.value}</b>}
         {item.self && <b data-i18n-self={JSON.stringify(item.self)}>{item.self.en}</b>}
       </span>
