@@ -100,6 +100,20 @@ get a still composition by default; a static SVG remains available if this parti
 cannot initialize. These lifecycle controls apply to the new particle layer; the original
 globe component is preserved.
 
+## Spatial photography exhibition
+
+`/gallery/` presents a 12-frame edit of the existing photo library in a curved CSS 3D
+wall. Open it from the hero or the invitation beside the photography section. Drag,
+swipe, scroll over a frame or use the arrow keys to browse. A photograph expands from
+its frame into a native dialog with its original location, date and camera metadata.
+
+The finite particle development loads its renderer on demand, stops after the image
+forms and cancels when off screen or in a hidden tab. Reduced-motion users get the
+photo directly; WebGL failure leaves the photo wall and viewer usable. Without
+JavaScript, the page is a normal photo grid with links to the original images.
+Edit `src/data/gallery.ts` to change the selection. The existing globe, Places and
+Photography components and their map controls are preserved.
+
 ## Performance note
 
 MapLibre (~800 KB) is loaded lazily with a dynamic `import()` triggered only when a map scrolls

@@ -59,7 +59,7 @@ function clearCard() {
 }
 document.addEventListener('pointermove', event => {
   if (!pointerMedia.matches || reducedMotion.matches) return;
-  const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('a.glass.card-hover, button.glass.card-hover, .site-nav-panel, .scene-console');
+  const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('a.glass.card-hover, button.glass.card-hover, .site-nav-panel, .scene-console, .gallery-console');
   if (!card) { clearCard(); return; }
   if (activeCard !== card) {
     clearCard();
