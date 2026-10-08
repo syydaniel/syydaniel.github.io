@@ -22,9 +22,26 @@ export type Sky = {
   phase: Phase;
   daylight: number; // 0 at night … 1 in full day
   golden: number; // 1 with the Sun on the horizon, 0 when it is high or long gone
+  night: boolean; // the Sun is below the horizon: the page wears its night ink
   sunrise: string | null; // "07:52", Wageningen time
   sunset: string | null;
+  moon: Moon | null;
   weather: Weather | null;
+};
+export type Moon = { day: number; lit: number; waxing: boolean };
+
+// ?sky=night and ?weather=storm on the URL stand in for the real thing, to see
+// the page in a state the sky over Wageningen is not in right now.
+const params = new URLSearchParams(location.search);
+const FORCED_PHASE = params.get('sky') as Phase | null;
+const FORCED_WEATHER = params.get('weather');
+const CANNED: Record<string, Partial<Weather>> = {
+  clear: { temp: 19, code: 0, wind: 6, windDir: 90, cloud: 0.05, rain: 0 },
+  cloud: { temp: 12, code: 3, wind: 14, windDir: 240, cloud: 0.95, rain: 0 },
+  fog: { temp: 7, code: 45, wind: 3, windDir: 180, cloud: 1, rain: 0 },
+  rain: { temp: 9, code: 61, wind: 24, windDir: 230, cloud: 0.9, rain: 0.6 },
+  snow: { temp: -2, code: 73, wind: 9, windDir: 20, cloud: 0.9, rain: 0.4 },
+  storm: { temp: 17, code: 95, wind: 38, windDir: 200, cloud: 1, rain: 0.9 }
 };
 
 const LAT = 51.97, LON = 5.66;
@@ -130,34 +147,81 @@ async function fetchWeather(): Promise<Weather | null> {
 }
 
 // ---- publish ----
-const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, sunrise: null, sunset: null, weather: null };
+const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false, sunrise: null, sunset: null, moon: null, weather: null };
+
+// The Moon's age from the Chinese calendar the browser already keeps: day 1 is
+// new, day 15 full. Enough for a glyph in the footer.
+function moonPhase(date = new Date()): Moon | null {
+  try {
+    const parts = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }).formatToParts(date);
+    const day = Number(parts.find((p) => p.type === 'day')?.value);
+    if (!day) return null;
+    const f = ((day - 1) / 29.53) % 1;
+    return { day, lit: (1 - Math.cos(f * Math.PI * 2)) / 2, waxing: f < 0.5 };
+  } catch { return null; }
+}
+// A small moon, lit from the right while waxing and from the left while waning.
+function moonSvg(m: Moon): string {
+  const r = 5.5, cx = 6, cy = 6;
+  const k = Math.cos(((m.waxing ? 1 : -1) * Math.acos(1 - 2 * m.lit)));
+  const rx = Math.abs(k) * r;
+  const sweepOuter = m.waxing ? 1 : 0;
+  const sweepInner = (k < 0) === m.waxing ? 1 : 0;
+  const lit = `M ${cx} ${cy - r} A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy + r} A ${rx.toFixed(2)} ${r} 0 0 ${sweepInner} ${cx} ${cy - r} Z`;
+  return `<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.55"/><path d="${lit}" fill="currentColor"/></svg>`;
+}
 const lang = () => root.dataset.lang ?? 'en';
 let timesDay = '';
 
 function readSun() {
   const now = new Date();
   const sun = sunAt(now);
+  if (FORCED_PHASE && ['night', 'dawn', 'day', 'dusk'].includes(FORCED_PHASE)) {
+    const el = { night: -20, dawn: 1, day: 35, dusk: 1 }[FORCED_PHASE]!;
+    sun.elevation = el; sun.azimuth = { night: 350, dawn: 95, day: 190, dusk: 265 }[FORCED_PHASE]!;
+  }
   sky.elevation = sun.elevation;
   sky.azimuth = sun.azimuth;
   sky.daylight = smooth(-6, 6, sun.elevation);
   sky.golden = (1 - smooth(0, 12, Math.abs(sun.elevation))) * smooth(-8, -2, sun.elevation);
+  sky.night = sun.elevation < -1.2;
   const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hour12: false, timeZone: ZONE }).format(now)) % 24;
-  sky.phase = sun.elevation < -6 ? 'night' : sun.elevation < 6 ? (hour < 12 ? 'dawn' : 'dusk') : 'day';
+  sky.phase = FORCED_PHASE && ['night', 'dawn', 'day', 'dusk'].includes(FORCED_PHASE) ? FORCED_PHASE : sun.elevation < -6 ? 'night' : sun.elevation < 6 ? (hour < 12 ? 'dawn' : 'dusk') : 'day';
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE }).format(now);
-  if (day !== timesDay) { timesDay = day; Object.assign(sky, sunTimes(now)); }
+  if (day !== timesDay) { timesDay = day; Object.assign(sky, sunTimes(now)); sky.moon = moonPhase(now); }
 }
 
 function paint() {
   root.dataset.sky = sky.phase;
   root.style.setProperty('--sky-daylight', sky.daylight.toFixed(3));
   root.style.setProperty('--sky-golden', sky.golden.toFixed(3));
+  root.dataset.night = sky.night ? '' : undefined as unknown as string;
+  if (!sky.night) delete root.dataset.night;
   const w = sky.weather;
+  // The light outside, for the stylesheet: where the Sun stands (east on the
+  // left, west on the right), how much of its glow gets through the cloud, and
+  // the veil of an overcast sky. At night the glow is the cool of the moon.
+  const cloud = w ? w.cloud : 0.5;
+  const kind = w ? weatherKind(w.code) : 'cloud';
+  const through = 1 - cloud * (kind === 'fog' || kind === 'storm' ? 0.95 : 0.8);
+  const glow = sky.night ? 0.35 * through : (0.3 + 0.7 * sky.golden) * through;
+  const glowColor = sky.night ? '#5f7a99' : sky.phase === 'dawn' ? '#f0bc98' : sky.phase === 'dusk' ? '#e9a476' : '#f2d6a2';
+  const veil = Math.min(1, cloud * 0.6 + (w ? w.rain * 0.5 : 0) + (kind === 'fog' ? 0.5 : 0) + (kind === 'storm' ? 0.4 : 0));
+  const veilColor = kind === 'snow' ? '#aeb8c4' : kind === 'rain' || kind === 'storm' ? '#5a6a78' : '#6a7076';
+  root.style.setProperty('--sky-x', Math.max(0, Math.min(1, (sky.azimuth - 70) / 220)).toFixed(3));
+  root.style.setProperty('--sky-glow', glow.toFixed(3));
+  root.style.setProperty('--sky-glow-color', glowColor);
+  root.style.setProperty('--sky-veil', veil.toFixed(3));
+  root.style.setProperty('--sky-veil-color', veilColor);
+  root.style.setProperty('--sky-dot', sky.night ? 'var(--daiqing-2)' : kind === 'storm' ? 'var(--zhusha)' : kind === 'rain' || kind === 'snow' || kind === 'fog' ? 'var(--ink-4)' : kind === 'cloud' ? 'var(--moss)' : 'var(--ochre-2)');
   if (w) {
-    root.dataset.weather = weatherKind(w.code);
+    root.dataset.weather = kind;
     root.style.setProperty('--sky-warmth', Math.max(-1, Math.min(1, (w.temp - 12) / 14)).toFixed(3));
     root.style.setProperty('--sky-cloud', w.cloud.toFixed(3));
     root.style.setProperty('--sky-rain', w.rain.toFixed(3));
+    root.style.setProperty('--sky-wind', Math.min(1, w.wind / 40).toFixed(3));
   }
+  if (sky.moon) document.querySelectorAll<HTMLElement>('[data-moon]').forEach((el) => { el.innerHTML = moonSvg(sky.moon!); el.title = `${lang() === 'zh' ? '农历' : 'Lunar day'} ${sky.moon!.day}`; });
   const sunText = sky.sunrise && sky.sunset ? `<span class="sky-mark">↑</span>${sky.sunrise}<span class="sky-mark">↓</span>${sky.sunset}` : '';
   document.querySelectorAll<HTMLElement>('[data-sky-sun]').forEach((el) => { el.innerHTML = sunText; el.closest<HTMLElement>('.ticker-item, .footer-clock')?.toggleAttribute('hidden', !sunText); });
   document.querySelectorAll<HTMLElement>('[data-sky-weather]').forEach((el) => {
@@ -191,6 +255,11 @@ setInterval(() => safely(() => { readSun(); paint(); }), 60000);
 addEventListener('lang:change', () => safely(paint));
 
 async function refreshWeather() {
+  if (FORCED_WEATHER && CANNED[FORCED_WEATHER]) {
+    sky.weather = { temp: 12, code: 3, wind: 10, windDir: 200, cloud: 0.5, rain: 0, isDay: !sky.night, at: Date.now(), ...CANNED[FORCED_WEATHER] };
+    safely(paint);
+    return;
+  }
   if (document.hidden || !navigator.onLine) return;
   const weather = await fetchWeather();
   if (!weather) return;

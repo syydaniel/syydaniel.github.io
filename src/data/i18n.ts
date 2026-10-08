@@ -42,6 +42,10 @@ export const dict: Record<string, Record<Lang, string>> = {
   'cursor.turn': { en: 'Turn', zh: '转动' },
   'theme.dark': { en: 'Switch to dark', zh: '切换到深色' },
   'theme.light': { en: 'Switch to light', zh: '切换到浅色' },
+  'theme.follows': { en: 'follows the sky over Wageningen until', zh: '跟着瓦赫宁根的天色，直到' },
+  'theme.pinned': { en: 'kept until', zh: '保持到' },
+  'sky.sunrise': { en: 'sunrise', zh: '日出' },
+  'sky.sunset': { en: 'sunset', zh: '日落' },
   'nav.skip': { en: 'Skip to content', zh: '跳至正文' },
 
   // Hero
@@ -271,6 +275,7 @@ export const dict: Record<string, Record<Lang, string>> = {
   'footer.term': { en: 'Solar term', zh: '节气' },
   'footer.lunar': { en: 'Lunar date', zh: '农历' },
   'footer.sun': { en: 'Sun, Wageningen', zh: '瓦赫宁根日出日落' },
+  'footer.alive': { en: 'The paper follows the Sun over Wageningen; when it rains there, it rains in the ink here.', zh: '纸色跟着瓦赫宁根的太阳走；那边下雨，这里的墨里也落雨。' },
   'footer.weather': { en: 'Weather, Wageningen', zh: '瓦赫宁根天气' },
   'cursor.play': { en: 'Play', zh: '播放' },
   'cursor.view': { en: 'View', zh: '查看' },

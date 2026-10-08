@@ -17,11 +17,37 @@ html[data-atmosphere] #atmosphere { opacity: 1; }
 html[data-atmosphere] .aurora { opacity: 0.35; }
 .aurora { transition: opacity 1.8s ease; }
 
+/* ---------- 天光: the light outside, laid over the paper ----------
+   scripts/sky.ts sets where the Sun is (--sky-x, left at dawn, right at dusk), how
+   much of its glow reaches the page (--sky-glow, less under cloud, none at night)
+   and the grey veil of an overcast or rainy sky (--sky-veil). Registered, so a
+   change in the weather eases in over a couple of seconds instead of snapping. */
+@property --sky-x { syntax: '<number>'; inherits: true; initial-value: 0.5; }
+@property --sky-glow { syntax: '<number>'; inherits: true; initial-value: 0; }
+@property --sky-veil { syntax: '<number>'; inherits: true; initial-value: 0; }
+@property --sky-glow-color { syntax: '<color>'; inherits: true; initial-value: #f2d6a2; }
+@property --sky-veil-color { syntax: '<color>'; inherits: true; initial-value: #6a7076; }
+@property --lamp-scale { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --lamp-strength { syntax: '<number>'; inherits: true; initial-value: 1; }
+html { transition: --sky-x 2.4s ease, --sky-glow 2.4s ease, --sky-veil 2.4s ease, --sky-glow-color 2.4s ease, --sky-veil-color 2.4s ease, --lamp-scale 1.2s ease, --lamp-strength 1.2s ease; }
+.skylight {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 72% 58% at calc(var(--sky-x) * 100%) -12%, color-mix(in srgb, var(--sky-glow-color) calc(var(--sky-glow) * 16%), transparent), transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 9%), transparent), color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 3%), transparent) 55%, transparent);
+}
+/* The cursor lamp is the light in the room: a cool daylight, warmer and smaller
+   at the lamp-lit hours, broad and dim under an overcast sky. */
+html[data-sky='dawn'], html[data-sky='dusk'] { --lamp-color: var(--ochre-2); }
+html[data-night] { --lamp-color: var(--ochre); --lamp-scale: 0.84; --lamp-strength: 1.3; }
+html[data-weather='cloud'], html[data-weather='fog'], html[data-weather='rain'], html[data-weather='storm'] { --lamp-scale: 1.22; --lamp-strength: 0.72; }
+html[data-weather='snow'] { --lamp-scale: 1.1; }
+
 /* ---------- Cursor lamp, ink trail, cursor badge ---------- */
 #spotlight {
   position: fixed; left: 0; top: 0; width: 720px; height: 720px; margin: -360px 0 0 -360px; border-radius: 50%;
   pointer-events: none; z-index: 2; opacity: 0;
-  background: radial-gradient(circle, color-mix(in srgb, var(--daiqing) 8%, transparent), color-mix(in srgb, var(--daiqing) 3%, transparent) 32%, transparent 62%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--lamp-color, var(--daiqing)) calc(var(--lamp-strength) * 8%), transparent), color-mix(in srgb, var(--lamp-color, var(--daiqing)) calc(var(--lamp-strength) * 3%), transparent) 32%, transparent 62%);
   mix-blend-mode: var(--ink-blend); transition: opacity 0.6s ease; will-change: transform;
 }
 html[data-spotlight="on"] #spotlight { opacity: 1; }
@@ -188,15 +214,20 @@ html[data-lang="zh"] .ink-stroke { bottom: -0.34em; }
   transition-delay: calc(var(--i, 0) * 110ms); transform-origin: left bottom;
 }
 
-/* ---------- Statement: the type breathes as it crosses the viewport ---------- */
-.statement { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: clamp(3rem, 9vh, 7rem) 24px clamp(2rem, 6vh, 4rem); text-align: center; --soft: 30; --soft-i: 100; --wght: 300; }
-.statement-text { font-family: var(--font-display); font-weight: 300; font-size: clamp(2.1rem, 5.6vw, 5.2rem); line-height: 1.12; letter-spacing: -0.035em; color: var(--ink); text-wrap: balance; }
+/* ---------- Statement: the type breathes as it crosses the viewport ----------
+   scripts/kinetics.ts fits the three lines at their heaviest first (--fit), so the
+   breathing never re-breaks a line; where they must wrap, only the stroke breathes. */
+.statement { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: clamp(3rem, 9vh, 7rem) 24px clamp(2rem, 6vh, 4rem); text-align: center; --soft: 30; --soft-i: 100; --wght: 300; --fit: 1; --breath: 0; }
+.statement-text { font-family: var(--font-display); font-weight: 300; font-size: calc(clamp(2.1rem, 5.6vw, 5.2rem) * var(--fit)); line-height: 1.12; letter-spacing: -0.035em; color: var(--ink); text-wrap: balance; }
+.statement.is-fitted .statement-text, .statement.is-measuring .statement-text { white-space: nowrap; text-wrap: nowrap; }
+.statement.is-measuring { --fit: 1 !important; --soft: 100 !important; --soft-i: 100 !important; --wght: 430 !important; }
 .statement-text .st { margin: 0 0.12em; font-variation-settings: 'opsz' 144, 'SOFT' var(--soft), 'WONK' 1, 'wght' var(--wght); }
 .st-italic, .st-gradient { font-style: italic; font-variation-settings: 'opsz' 144, 'SOFT' var(--soft-i), 'WONK' 1, 'wght' var(--wght); }
+.statement.is-wrapping .st:not(.st-outline):not(.st-gradient) { -webkit-text-stroke: calc(var(--breath) * 0.5px) currentColor; }
 .st-italic { color: var(--daiqing); }
 .st-outline { color: transparent; -webkit-text-stroke: 1.1px color-mix(in srgb, var(--ink) 72%, transparent); }
 .statement-rule { display: block; width: 2.5rem; height: 1px; margin: 2.4rem auto 0; background: linear-gradient(90deg, transparent, var(--zhusha), transparent); }
-html[data-lang='cat'] .statement-text { font-size: clamp(1.6rem, 3vw, 2.4rem); }
+html[data-lang='cat'] .statement-text { font-size: calc(clamp(1.6rem, 3vw, 2.4rem) * var(--fit)); }
 html[data-lang='cat'] .st-outline { color: inherit; -webkit-text-stroke: 0; }
 
 /* ---------- Chapter slips (题签): the numeral and the chapter name on a narrow label ---------- */
@@ -338,6 +369,11 @@ footer { overflow: hidden; }
 .footer-clock b { font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; }
 .footer-clock i { font-style: normal; animation: clock-blink 1s steps(2, start) infinite; }
 .footer-clock b .sky-mark, .ticker-item b .sky-mark { color: var(--ink-4); margin: 0 0.35em; }
+.moon { display: inline-block; width: 12px; height: 12px; color: var(--ink-2); vertical-align: -1px; }
+.moon:empty { display: none; }
+.moon svg { display: block; }
+.footer-alive { flex-basis: 100%; margin-top: 0.4rem; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 13px; color: var(--ink-4); }
+html[data-lang='zh'] .footer-alive { font-family: var(--font-cjk); font-style: normal; font-size: 12px; letter-spacing: 0.04em; }
 .footer-clock b [lang="zh"], .ticker-item b [lang="zh"] { font-family: var(--font-cjk); letter-spacing: 0.12em; }
 @keyframes clock-blink { to { visibility: hidden; } }
 .footer-term b, .footer-lunar b { color: var(--ochre); }
@@ -392,7 +428,7 @@ html[data-lang='zh'] [data-i18n-flush] { word-break: keep-all; overflow-wrap: an
 /* CJK punctuation: full-width marks hang at line ends and tuck in at line starts; Latin inside Chinese gets its thin space. */
 html[data-lang='zh'] .section-title, html[data-lang='zh'] .hero-tagline, html[data-lang='zh'] .statement-text, html[data-lang='zh'] p, html[data-lang='zh'] .poster-title, html[data-lang='zh'] .film-title { text-spacing-trim: trim-start; text-autospace: normal; hanging-punctuation: allow-end; }
 html[data-lang='zh'] .hero-tagline { font-size: 21px; line-height: 1.6; }
-html[data-lang='zh'] .statement-text { font-size: clamp(1.9rem, 4.6vw, 4.2rem); line-height: 1.3; letter-spacing: 0.03em; }
+html[data-lang='zh'] .statement-text { font-size: calc(clamp(1.9rem, 4.6vw, 4.2rem) * var(--fit)); line-height: 1.3; letter-spacing: 0.03em; }
 html[data-lang='zh'] .statement-text .st, html[data-lang='zh'] .st-italic, html[data-lang='zh'] .st-gradient { font-variation-settings: normal; font-style: normal; }
 html[data-lang='zh'] .section-title .italic, html[data-lang='zh'] .section-title .text-gradient, html[data-lang='zh'] .ink em, html[data-lang='zh'] .marquee-word { font-style: normal; }
 html[data-lang='zh'] .ink em { font-variation-settings: normal; }

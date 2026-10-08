@@ -1,10 +1,12 @@
-// Day ink, night ink. The page follows the system's colour scheme until the
-// reader fixes one with the toggle in the navigation; choosing the scheme the
-// system already uses lets the page follow the system again. The choice is
-// remembered per browser. Base.astro sets html[data-theme] before first paint
-// from the same rule, so nothing flashes. Other layers (the ink fluid, the
-// catchment, the globe, the maps) listen for `themechange` and read their
-// colours from the tokens through `inkTokens()`.
+// Day ink, night ink. The page wears the day ink while the Sun is up over
+// Wageningen and the night ink once it has set (scripts/sky.ts); the system's
+// colour scheme decides only where the sky cannot be worked out. The toggle in
+// the navigation pins an ink, and the pin lasts until the sky next changes
+// (the following sunrise or sunset), after which the page follows the sky
+// again. Base.astro sets html[data-theme] before first paint from the same
+// rule, so nothing flashes. Other layers (the ink fluid, the catchment, the
+// globe, the maps) listen for `themechange` and read their colours from the
+// tokens through `inkTokens()`.
 
 export type Theme = 'light' | 'dark';
 
@@ -12,15 +14,38 @@ const root = document.documentElement;
 const media = matchMedia('(prefers-color-scheme: dark)');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const KEY = 'theme';
+const UNTIL = 'theme-until'; // 'day' or 'night': the sky the pin was made under
 
 export function currentTheme(): Theme {
   return root.dataset.theme === 'dark' ? 'dark' : root.dataset.theme === 'light' ? 'light' : media.matches ? 'dark' : 'light';
 }
+// What the sky over Wageningen asks for right now, if it is known.
+function skyTheme(): Theme | null {
+  const sky = (window as any).__sky as { night?: boolean } | undefined;
+  if (!sky || typeof sky.night !== 'boolean') return null;
+  return sky.night ? 'dark' : 'light';
+}
+const skyWord = () => (skyTheme() === 'dark' ? 'night' : skyTheme() === 'light' ? 'day' : null);
 function stored(): Theme | null {
-  try { const t = localStorage.getItem(KEY); return t === 'light' || t === 'dark' ? t : null; } catch { return null; }
+  try {
+    const t = localStorage.getItem(KEY);
+    if (t !== 'light' && t !== 'dark') return null;
+    // A pin outlives its sky: the next sunrise or sunset lets it go.
+    const until = localStorage.getItem(UNTIL);
+    const now = skyWord();
+    if (until && now && until !== now) { localStorage.removeItem(KEY); localStorage.removeItem(UNTIL); return null; }
+    return t;
+  } catch { return null; }
 }
 function remember(t: Theme | null) {
-  try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch {}
+  try {
+    if (t) { localStorage.setItem(KEY, t); const w = skyWord(); if (w) localStorage.setItem(UNTIL, w); else localStorage.removeItem(UNTIL); }
+    else { localStorage.removeItem(KEY); localStorage.removeItem(UNTIL); }
+  } catch {}
+}
+// The ink the page should wear: the pin, else the sky, else the system.
+function preferred(): Theme {
+  return stored() ?? skyTheme() ?? (media.matches ? 'dark' : 'light');
 }
 
 // Resolve tokens to concrete colours (light-dark() stays unresolved on the root).
@@ -60,7 +85,19 @@ function paintLabels() {
   const t = (window as any).__t as ((k: string) => string) | undefined;
   const next = currentTheme() === 'dark' ? 'light' : 'dark';
   const text = t?.(`theme.${next}`) || (next === 'dark' ? 'Switch to night ink' : 'Switch to day ink');
-  labels.forEach(el => { el.setAttribute('aria-label', text); el.title = text; });
+  // The tooltip says why the page wears this ink and how long that lasts: the
+  // page follows the sky over Wageningen until the next sunset or sunrise, and
+  // a chosen ink is kept until then too.
+  const sky = (window as any).__sky as { night?: boolean; sunrise?: string | null; sunset?: string | null } | undefined;
+  let why = '';
+  if (sky && typeof sky.night === 'boolean') {
+    const at = sky.night ? sky.sunrise : sky.sunset;
+    const event = (t?.(sky.night ? 'sky.sunrise' : 'sky.sunset') || (sky.night ? 'sunrise' : 'sunset')) + (at ? ` ${at}` : '');
+    const pinned = (() => { try { return !!localStorage.getItem(KEY); } catch { return false; } })();
+    const zh = root.dataset.lang === 'zh';
+    why = ` · ${t?.(pinned ? 'theme.pinned' : 'theme.follows') || (pinned ? 'kept until' : 'follows the sky until')}${zh ? '' : ' '}${event}`;
+  }
+  labels.forEach(el => { el.setAttribute('aria-label', text); el.title = text + why; });
 }
 function paintMeta(theme: Theme) {
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(m => { m.content = theme === 'dark' ? '#121516' : '#f3efe6'; });
@@ -99,8 +136,10 @@ export function applyTheme(theme: Theme, from?: { x: number; y: number }) {
 
 export function toggleTheme(from?: { x: number; y: number }) {
   const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
-  const system: Theme = media.matches ? 'dark' : 'light';
-  remember(next === system ? null : next);
+  const sky = skyTheme();
+  // Choosing what the sky (or, failing that, the system) already gives is just following again.
+  const follows = sky ? next === sky : next === (media.matches ? 'dark' : 'light');
+  remember(follows ? null : next);
   applyTheme(next, from);
 }
 
@@ -112,8 +151,19 @@ labels.forEach(el => {
 });
 paintLabels();
 addEventListener('lang:change', paintLabels);
-// The system changed its mind and nothing is pinned: follow it.
-media.addEventListener('change', () => { if (!stored()) applyTheme(media.matches ? 'dark' : 'light'); });
+// The Sun set or rose while the page was open, or the system changed its mind:
+// an unpinned page follows, with the ink wiped out from the middle of the page.
+function follow() {
+  const next = preferred();
+  if (next === currentTheme()) return;
+  // Before the first paint there is nothing to wipe: just wear the right ink.
+  const settled = document.readyState === 'complete' && !document.hidden;
+  applyTheme(next, settled ? { x: innerWidth / 2, y: innerHeight / 2 } : undefined);
+}
+addEventListener('skychange', () => { follow(); paintLabels(); });
+media.addEventListener('change', follow);
 // Another tab chose: keep the tabs in step.
-addEventListener('storage', e => { if (e.key === KEY) applyTheme(stored() ?? (media.matches ? 'dark' : 'light')); });
+addEventListener('storage', e => { if (e.key === KEY || e.key === UNTIL) applyTheme(preferred()); });
+// Base.astro chose the first ink from the same rule; the sky, once read, confirms or corrects it.
+addEventListener('load', follow);
 (window as any).__theme = { current: currentTheme, toggle: toggleTheme, tokens: inkTokens };

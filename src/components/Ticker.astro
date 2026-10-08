@@ -32,6 +32,7 @@ const items: Item[] = [
         {item.live === 'time' && <b data-ticker-time>--:--</b>}
         {item.live === 'term' && <b data-solar-term></b>}
         {item.live === 'lunar' && <b data-lunar-date></b>}
+        {item.live === 'lunar' && <span class="moon" data-moon></span>}
         {item.live === 'sun' && <b data-sky-sun></b>}
         {item.live === 'weather' && <b data-sky-weather></b>}
         {item.value && <b>{item.value}</b>}

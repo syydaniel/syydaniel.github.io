@@ -151,20 +151,60 @@ titles.forEach(title => {
 });
 
 // ---------- The statement breathes: softness and weight follow its place on screen ----------
+// Weight and softness change the glyph widths, so the three lines are fitted
+// first, at their heaviest: on a wide screen the size gives a little so that no
+// line ever breaks mid-breath (a line breaking as the type swells moved every
+// chapter below it by a line, and the chapter rail landed a line short), on a
+// narrow one the lines wrap, the metrics stay put and only the stroke breathes.
 const statement = document.querySelector<HTMLElement>('.statement');
-if (statement && !still()) {
-  let inView = false, frame = 0;
-  const paint = () => {
-    frame = 0;
-    const box = statement.getBoundingClientRect();
-    const p = Math.max(0, Math.min(1, (innerHeight - box.top) / (innerHeight + box.height)));
-    const m = Math.sin(p * Math.PI);
-    statement.style.setProperty('--soft', (20 + 80 * m).toFixed(1));
-    statement.style.setProperty('--soft-i', (60 + 40 * m).toFixed(1));
-    statement.style.setProperty('--wght', (300 + 130 * m).toFixed(0));
+const statementText = statement?.querySelector<HTMLElement>('.statement-text');
+if (statement && statementText) {
+  const text = statementText;
+  let fitted = false;
+  const fit = () => {
+    statement.classList.add('is-measuring');
+    const spans = Array.from(text.querySelectorAll<HTMLElement>('.st')).sort((a, b) => a.offsetTop - b.offsetTop);
+    const em = parseFloat(getComputedStyle(text).fontSize), step = em * 0.5;
+    let widest = 0, top = -Infinity, left = 0, right = 0;
+    for (const span of spans) {
+      if (span.offsetTop - top > step) { widest = Math.max(widest, right - left); top = span.offsetTop; left = span.offsetLeft; right = span.offsetLeft + span.offsetWidth; }
+      else { left = Math.min(left, span.offsetLeft); right = Math.max(right, span.offsetLeft + span.offsetWidth); }
+    }
+    widest = Math.max(widest, right - left) + em * 0.24; // the outer margins of a line's first and last phrase
+    statement.classList.remove('is-measuring');
+    const scale = text.clientWidth / (widest * 1.005 || 1);
+    fitted = scale >= 0.84;
+    statement.classList.toggle('is-fitted', fitted);
+    statement.classList.toggle('is-wrapping', !fitted);
+    if (fitted) statement.style.setProperty('--fit', Math.min(1, scale).toFixed(3));
+    else statement.style.removeProperty('--fit');
   };
-  new IntersectionObserver(entries => { inView = entries.some(e => e.isIntersecting); if (inView && !frame) frame = requestAnimationFrame(paint); }, { rootMargin: '10%' }).observe(statement);
-  addEventListener('scroll', () => { if (inView && !frame) frame = requestAnimationFrame(paint); }, { passive: true });
+  fit();
+  document.fonts?.ready.then(fit);
+  document.fonts?.addEventListener('loadingdone', fit);
+  addEventListener('lang:change', () => requestAnimationFrame(fit));
+  let refit = 0;
+  addEventListener('resize', () => { clearTimeout(refit); refit = window.setTimeout(fit, 120); });
+  if (!still()) {
+    let inView = false, frame = 0;
+    const paint = () => {
+      frame = 0;
+      const box = statement.getBoundingClientRect();
+      const p = Math.max(0, Math.min(1, (innerHeight - box.top) / (innerHeight + box.height)));
+      const m = Math.sin(p * Math.PI);
+      if (fitted) {
+        statement.style.setProperty('--soft', (20 + 80 * m).toFixed(1));
+        statement.style.setProperty('--soft-i', (60 + 40 * m).toFixed(1));
+        statement.style.setProperty('--wght', (300 + 130 * m).toFixed(0));
+        statement.style.removeProperty('--breath');
+      } else {
+        statement.style.removeProperty('--soft'); statement.style.removeProperty('--soft-i'); statement.style.removeProperty('--wght');
+        statement.style.setProperty('--breath', m.toFixed(3));
+      }
+    };
+    new IntersectionObserver(entries => { inView = entries.some(e => e.isIntersecting); if (inView && !frame) frame = requestAnimationFrame(paint); }, { rootMargin: '10%' }).observe(statement);
+    addEventListener('scroll', () => { if (inView && !frame) frame = requestAnimationFrame(paint); }, { passive: true });
+  }
 }
 
 // ---------- Chapter slips (题签): numeral and chapter name on a narrow label ----------
@@ -286,7 +326,9 @@ document.querySelectorAll<HTMLElement>('[data-marquee]').forEach(marquee => {
   function tick() {
     frame = 0;
     if (!visible || !half) return;
-    speed += (base + (leans ? Math.min(14, Math.abs(velocity) * 0.25) : 0) - speed) * 0.08;
+    // The wind in Wageningen moves the ribbons a little faster.
+    const gust = Math.min(1, (((window as any).__sky?.weather?.wind as number | undefined) ?? 0) / 40);
+    speed += (base * (1 + gust * 0.8) + (leans ? Math.min(14, Math.abs(velocity) * 0.25) : 0) - speed) * 0.08;
     skew += ((leans ? Math.max(-12, Math.min(12, velocity * 0.35)) : 0) - skew) * 0.1;
     velocity *= 0.9;
     offset = (offset + speed * direction) % half;
@@ -319,7 +361,7 @@ if (fine.matches && !still()) {
   function glide() {
     x += (tx - x) * 0.12; y += (ty - y) * 0.12;
     bx += (tx - bx) * 0.3; by += (ty - by) * 0.3;
-    if (spotlight) spotlight.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    if (spotlight) spotlight.style.transform = `translate3d(${x}px, ${y}px, 0) scale(var(--lamp-scale, 1))`;
     // The badge hangs off the pointer's lower right, so it never covers what is
     // being pointed at, and it stays inside the window near the edges.
     if (badge) badge.style.transform = `translate3d(${Math.min(innerWidth - 84, bx)}px, ${Math.min(innerHeight - 84, by)}px, 0) scale(${role ? 1 : 0})`;
