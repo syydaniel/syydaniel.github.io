@@ -56,6 +56,7 @@ uniform float uWater;
 uniform float uLevels;
 uniform float uTime;
 uniform float uDark;
+uniform float uDiffuse; // cloud cover flattens the light
 varying float vH;
 varying float vFog;
 varying vec2 vXZ;
@@ -72,7 +73,7 @@ void main() {
   float line = max(minor * 0.5, major * 0.92);
   // 墨分五色: five densities of wash by elevation band, lit by the hillshade.
   float band = clamp(floor((vH + 0.7) / 1.4 * 5.0), 0.0, 4.0);
-  float lit = smoothstep(-0.2, 0.9, vShade);
+  float lit = mix(smoothstep(-0.2, 0.9, vShade), 0.58, uDiffuse * 0.65);
   // On paper the wash is ink: deepest on the shadowed slopes and in the lowest band.
   float wash = (0.04 + (4.0 - band) * 0.035) * (0.6 + (1.0 - lit) * 0.9);
   float shadow = (1.0 - lit) * 0.34;
@@ -118,6 +119,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     uLevels: { value: 11 },
     uLight: { value: new THREE.Vector3(-0.55, 0.62, 0.55) },
     uPress: { value: new THREE.Vector3(0, 0, 0) },
+    uDiffuse: { value: 0 },
     uDark: { value: document.documentElement.dataset.theme === 'dark' ? 1 : 0 }
   };
   addEventListener('themechange', () => { uniforms.uDark.value = document.documentElement.dataset.theme === 'dark' ? 1 : 0; wake(); });
@@ -151,9 +153,25 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.05);
   const hit = new THREE.Vector3();
   const ndc = new THREE.Vector2();
-  const lightRest = new THREE.Vector3(-0.55, 0.62, 0.55);
+  // The resting light is the Sun over Wageningen (scripts/sky.ts): it stands
+  // where the Sun stands, from the east in the morning to the west at dusk,
+  // low in winter; after dark a lamp from the viewer's side takes over, and
+  // cloud cover flattens the shading. North is away from the viewer.
+  const LAMP = new THREE.Vector3(-0.55, 0.62, 0.55);
+  const lightRest = LAMP.clone();
   const lightAim = lightRest.clone();
   let handX = 0, handZ = 0, handOn = false, pressAim = 0;
+  function readSky() {
+    const sky = (window as any).__sky;
+    if (!sky) return;
+    const deg = Math.PI / 180;
+    const az = sky.azimuth * deg, el = Math.max(10, sky.elevation) * deg;
+    const sun = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el));
+    lightRest.copy(LAMP).lerp(sun, sky.daylight).normalize();
+    if (!handOn) lightAim.copy(lightRest);
+    uniforms.uDiffuse.value = sky.weather ? sky.weather.cloud : 0;
+    wake();
+  }
   function locate(clientX: number, clientY: number): boolean {
     const rect = host.getBoundingClientRect();
     ndc.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
@@ -168,8 +186,8 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
       if (reduced.matches) return;
       handOn = locate(e.clientX, e.clientY);
       pressAim = handOn ? 0.11 : 0;
-      // The light stands where the pointer is, a little above the ground.
-      lightAim.set(-0.55 + ndc.x * 1.1, 0.62, 0.55 - ndc.y * 0.6).normalize();
+      // The light leans toward the pointer, from wherever the Sun has it.
+      lightAim.set(lightRest.x + ndc.x * 0.9, lightRest.y, lightRest.z - ndc.y * 0.5).normalize();
     }, { passive: true });
     surface.addEventListener('pointerleave', () => { handOn = false; pressAim = 0; lightAim.copy(lightRest); });
   }
@@ -219,6 +237,8 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   new IntersectionObserver(entries => { visible = entries.some(e => e.isIntersecting); if (visible) wake(); }, { rootMargin: '0px' }).observe(host);
   document.addEventListener('visibilitychange', wake);
   reduced.addEventListener('change', () => { landing = 1; wake(); });
+  readSky();
+  addEventListener('skychange', readSky);
   const begin = () => { host.dataset.ready = ''; wake(); };
   if (document.documentElement.dataset.intro === 'playing') addEventListener('intro:done', begin, { once: true });
   else begin();

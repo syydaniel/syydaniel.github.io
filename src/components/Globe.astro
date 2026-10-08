@@ -25,7 +25,7 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
 
 <div class="globe-wrap relative w-full aspect-square max-w-md mx-auto">
   <canvas id="globe-canvas" class="w-full h-full"></canvas>
-  <div id="globe-label" class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md p-1.5 text-xs font-mono opacity-0 transition-opacity duration-300 max-w-[220px] z-20 border"></div>
+  <div id="globe-label" class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full -mt-4 rounded-md p-1.5 text-xs font-mono opacity-0 transition-opacity duration-300 max-w-[220px] z-20 border"></div>
   <p class="globe-hint" aria-hidden="true">
     <span class="globe-hint-dot"></span>
     <span data-i18n="globe.hint">Drag to rotate</span>
@@ -52,6 +52,7 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
 <script>
   import * as THREE from 'three';
   import { inkTokens, rgbOf } from '../scripts/theme';
+  import { subsolar } from '../scripts/sky';
 
   type Loc = { en: string; zh: string };
   type City = { id: string; name: Loc; country: Loc; coords: [number, number]; role: Loc };
@@ -93,7 +94,8 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
     uPaper: { value: colour('paper-2') },
     uInk: { value: colour('ink') },
     uRim: { value: colour('daiqing') },
-    uDark: { value: isDark() ? 1 : 0 }
+    uDark: { value: isDark() ? 1 : 0 },
+    uSun: { value: new THREE.Vector3(0, 0, 1) } // toward the Sun, in view space
   };
   const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(1, 72, 72),
@@ -101,13 +103,17 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
       uniforms: sphereUniforms,
       vertexShader: `varying vec3 vN; varying vec3 vV;
         void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
-      fragmentShader: `uniform vec3 uPaper; uniform vec3 uInk; uniform vec3 uRim; uniform float uDark; varying vec3 vN; varying vec3 vV;
+      fragmentShader: `uniform vec3 uPaper; uniform vec3 uInk; uniform vec3 uRim; uniform float uDark; uniform vec3 uSun; varying vec3 vN; varying vec3 vV;
         void main() {
           float ndv = max(dot(vN, vV), 0.0);
           float rim = pow(1.0 - ndv, 2.6);
           float lit = dot(vN, normalize(vec3(-0.45, 0.7, 0.55))) * 0.5 + 0.5;
+          // The real terminator: the half of the Earth that is in daylight right now.
+          float dayside = smoothstep(-0.2, 0.22, dot(vN, uSun));
           vec3 day = mix(uPaper * mix(0.965, 1.02, lit), uInk, rim * 0.3);
+          day = mix(day * vec3(0.905, 0.925, 0.935), day, dayside);
           vec3 night = uPaper * mix(0.85, 1.25, lit) + uRim * rim * 0.5;
+          night = mix(night * 0.78, night + uRim * 0.05, dayside);
           gl_FragColor = vec4(mix(day, night, uDark), 1.0);
         }`
     })
@@ -351,8 +357,8 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
   const place = (x: number, y: number) => {
     if (!label) return;
     const rect = canvas.getBoundingClientRect();
-    label.style.left = `${((x - rect.left) / rect.width) * 100}%`;
-    label.style.top = `${((y - rect.top) / rect.height) * 100}%`;
+    label.style.left = `${Math.max(18, Math.min(82, ((x - rect.left) / rect.width) * 100))}%`;
+    label.style.top = `${Math.max(12, ((y - rect.top) / rect.height) * 100)}%`;
   };
   const hide = () => { if (label) label.style.opacity = '0'; };
   const say = (text: string, x: number, y: number) => { if (!label) return; label.textContent = text; label.style.opacity = '1'; place(x, y); };
@@ -531,6 +537,9 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
       b.sprite.scale.setScalar(b.sprite.scale.x + (target - b.sprite.scale.x) * 0.2);
       (b.halo.material as THREE.SpriteMaterial).opacity += ((hovered ? 0.35 : 0) - (b.halo.material as THREE.SpriteMaterial).opacity) * 0.2;
     });
+    // Where the Sun is overhead, carried into view space with the globe's turn.
+    const sun = subsolar();
+    sphereUniforms.uSun.value.copy(latLonToVec3(sun.lon, sun.lat, 1)).transformDirection(globe.matrixWorld).transformDirection(camera.matrixWorldInverse);
     renderer.render(scene, camera);
     const moving = dragging || turnTarget !== null || Math.abs(velY) > 1e-5 || Math.abs(scrollSpin) > 1e-5 || !still;
     if (onScreen && !document.hidden && moving) frame = requestAnimationFrame(tick);

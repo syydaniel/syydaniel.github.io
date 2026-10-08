@@ -27,12 +27,12 @@ html[data-atmosphere] .aurora { opacity: 0.35; }
 html[data-spotlight="on"] #spotlight { opacity: 1; }
 #ink-trail { position: fixed; inset: 0; z-index: 60; pointer-events: none; mix-blend-mode: var(--ink-blend); }
 #cursor-badge {
-  position: fixed; left: 0; top: 0; z-index: 130; width: 78px; height: 78px; margin: -39px 0 0 -39px; border-radius: 50%;
+  position: fixed; left: 0; top: 0; z-index: 130; width: 62px; height: 62px; margin: 18px 0 0 18px; border-radius: 50%;
   display: grid; place-items: center; pointer-events: none;
   background: color-mix(in srgb, var(--ink) 86%, transparent); border: 1px solid color-mix(in srgb, var(--hi) 20%, transparent);
   backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
   font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--paper);
-  transform: scale(0); opacity: 0; transition: transform 420ms var(--ease-out-back), opacity 240ms ease; will-change: transform;
+  transform: scale(0); opacity: 0; transition: transform 420ms var(--ease-out-back), opacity 240ms ease; will-change: transform; transform-origin: 0 0;
 }
 #cursor-badge span { padding-left: 0.24em; }
 html[data-badge] #cursor-badge { opacity: 1; }
@@ -332,6 +332,8 @@ footer { overflow: hidden; }
 .footer-clock { display: inline-flex; align-items: baseline; gap: 0.6rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-4); }
 .footer-clock b { font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; }
 .footer-clock i { font-style: normal; animation: clock-blink 1s steps(2, start) infinite; }
+.footer-clock b .sky-mark, .ticker-item b .sky-mark { color: var(--ink-4); margin: 0 0.35em; }
+.footer-clock b [lang="zh"], .ticker-item b [lang="zh"] { font-family: var(--font-cjk); letter-spacing: 0.12em; }
 @keyframes clock-blink { to { visibility: hidden; } }
 .footer-term b, .footer-lunar b { color: var(--ochre); }
 .footer-term b span[lang="zh"], .footer-lunar b span[lang="zh"] { font-family: var(--font-cjk); font-size: 13px; letter-spacing: 0.3em; margin-right: 0.2em; }

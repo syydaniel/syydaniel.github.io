@@ -270,6 +270,8 @@ export const dict: Record<string, Record<Lang, string>> = {
   'footer.top': { en: 'Back to top', zh: '回到顶部' },
   'footer.term': { en: 'Solar term', zh: '节气' },
   'footer.lunar': { en: 'Lunar date', zh: '农历' },
+  'footer.sun': { en: 'Sun, Wageningen', zh: '瓦赫宁根日出日落' },
+  'footer.weather': { en: 'Weather, Wageningen', zh: '瓦赫宁根天气' },
   'cursor.play': { en: 'Play', zh: '播放' },
   'cursor.view': { en: 'View', zh: '查看' },
   'cursor.enter': { en: 'Enter', zh: '进入' },

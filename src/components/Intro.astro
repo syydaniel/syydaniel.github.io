@@ -32,7 +32,7 @@ const en = 'Yiyang Shen';
     try { sessionStorage.setItem('intro-seen', '1'); } catch {}
     const counter = intro.querySelector<HTMLElement>('.intro-counter b');
     const began = performance.now();
-    const DURATION = 1700;
+    const DURATION = 2300;
     let done = false;
     let tick = 0;
 
@@ -55,11 +55,11 @@ const en = 'Yiyang Shen';
       const eased = 1 - Math.pow(1 - t, 3);
       if (counter) counter.textContent = String(Math.round(eased * 100)).padStart(2, '0');
       if (t < 1) tick = requestAnimationFrame(count);
-      else setTimeout(finish, 420);
+      else setTimeout(finish, 560);
     }
     tick = requestAnimationFrame(count);
     // Never hold the page hostage: fonts or not, the curtain lifts.
-    setTimeout(finish, 3000);
+    setTimeout(finish, 3800);
     intro.addEventListener('click', finish);
     addEventListener('keydown', finish, { once: true });
   } else {
