@@ -59,7 +59,8 @@ function resolve(entry: Record<string, string>, lang: UILang): string {
 // A saved choice wins; otherwise Chinese browsers get 中文 and everyone else
 // English. Old saved values from removed languages fall through to this too.
 function detectLang(): UILang {
-  const saved = localStorage.getItem(STORAGE_KEY) as UILang | null;
+  let saved: UILang | null = null;
+  try { saved = localStorage.getItem(STORAGE_KEY) as UILang | null; } catch {}
   if (saved && SUPPORTED.includes(saved)) return saved;
   const nav = (navigator.language || '').toLowerCase();
   if (nav.startsWith('zh')) return 'zh';
@@ -138,7 +139,7 @@ document.addEventListener('click', (e) => {
   const target = (e.target as HTMLElement)?.closest<HTMLElement>('.lang-opt');
   if (!target) return;
   const next = (target.dataset.lang as UILang) || 'en';
-  localStorage.setItem(STORAGE_KEY, next);
+  try { localStorage.setItem(STORAGE_KEY, next); } catch {}
   apply(next);
   window.dispatchEvent(new CustomEvent('lang:change', { detail: { lang: next } }));
 });
@@ -146,11 +147,11 @@ document.addEventListener('click', (e) => {
 // expose for other components if needed
 (window as any).__getLang = () => detectLang();
 (window as any).__setLang = (l: UILang) => {
-  localStorage.setItem(STORAGE_KEY, l);
+  try { localStorage.setItem(STORAGE_KEY, l); } catch {}
   apply(l);
   window.dispatchEvent(new CustomEvent('lang:change', { detail: { lang: l } }));
 };
-// Helpers for JS-driven text (hero name morph, photo count, arcade messages):
+// Helpers for JS-driven text (particle controls, photo count, arcade messages):
 // __t(key) returns the translated string for the current language; __nyaCat
 // returns the cat-sigil HTML so dynamic strings can also render in 猫语 mode.
 (window as any).__t = (key: string): string => {

@@ -17,24 +17,23 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
   id="site-nav"
   class="fixed top-0 inset-x-0 z-50 transition-all duration-500"
 >
-  <div class="mx-auto max-w-6xl px-6 mt-4">
-    <nav class="glass rounded-full px-5 py-3 flex items-center justify-between gap-4">
+  <div class="mx-auto max-w-[1280px] px-6 md:px-8 mt-5">
+    <nav class="site-nav-panel glass liquid-glass rounded-2xl px-5 py-3 flex items-center justify-between gap-4" aria-label="Main navigation" data-refract>
       <a href="/" class="flex items-center gap-2 group">
-        <span class="relative flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-aqua-400 to-sol-400 text-ink-950 font-display text-sm font-bold">
+        <span class="relative flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-[#cfe4ca] font-display text-lg">
           Y
-          <span class="absolute inset-0 rounded-full ring-2 ring-aqua-400/40 group-hover:ring-aqua-400 transition-all"></span>
         </span>
         <span class="font-display text-ink-100 text-[0.95rem] whitespace-nowrap hidden sm:inline" data-i18n="brand.name">Yiyang Shen</span>
       </a>
 
-      <ul class="hidden md:flex items-center gap-1">
+      <ul class="nav-track hidden xl:flex items-center gap-1">
         {
-          // The logo already links home, so the desktop bar skips "Home" to make room.
+          // The full menu remains available on smaller screens.
           links.filter((link) => link.i18n !== 'nav.home').map((link) => (
             <li>
               <a
                 href={link.href}
-                class="nav-link whitespace-nowrap px-3 xl:px-3.5 py-1.5 rounded-full text-sm text-ink-300 hover:text-ink-100 transition-colors"
+                class="nav-link whitespace-nowrap px-3 xl:px-3.5 py-2 rounded-xl text-xs text-ink-300 hover:text-ink-100 transition-colors"
                 data-target={link.target}
                 data-i18n={link.i18n}
               >
@@ -51,7 +50,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
           href="/Yiyang_Shen_CV_2026.pdf"
           target="_blank"
           rel="noopener"
-          class="btn btn-ghost !py-2 !px-4 text-sm max-md:!hidden gap-1.5"
+          class="btn btn-ghost !py-2 !px-4 text-sm max-xl:!hidden gap-1.5"
           aria-label="Download CV (PDF)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -59,7 +58,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
         </a>
         <a
           href="mailto:syydaniel@gmail.com"
-          class="btn btn-primary !py-2 !px-4 text-sm whitespace-nowrap max-md:!hidden"
+          class="btn btn-primary !py-2 !px-4 text-sm whitespace-nowrap max-xl:!hidden"
           data-i18n="nav.cta"
         >
           Let's talk
@@ -67,8 +66,12 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
 
         <button
           id="nav-toggle"
-          aria-label="Open menu"
-          class="md:hidden p-2 rounded-full hover:bg-white/5 transition-colors"
+          type="button"
+          aria-label="Navigation menu"
+          data-i18n-attr='{"aria-label":"nav.menu"}'
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+          class="xl:hidden p-2 rounded-full hover:bg-white/5 transition-colors"
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M3 7h18M3 12h18M3 17h18" />
@@ -77,7 +80,7 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
       </div>
     </nav>
 
-    <div id="mobile-menu" class="md:hidden hidden glass rounded-2xl mt-2 p-3">
+    <div id="mobile-menu" class="xl:hidden hidden glass liquid-glass rounded-2xl mt-2 p-3">
       <ul class="flex flex-col gap-1">
         {
           links.map((link) => (
@@ -122,8 +125,25 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
 
   const toggle = document.getElementById('nav-toggle');
   const menu = document.getElementById('mobile-menu');
-  toggle?.addEventListener('click', () => menu?.classList.toggle('hidden'));
-  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menu.classList.add('hidden')));
+  function closeMenu() {
+    menu?.classList.add('hidden');
+    toggle?.setAttribute('aria-expanded', 'false');
+  }
+  toggle?.addEventListener('click', () => {
+    const hidden = menu?.classList.toggle('hidden');
+    toggle.setAttribute('aria-expanded', String(hidden === false));
+  });
+  menu?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && menu && !menu.classList.contains('hidden')) {
+      closeMenu();
+      toggle?.focus();
+    }
+  });
+  document.addEventListener('click', event => {
+    if (event.target instanceof Node && !nav?.contains(event.target)) closeMenu();
+  });
+  matchMedia('(min-width: 1280px)').addEventListener('change', closeMenu);
 
   // Active section highlighting
   const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link');
@@ -142,6 +162,8 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
             const on = a.dataset.target === `#${entry.target.id}`;
             a.classList.toggle('text-ink-100', on);
             a.classList.toggle('bg-white/5', on);
+            if (on) a.setAttribute('aria-current', 'location');
+            else a.removeAttribute('aria-current');
           });
         }
       }
@@ -152,8 +174,5 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
 </script>
 
 <style>
-  #site-nav.scrolled nav {
-    background: rgba(10, 11, 18, 0.8);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  }
+  #mobile-menu { max-height: calc(100svh - 110px); overflow-y: auto; }
 </style>

@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import { galleryPhotos } from '../data/gallery';
+import '../styles/spatial-gallery.css';
+const payload = JSON.stringify(galleryPhotos).replace(/</g, '\\u003c');
+---
+
+<Base title="Field of Light · Yiyang Shen" description="A spatial exhibition of Yiyang Shen's photographs: Atlantic islands, fleeting eclipses, wild encounters and the fields of the Netherlands.">
+  <section id="spatial-gallery" class="spatial-gallery" aria-labelledby="gallery-title">
+    <div class="gallery-ambient" aria-hidden="true"></div>
+    <div class="gallery-intro">
+      <span class="section-eyebrow" data-i18n="gallery.eyebrow">Selected photographs</span>
+      <h1 id="gallery-title" data-i18n="gallery.title">Field of light.</h1>
+      <p class="gallery-instructions" data-i18n="gallery.instructions">Drag to explore · Scroll to change · Select a frame to open</p>
+    </div>
+    <div class="gallery-stage">
+      <div class="gallery-horizon" aria-hidden="true"></div>
+      <div class="gallery-wall">
+        {galleryPhotos.map((photo, index) => (
+          <a href={photo.src} target="_blank" rel="noopener" class="gallery-plane" data-photo-index={index} aria-label={photo.caption || photo.location.name}>
+            <img src={photo.thumb} alt={photo.caption || photo.location.name} width={photo.width} height={photo.height} loading={index < 3 ? 'eager' : 'lazy'} decoding="async" draggable="false" />
+            <span class="gallery-frame-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <span class="gallery-fallback-caption">{photo.caption} · {photo.location.country}</span>
+          </a>
+        ))}
+      </div>
+      <canvas id="gallery-particles" aria-hidden="true"></canvas>
+    </div>
+    <div class="gallery-caption" hidden>
+      <p id="gallery-current-caption"></p>
+      <span id="gallery-current-place"></span>
+    </div>
+    <div class="gallery-console liquid-glass" hidden>
+      <button type="button" id="gallery-prev" aria-label="Previous photograph" data-i18n-attr='{"aria-label":"gallery.previous"}'><span aria-hidden="true">←</span></button>
+      <span class="gallery-counter"><span id="gallery-current-number">01</span><span class="counter-divider">/</span>{String(galleryPhotos.length).padStart(2, '0')}</span>
+      <button type="button" id="gallery-open"><span data-i18n="gallery.open">View photograph</span><span aria-hidden="true">↗</span></button>
+      <button type="button" id="gallery-next" aria-label="Next photograph" data-i18n-attr='{"aria-label":"gallery.next"}'><span aria-hidden="true">→</span></button>
+    </div>
+    <p id="gallery-announcement" class="sr-only" role="status" aria-live="polite"></p>
+    <a href="/#photography" class="gallery-return" data-i18n="gallery.return">Back to the photography map</a>
+    <script id="gallery-data" type="application/json" set:html={payload} />
+  </section>
+
+  <dialog id="gallery-viewer" class="gallery-viewer" aria-label="Photograph" aria-describedby="gallery-full-caption" data-i18n-attr='{"aria-label":"gallery.photograph"}'>
+    <div class="gallery-viewer-atmosphere" aria-hidden="true"></div>
+    <button type="button" id="gallery-viewer-close" class="gallery-viewer-close liquid-glass" aria-label="Return to gallery" data-i18n-attr='{"aria-label":"gallery.back"}'><span aria-hidden="true">✕</span></button>
+    <img id="gallery-full-image" alt="" />
+    <div class="gallery-viewer-info liquid-glass">
+      <div class="gallery-full-copy">
+        <p id="gallery-full-caption"></p>
+        <p id="gallery-full-place"></p>
+        <p id="gallery-full-camera"></p>
+        <p id="gallery-full-exposure"></p>
+      </div>
+      <div class="gallery-viewer-controls">
+        <button type="button" id="gallery-full-prev" aria-label="Previous photograph" data-i18n-attr='{"aria-label":"gallery.previous"}'>←</button>
+        <span id="gallery-full-number"></span>
+        <button type="button" id="gallery-full-next" aria-label="Next photograph" data-i18n-attr='{"aria-label":"gallery.next"}'>→</button>
+      </div>
+    </div>
+  </dialog>
+</Base>
+
+<script>
+  import { mountSpatialGallery } from '../scripts/spatial-gallery';
+  mountSpatialGallery();
+</script>

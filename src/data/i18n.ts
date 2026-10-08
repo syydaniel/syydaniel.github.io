@@ -24,6 +24,30 @@ export const dict: Record<string, Record<Lang, string>> = {
   'nav.places': { en: 'Places', zh: '足迹' },
   'nav.films': { en: 'Films', zh: '影像' },
 
+  // Particle artwork
+  'scene.eyebrow': { en: 'A study in quiet motion', zh: '静默之中，万物流动' },
+  'scene.forms': { en: 'Particle form', zh: '粒子形态' },
+  'scene.terrain': { en: 'Terrain', zh: '地形' },
+  'scene.orbit': { en: 'Orbit', zh: '轨道' },
+  'scene.flow': { en: 'Flow', zh: '流动' },
+  'scene.resume': { en: 'Resume particle atmosphere', zh: '继续粒子背景动画' },
+  'scene.pause': { en: 'Pause particle atmosphere', zh: '暂停粒子背景动画' },
+  'scene.hint': { en: 'Choose an atmosphere. Drag the globe to explore.', zh: '切换粒子氛围，拖动地球探索。' },
+  'gallery.eyebrow': { en: 'Selected photographs', zh: '摄影精选' },
+  'gallery.invitation': { en: 'A room for light.', zh: '一间，盛放光的展厅。' },
+  'gallery.invitation.body': { en: 'Step inside a spatial exhibition of landscapes, wildlife and fleeting light.', zh: '走进山海、野生动物与转瞬即逝的光，组成的空间摄影展。' },
+  'gallery.enter': { en: 'Enter the gallery', zh: '进入空间展厅' },
+  'gallery.title': { en: 'Field of light.', zh: '光的旷野。' },
+  'gallery.instructions': { en: 'Drag to explore · Scroll to change · Select a frame to open', zh: '拖动浏览 · 滚轮切换 · 点击照片展开' },
+  'gallery.open': { en: 'View photograph', zh: '展开照片' },
+  'gallery.previous': { en: 'Previous photograph', zh: '上一张照片' },
+  'gallery.next': { en: 'Next photograph', zh: '下一张照片' },
+  'gallery.return': { en: 'Back to the photography map', zh: '返回摄影地图' },
+  'gallery.back': { en: 'Return to gallery', zh: '返回空间展厅' },
+  'gallery.photograph': { en: 'Photograph', zh: '摄影作品' },
+  'nav.menu': { en: 'Navigation menu', zh: '导航菜单' },
+  'nav.skip': { en: 'Skip to content', zh: '跳至正文' },
+
   // Hero
   'hero.eyebrow': {
     en: 'MSc, Wageningen · Open to PhD positions · Photographer',

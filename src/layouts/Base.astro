@@ -1,10 +1,10 @@
 ---
 import '../styles/global.css';
+import '../styles/liquid-glass.css';
+import GlassEffects from '../components/GlassEffects.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import Arcade from '../components/Arcade.astro';
-import Cursor from '../components/Cursor.astro';
-import FilmRibbon from '../components/FilmRibbon.astro';
 import FilmPlayer from '../components/FilmPlayer.astro';
 
 interface Props {
@@ -106,47 +106,23 @@ const siteLd = {
     <script type="application/ld+json" set:html={JSON.stringify(siteLd)} />
   </head>
   <body class="ambient-noise min-h-screen">
+    <GlassEffects />
     <div class="aurora" aria-hidden="true"></div>
-    <div id="page-reveal" class="fixed inset-0 z-[500] bg-ink-950 pointer-events-none"></div>
-    <Cursor />
+    <a href="#main-content" class="skip-link" data-i18n="nav.skip">Skip to content</a>
+    <div id="reading-progress" aria-hidden="true"></div>
     <Nav />
-    <main class="relative z-10">
+    <main id="main-content" class="relative z-10" tabindex="-1">
       <slot />
     </main>
     <Footer />
     <Arcade />
-    <FilmRibbon />
     <FilmPlayer />
 
     <script>
       import '../scripts/i18n-runtime';
 
-      // Reveal once 15% of an element is on screen, or once it fills a quarter of
-      // the viewport: very tall blocks (the photo timeline) never reach 15%.
-      const revealObserver = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const enough = entry.intersectionRatio >= 0.15 || entry.intersectionRect.height >= innerHeight * 0.25;
-            if (entry.isIntersecting && enough) {
-              entry.target.classList.add('is-visible');
-              revealObserver.unobserve(entry.target);
-            }
-          }
-        },
-        { threshold: [0, 0.02, 0.05, 0.1, 0.15], rootMargin: '0px 0px -10% 0px' }
-      );
-      document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));
-
-      // page entry reveal
-      requestAnimationFrame(() => {
-        document.getElementById('page-reveal')?.animate(
-          [
-            { opacity: 1, transform: 'scaleY(1)' },
-            { opacity: 1, transform: 'scaleY(0)', transformOrigin: 'top' }
-          ],
-          { duration: 900, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', fill: 'forwards' }
-        );
-      });
+      import '../scripts/site-interactions';
+      import '../scripts/liquid-motion';
     </script>
   </body>
 </html>

@@ -1,0 +1,26 @@
+---
+// A neutral interior and opposing edge normals create a shallow convex lens.
+// This filter distorts the backdrop only; text and hit targets stay untouched.
+const normalMap = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="x"><stop stop-color="#ffb4b4"/><stop offset=".12" stop-color="#b4b4b4"/><stop offset=".88" stop-color="#b4b4b4"/><stop offset="1" stop-color="#00b4b4"/></linearGradient>
+    <linearGradient id="y" x2="0" y2="1"><stop stop-color="#b4ffb4"/><stop offset=".12" stop-color="#b4b4b4"/><stop offset=".88" stop-color="#b4b4b4"/><stop offset="1" stop-color="#b400b4"/></linearGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#x)"/>
+  <rect width="256" height="256" fill="url(#y)" style="mix-blend-mode:multiply"/>
+</svg>`;
+const mapUrl = `data:image/svg+xml,${encodeURIComponent(normalMap)}`;
+---
+
+<svg class="glass-filter-definitions" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="liquid-lens" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feImage href={mapUrl} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="lens-normal" />
+      <feDisplacementMap in="SourceGraphic" in2="lens-normal" scale="14" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+</svg>
+
+<style>
+  .glass-filter-definitions { position: fixed; pointer-events: none; overflow: hidden; }
+</style>

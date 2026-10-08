@@ -6,6 +6,7 @@ export const GET: APIRoute = ({ site }) => {
   type Entry = { loc: string; lastmod?: string; priority: string };
   const entries: Entry[] = [
     { loc: new URL('/', base).href, priority: '1.0' },
+    { loc: new URL('/gallery/', base).href, priority: '0.8' },
     { loc: new URL('/nya-translator', base).href, priority: '0.5' }
   ];
 

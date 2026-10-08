@@ -27,6 +27,10 @@ body {
   overflow-x: hidden;
 }
 
+/* Keep decorative glyphs and particle halos inside the content viewport.
+   Clip does not introduce a new scroll container for the existing maps. */
+main { overflow-x: clip; }
+
 ::selection {
   background: rgba(56, 228, 210, 0.25);
   color: #eef0fa;
@@ -40,7 +44,7 @@ body {
   pointer-events: none;
   z-index: 1;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.12  0 0 0 0.08 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
-  opacity: 0.7;
+  opacity: 0.25;
   mix-blend-mode: overlay;
 }
 
@@ -52,35 +56,11 @@ body {
   overflow: hidden;
 }
 
-.aurora::before,
-.aurora::after {
-  content: '';
-  position: absolute;
-  width: 60vw;
-  height: 60vw;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.3;
-  animation: drift 22s ease-in-out infinite;
-}
-
-.aurora::before {
-  top: -20%;
-  left: -10%;
-  background: radial-gradient(circle, #14c7b8 0%, transparent 70%);
-}
-
-.aurora::after {
-  bottom: -30%;
-  right: -10%;
-  background: radial-gradient(circle, #ff9f43 0%, transparent 70%);
-  animation-delay: -11s;
-}
-
-@keyframes drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(8vw, 4vh) scale(1.1); }
-  66% { transform: translate(-4vw, 6vh) scale(0.95); }
+.aurora {
+  background:
+    radial-gradient(ellipse at 85% 8%, rgba(89, 143, 114, 0.14), transparent 45%),
+    radial-gradient(ellipse at 6% 45%, rgba(48, 99, 94, 0.09), transparent 45%),
+    radial-gradient(ellipse at 80% 92%, rgba(157, 141, 91, 0.06), transparent 40%);
 }
 
 /* ---------- Typography ---------- */
@@ -92,12 +72,11 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(120deg, #38e4d2 0%, #a0a5c0 40%, #ffc46b 100%);
+  background: linear-gradient(120deg, #c7e5ce, #8dd2c5 55%, #dcd6b3);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: gradient-shift 8s ease-in-out infinite;
 }
 
 @keyframes gradient-shift {
@@ -107,16 +86,35 @@ body {
 
 /* ---------- Components ---------- */
 .glass {
-  background: linear-gradient(180deg, rgba(26, 29, 43, 0.6), rgba(10, 11, 18, 0.8));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  background: linear-gradient(135deg, rgba(216, 237, 222, 0.075), rgba(115, 147, 136, 0.035) 50%, rgba(7, 13, 14, 0.4));
+  border: 1px solid rgba(210, 235, 218, 0.12);
+  border-top-color: rgba(223, 243, 228, 0.2);
+  box-shadow: inset 0 1px 0 rgba(235, 250, 235, 0.035), 0 10px 30px -18px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(24px) saturate(135%);
+  -webkit-backdrop-filter: blur(24px) saturate(135%);
 }
 
 .glass-soft {
-  background: rgba(16, 18, 29, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
+  background: linear-gradient(145deg, rgba(202, 227, 209, 0.055), rgba(16, 26, 24, 0.32));
+  border: 1px solid rgba(213, 236, 217, 0.09);
+  box-shadow: inset 0 1px 0 rgba(236, 250, 236, 0.035);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+/* Keep the panel contrast when the browser cannot blur its backdrop. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: #141f1e; }
+  .glass-soft { background: #111b1a; }
+}
+
+.glass[data-glass-active] {
+  background:
+    radial-gradient(ellipse at var(--glass-x, 50%) var(--glass-y, 50%), rgba(214, 244, 218, .11), transparent 65%),
+    linear-gradient(135deg, rgba(216, 237, 222, .075), rgba(7, 13, 14, .4));
+}
+.glass.card-hover[data-glass-active] {
+  transform: perspective(900px) translateY(-3px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
 }
 
 .chip {
@@ -152,19 +150,19 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(120deg, #14c7b8, #38e4d2 60%, #ffc46b);
+  background: linear-gradient(120deg, #d2e6c7, #a9d4be);
   color: #0a0b12;
-  box-shadow: 0 10px 30px -10px rgba(56, 228, 210, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 24px -12px rgba(155, 212, 179, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px -12px rgba(56, 228, 210, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 14px 30px -12px rgba(155, 212, 179, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .btn-ghost {
-  background: rgba(255, 255, 255, 0.04);
-  color: #eef0fa;
+  background: rgba(220, 238, 223, 0.03);
+  color: #dce8de;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -191,7 +189,7 @@ body {
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #38e4d2;
+  color: #a6ceb8;
 }
 
 .section-eyebrow::before {
@@ -256,14 +254,14 @@ body {
   filter: saturate(1.05) brightness(1);
 }
 
-/* Cards: one hover language everywhere (amber edge, slight lift). */
+/* Shared card lift, with restrained glass illumination. */
 .card-hover {
   transition: border-color 0.4s ease, transform 0.6s var(--ease-film), box-shadow 0.6s var(--ease-film);
 }
 .card-hover:hover {
-  border-color: rgba(255, 196, 107, 0.28);
-  transform: translateY(-2px);
-  box-shadow: 0 24px 50px -30px rgba(255, 159, 67, 0.35);
+  border-color: rgba(200, 230, 204, 0.27);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 50px -30px rgba(148, 194, 157, 0.25);
 }
 
 /* Short rule that stretches on hover. */
@@ -295,15 +293,34 @@ body {
 
 /* ---------- Reveal animations (JS-driven) ---------- */
 .reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 900ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  will-change: opacity, transform;
+  transition: opacity 800ms var(--ease-film), transform 900ms var(--ease-film);
 }
+.reveal.will-reveal:not(.is-visible) { opacity: 0; transform: translateY(20px); }
+.reveal.is-visible { opacity: 1; transform: none; }
 
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
+#reading-progress {
+  position: fixed;
+  left: 0; top: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, #8acbb7, #d8e9c8);
+  transform: scaleX(0); transform-origin: left;
+  z-index: 100;
+  pointer-events: none;
+}
+.skip-link {
+  position: fixed; left: 24px; top: 12px; z-index: 9999;
+  padding: 12px 20px; border-radius: 12px;
+  background: #d2e6c7; color: #101c17;
+  transform: translateY(-160%);
+}
+.skip-link:focus { transform: none; }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #c6e7cf;
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal.will-reveal:not(.is-visible) { opacity: 1; transform: none; }
+  .card-hover:hover, .glass.card-hover[data-glass-active] { transform: none; }
 }
 
 /* ---------- MapLibre overrides ---------- */
@@ -479,4 +496,10 @@ html[data-lang='cat'] .meta-line {
     scroll-behavior: auto !important;
   }
   .aurora::before, .aurora::after { animation: none; }
+}
+
+/* Fit the existing map summary cards within the narrowest phone layouts. */
+@media (max-width: 359px) {
+  #photography [class~="min-w-[300px]"],
+  #places [class~="min-w-[280px]"] { min-width: 0; width: 100%; gap: 10px; }
 }
