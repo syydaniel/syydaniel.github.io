@@ -168,6 +168,17 @@ function paint() {
     el.innerHTML = `${degrees} <span lang="${lang() === 'zh' ? 'zh' : 'en'}">${weatherLabel(w.code, lang())}</span>${wind}`;
     row?.removeAttribute('hidden');
   });
+  // One line in the hero: the weather and the light there, right now.
+  document.querySelectorAll<HTMLElement>('[data-sky-live]').forEach((el) => {
+    const row = el.closest<HTMLElement>('.hero-live');
+    if (!w) { row?.setAttribute('hidden', ''); return; }
+    const zh = lang() === 'zh';
+    const next = sky.phase === 'night' || sky.phase === 'dawn' ? (zh ? `日出 ${sky.sunrise ?? ''}` : `sunrise ${sky.sunrise ?? ''}`) : (zh ? `日落 ${sky.sunset ?? ''}` : `sunset ${sky.sunset ?? ''}`);
+    el.innerHTML = zh
+      ? `<span lang="zh">此刻瓦赫宁根</span> · ${Math.round(w.temp)}° <span lang="zh">${weatherLabel(w.code, 'zh')}</span> · <span lang="zh">${next}</span>`
+      : `Wageningen now · ${Math.round(w.temp)}° ${weatherLabel(w.code, 'en')} · ${next}`;
+    row?.removeAttribute('hidden');
+  });
   (window as any).__sky = sky;
   dispatchEvent(new CustomEvent('skychange', { detail: sky }));
 }

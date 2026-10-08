@@ -441,3 +441,6 @@ html[data-lang='zh'] .italic[data-i18n-self], html[data-lang='zh'] .film-title, 
   .film-open[data-glass-active] > span:first-child, .film-stage[data-glass-active] { transform: none; }
   .chapter-rail, .chapter-rail.is-on { transform: translate(0, -50%); }
 }
+
+/* The rail needs a margin of its own; on narrower screens it would sit on the text. */
+@media (max-width: 1399px) { .chapter-rail { display: none; } }
