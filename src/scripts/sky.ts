@@ -67,11 +67,11 @@ export function subsolar(date = new Date()): { lon: number; lat: number } {
 
 // Wageningen's clock: its UTC offset now, so a local minute of the day maps to a Date.
 function zoneOffsetMinutes(date: Date): number {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone: ZONE, timeZoneName: 'longOffset' }).formatToParts(date);
-  const name = parts.find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
-  const m = /GMT([+-])(\d{2}):?(\d{2})?/.exec(name);
-  if (!m) return 0;
-  return (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3] || 0));
+  try {
+    const local = new Date(date.toLocaleString('en-US', { timeZone: ZONE }));
+    const utc = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+    return Math.round((local.getTime() - utc.getTime()) / 60000);
+  } catch { return 60; }
 }
 function localMidnight(date: Date): Date {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
@@ -172,17 +172,19 @@ function paint() {
   dispatchEvent(new CustomEvent('skychange', { detail: sky }));
 }
 
-readSun();
-paint();
-setInterval(() => { readSun(); paint(); }, 60000);
-addEventListener('lang:change', paint);
+// Nothing here may take the rest of the page down with it: an older browser
+// without these Intl features simply gets no sky.
+function safely(step: () => void) { try { step(); } catch {} }
+safely(() => { readSun(); paint(); });
+setInterval(() => safely(() => { readSun(); paint(); }), 60000);
+addEventListener('lang:change', () => safely(paint));
 
 async function refreshWeather() {
   if (document.hidden || !navigator.onLine) return;
   const weather = await fetchWeather();
   if (!weather) return;
   sky.weather = weather;
-  paint();
+  safely(paint);
 }
 refreshWeather();
 setInterval(refreshWeather, 15 * 60000);
