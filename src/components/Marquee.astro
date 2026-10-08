@@ -3,7 +3,7 @@
 // speeds up and leans with the scroll (scripts/kinetics.ts). Decorative: hidden
 // from assistive technology, and still with reduced motion.
 interface Props {
-  words: { key: string; en: string }[];
+  words: { key: string; en: string; cn?: string }[];
   direction?: 'left' | 'right';
   fill?: boolean;
 }
@@ -15,6 +15,7 @@ const { words, direction = 'left', fill = false } = Astro.props;
     {[0, 1].map(() => words.map(w => (
       <Fragment>
         <span class="marquee-word" data-i18n={w.key}>{w.en}</span>
+        {w.cn && <span class="marquee-cn">{w.cn}</span>}
         <span class="marquee-dot">✦</span>
       </Fragment>
     )))}

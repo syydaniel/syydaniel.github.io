@@ -1,14 +1,17 @@
 // Motion layer: letter-level hero typography with a variable-font wave under the
-// pointer, the opening hand-off, masked section-title reveals, chapter
-// watermarks, scroll-velocity marquees, magnetic controls, counting numbers, the
-// cursor lamp, the scroll-aware navigation, and the footer's giant name and clock.
-// Nothing here touches the globe, the maps or the players, and every effect is
-// skipped for reduced motion. Content is readable before any of it runs.
+// pointer, the opening hand-off, masked reveals, chapter slips, scroll-velocity
+// marquees, magnetic controls, counting numbers, the cursor lamp and badge, the
+// scroll-aware navigation, the seals, the ink trail, and the footer's giant name,
+// clock, solar term and lunar date. Nothing here touches the globe, the maps or
+// the players, and every effect is skipped for reduced motion. Content is
+// readable before any of it runs.
 
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const fine = matchMedia('(hover: hover) and (pointer: fine)');
 const still = () => reduced.matches;
+const t = (key: string): string => ((window as any).__t?.(key) as string) || '';
+const lang = () => root.dataset.lang ?? 'en';
 
 // ---------- Hero name: one span per letter ----------
 function splitLetters(word: HTMLElement) {
@@ -26,16 +29,17 @@ function splitLetters(word: HTMLElement) {
   });
 }
 const heroTitle = document.querySelector<HTMLElement>('.hero-title');
-if (heroTitle && root.dataset.lang !== 'cat') {
-  const words = heroTitle.querySelectorAll<HTMLElement>('.hero-word');
+if (heroTitle && lang() !== 'cat') {
   let offset = 0;
-  words.forEach(word => {
+  heroTitle.querySelectorAll<HTMLElement>('.hero-word').forEach(word => {
     word.dataset.offset = String(offset);
     offset += (word.textContent ?? '').length + 2;
     splitLetters(word);
   });
   heroTitle.dataset.kinetic = '';
-  const goLive = () => heroTitle.classList.add('is-live');
+  // The letters rise in the display face, never in a fallback: wait for it (briefly).
+  const fontsReady = Promise.race([document.fonts.load('300 100px Fraunces'), new Promise(r => setTimeout(r, 900))]);
+  const goLive = () => fontsReady.then(() => heroTitle.classList.add('is-live'), () => heroTitle.classList.add('is-live'));
   if (root.dataset.intro === 'playing') addEventListener('intro:done', goLive, { once: true });
   else goLive();
 
@@ -47,9 +51,7 @@ if (heroTitle && root.dataset.lang !== 'cat') {
       frame = 0;
       for (const ch of letters) {
         const box = ch.getBoundingClientRect();
-        const dx = px - (box.left + box.width / 2);
-        const dy = py - (box.top + box.height / 2);
-        const d = Math.hypot(dx, dy);
+        const d = Math.hypot(px - (box.left + box.width / 2), py - (box.top + box.height / 2));
         const k = inside && !still() ? Math.max(0, 1 - d / 190) : 0;
         const e = k * k * (3 - 2 * k);
         ch.style.setProperty('--w', String(Math.round(300 + e * 400)));
@@ -61,11 +63,12 @@ if (heroTitle && root.dataset.lang !== 'cat') {
   }
 }
 
-// ---------- Hero parallax: copy and art drift against the pointer ----------
+// ---------- Hero depth: the layers drift and tilt against the pointer ----------
 const hero = document.getElementById('hero');
 const heroCopy = hero?.querySelector<HTMLElement>('.hero-copy');
 const heroArt = hero?.querySelector<HTMLElement>('.hero-art');
-if (hero && heroCopy && heroArt && fine.matches) {
+const heroSignature = hero?.querySelector<HTMLElement>('.hero-signature');
+if (hero && heroCopy && fine.matches) {
   let frame = 0, x = 0, y = 0;
   hero.addEventListener('pointermove', e => {
     if (still()) return;
@@ -73,17 +76,21 @@ if (hero && heroCopy && heroArt && fine.matches) {
     y = (e.clientY / innerHeight - 0.5) * 2;
     if (!frame) frame = requestAnimationFrame(() => {
       frame = 0;
-      heroCopy.style.translate = `${x * -6}px ${y * -4}px`;
-      heroArt.style.translate = `${x * 10}px ${y * 7}px`;
+      heroCopy.style.translate = `${x * -7}px ${y * -5}px`;
+      heroCopy.style.rotate = `y ${x * 1.6}deg`;
+      if (heroArt) heroArt.style.translate = `${x * 12}px ${y * 8}px`;
+      if (heroSignature) heroSignature.style.translate = `${x * -3}px ${y * -10}px`;
     });
   });
-  hero.addEventListener('pointerleave', () => { heroCopy.style.translate = '0 0'; heroArt.style.translate = '0 0'; });
+  hero.addEventListener('pointerleave', () => {
+    heroCopy.style.translate = '0 0'; heroCopy.style.rotate = 'y 0deg'; if (heroArt) heroArt.style.translate = '0 0';
+    if (heroSignature) heroSignature.style.translate = '0 0';
+  });
 }
 
 // ---------- Magnetic controls ----------
 if (fine.matches) {
-  const targets = document.querySelectorAll<HTMLElement>('.btn, .hero-document, .to-top, .play-dot');
-  targets.forEach(el => {
+  document.querySelectorAll<HTMLElement>('.btn, .hero-document, .to-top, .play-dot').forEach(el => {
     el.dataset.magnetic = '';
     el.addEventListener('pointermove', e => {
       if (still()) return;
@@ -93,10 +100,7 @@ if (fine.matches) {
       el.classList.remove('is-magnet-rest');
       el.style.translate = `${dx * 10}px ${dy * 8}px`;
     });
-    el.addEventListener('pointerleave', () => {
-      el.classList.add('is-magnet-rest');
-      el.style.translate = '0 0';
-    });
+    el.addEventListener('pointerleave', () => { el.classList.add('is-magnet-rest'); el.style.translate = '0 0'; });
   });
 }
 
@@ -105,15 +109,11 @@ function countUp(el: HTMLElement) {
   const raw = el.textContent?.trim() ?? '';
   const match = raw.match(/^(\d+)(.*)$/);
   if (!match || still()) return;
-  const target = Number(match[1]);
-  const suffix = match[2];
-  const began = performance.now();
-  const duration = 1400;
+  const target = Number(match[1]), suffix = match[2], began = performance.now();
   function step(now: number) {
-    const t = Math.min(1, (now - began) / duration);
-    const eased = 1 - Math.pow(1 - t, 4);
-    el.textContent = `${Math.round(eased * target)}${suffix}`;
-    if (t < 1) requestAnimationFrame(step);
+    const p = Math.min(1, (now - began) / 1400);
+    el.textContent = `${Math.round((1 - Math.pow(1 - p, 4)) * target)}${suffix}`;
+    if (p < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }
@@ -131,7 +131,7 @@ if (counters.length) {
   counters.forEach(el => io.observe(el));
 }
 
-// ---------- Section titles: phrases rise out of their masks ----------
+// ---------- Titles and statements: phrases rise out of their masks ----------
 const titles = document.querySelectorAll<HTMLElement>('.section-title, [data-rise]');
 const titleObserver = new IntersectionObserver(entries => {
   for (const entry of entries) {
@@ -147,35 +147,65 @@ titles.forEach(title => {
   else titleObserver.observe(title);
 });
 
-// ---------- Chapter watermarks ----------
+// ---------- The statement breathes: softness and weight follow its place on screen ----------
+const statement = document.querySelector<HTMLElement>('.statement');
+if (statement && !still()) {
+  let inView = false, frame = 0;
+  const paint = () => {
+    frame = 0;
+    const box = statement.getBoundingClientRect();
+    const p = Math.max(0, Math.min(1, (innerHeight - box.top) / (innerHeight + box.height)));
+    const m = Math.sin(p * Math.PI);
+    statement.style.setProperty('--soft', (20 + 80 * m).toFixed(1));
+    statement.style.setProperty('--soft-i', (60 + 40 * m).toFixed(1));
+    statement.style.setProperty('--wght', (300 + 130 * m).toFixed(0));
+  };
+  new IntersectionObserver(entries => { inView = entries.some(e => e.isIntersecting); if (inView && !frame) frame = requestAnimationFrame(paint); }, { rootMargin: '10%' }).observe(statement);
+  addEventListener('scroll', () => { if (inView && !frame) frame = requestAnimationFrame(paint); }, { passive: true });
+}
+
+// ---------- Chapter slips (题签): numeral and chapter name on a narrow label ----------
+const NUMERALS = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+let slipped = false;
 document.querySelectorAll<HTMLElement>('.section-eyebrow[data-chapter]').forEach(eyebrow => {
   const section = eyebrow.closest('section');
-  if (!section || section.querySelector('.chapter-mark')) return;
-  const mark = document.createElement('span');
-  mark.className = 'chapter-mark';
-  mark.setAttribute('aria-hidden', 'true');
-  // Chapter numerals in the Chinese financial forms, 壹 贰 叁, set in Noto Serif SC.
-  const NUMERALS = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+  if (!section || section.querySelector('.chapter-slip')) return;
   const n = Number(eyebrow.dataset.chapter ?? 0);
-  const numeral = Number.isInteger(n) && n > 0 && n < NUMERALS.length ? NUMERALS[n] : eyebrow.dataset.chapter ?? '';
-  mark.dataset.mark = numeral;
-  mark.textContent = numeral;
+  const slip = document.createElement('span');
+  slip.className = 'chapter-slip';
+  slip.setAttribute('aria-hidden', 'true');
+  const numeral = document.createElement('b');
+  numeral.textContent = Number.isInteger(n) && n > 0 && n < NUMERALS.length ? NUMERALS[n] : eyebrow.dataset.chapter ?? '';
+  const rule = document.createElement('i');
+  const label = document.createElement('span');
+  label.className = 'chapter-slip-label';
+  label.textContent = eyebrow.textContent?.trim() ?? '';
+  if (eyebrow.dataset.i18n) label.dataset.i18n = eyebrow.dataset.i18n;
+  slip.append(numeral, rule, label);
   section.dataset.hasMark = '';
-  section.prepend(mark);
+  section.prepend(slip);
+  slipped = true;
+});
+if (slipped && lang() !== 'en') (window as any).__applyI18n?.();
+
+// ---------- Glint on every grained frame ----------
+document.querySelectorAll<HTMLElement>('.grain').forEach(grain => {
+  const glint = document.createElement('span');
+  glint.className = 'glint';
+  glint.setAttribute('aria-hidden', 'true');
+  grain.insertAdjacentElement('afterend', glint);
 });
 
 // ---------- Marquees: drift, faster and skewed with scroll velocity ----------
 let lastScroll = scrollY;
 let velocity = 0;
-addEventListener('scroll', () => {
-  velocity = scrollY - lastScroll;
-  lastScroll = scrollY;
-}, { passive: true });
-
+addEventListener('scroll', () => { velocity = scrollY - lastScroll; lastScroll = scrollY; }, { passive: true });
 document.querySelectorAll<HTMLElement>('[data-marquee]').forEach(marquee => {
   const track = marquee.querySelector<HTMLElement>('.marquee-track');
   if (!track || still()) return;
   const direction = marquee.dataset.direction === 'right' ? 1 : -1;
+  const base = Number(marquee.dataset.speed) || 0.6;
+  const leans = !marquee.classList.contains('hero-ticker');
   let offset = 0, half = 0, frame = 0, visible = false, speed = 0, skew = 0;
   const measure = () => { half = track.scrollWidth / 2; };
   new ResizeObserver(measure).observe(track);
@@ -183,8 +213,8 @@ document.querySelectorAll<HTMLElement>('[data-marquee]').forEach(marquee => {
   function tick() {
     frame = 0;
     if (!visible || !half) return;
-    speed += (0.6 + Math.min(14, Math.abs(velocity) * 0.25) - speed) * 0.08;
-    skew += (Math.max(-12, Math.min(12, velocity * 0.35)) - skew) * 0.1;
+    speed += (base + (leans ? Math.min(14, Math.abs(velocity) * 0.25) : 0) - speed) * 0.08;
+    skew += ((leans ? Math.max(-12, Math.min(12, velocity * 0.35)) : 0) - skew) * 0.1;
     velocity *= 0.9;
     offset = (offset + speed * direction) % half;
     if (offset > 0) offset -= half;
@@ -198,29 +228,53 @@ document.querySelectorAll<HTMLElement>('[data-marquee]').forEach(marquee => {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && visible && !frame) frame = requestAnimationFrame(tick); });
 });
 
-// ---------- Cursor lamp ----------
+// ---------- Cursor lamp and badge ----------
 const spotlight = document.getElementById('spotlight');
-if (spotlight && fine.matches && !still()) {
-  let tx = innerWidth / 2, ty = innerHeight / 3, x = tx, y = ty, frame = 0;
+const badge = document.getElementById('cursor-badge');
+const badgeLabel = badge?.querySelector('span');
+const ROLES: [string, string][] = [
+  ['[data-film], .hero-film', 'cursor.play'],
+  ['.gallery-invitation-link, .hero-gallery-link', 'cursor.enter'],
+  ['.strip-cell a, .photo-pin, .film-pin, #lightbox-figure, .gallery-plane', 'cursor.view'],
+  ['#globe-canvas, .gallery-stage', 'cursor.drag']
+];
+if (fine.matches && !still()) {
+  let tx = innerWidth / 2, ty = innerHeight / 3, x = tx, y = ty, bx = tx, by = ty, frame = 0;
+  let role: string | null = null;
   function glide() {
-    x += (tx - x) * 0.12;
-    y += (ty - y) * 0.12;
-    spotlight!.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    frame = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(glide) : 0;
+    x += (tx - x) * 0.12; y += (ty - y) * 0.12;
+    bx += (tx - bx) * 0.3; by += (ty - by) * 0.3;
+    if (spotlight) spotlight.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    if (badge) badge.style.transform = `translate3d(${bx}px, ${by}px, 0) scale(${role ? 1 : 0})`;
+    frame = Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(tx - bx) > 0.3 ? requestAnimationFrame(glide) : 0;
+  }
+  function setRole(next: string | null) {
+    if (next === role) return;
+    role = next;
+    if (role) {
+      const text = t(role);
+      if (badgeLabel) badgeLabel.innerHTML = lang() === 'cat' ? ((window as any).__nyaCat?.(text, 16) ?? text) : text;
+      root.dataset.badge = role.split('.')[1];
+    } else delete root.dataset.badge;
   }
   addEventListener('pointermove', e => {
     tx = e.clientX; ty = e.clientY;
     root.dataset.spotlight = 'on';
+    const target = e.target instanceof Element ? e.target : null;
+    let next: string | null = null;
+    if (target) for (const [selector, key] of ROLES) { if (target.closest(selector)) { next = key; break; } }
+    setRole(next);
     if (!frame) frame = requestAnimationFrame(glide);
   }, { passive: true });
-  document.addEventListener('pointerleave', () => { delete root.dataset.spotlight; });
+  document.addEventListener('pointerleave', () => { delete root.dataset.spotlight; setRole(null); });
+  document.addEventListener('pointerdown', () => { if (badge) badge.classList.add('is-pressed'); }, { passive: true });
+  document.addEventListener('pointerup', () => { if (badge) badge.classList.remove('is-pressed'); }, { passive: true });
 }
 
 // ---------- Navigation slips away while reading, returns on the way up ----------
 const nav = document.getElementById('site-nav');
 if (nav) {
-  let previous = scrollY;
-  let frame = 0;
+  let previous = scrollY, frame = 0;
   addEventListener('scroll', () => {
     if (frame) return;
     frame = requestAnimationFrame(() => {
@@ -234,48 +288,31 @@ if (nav) {
   }, { passive: true });
 }
 
-// ---------- Footer: the giant name and the clock in Wageningen ----------
-const giant = document.querySelector<HTMLElement>('.footer-giant');
-if (giant) {
-  const io = new IntersectionObserver(entries => {
-    if (entries.some(e => e.isIntersecting)) { giant.classList.add('is-inview'); io.disconnect(); }
-  }, { threshold: 0.3 });
-  io.observe(giant);
-}
-const clock = document.querySelector<HTMLElement>('.footer-clock b');
-if (clock) {
-  const fmt = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Amsterdam' });
-  const paint = () => { clock.innerHTML = fmt.format(new Date()).replace(':', '<i>:</i>'); };
-  paint();
-  setInterval(paint, 15000);
-}
-document.querySelector<HTMLElement>('.to-top')?.addEventListener('click', event => {
-  event.preventDefault();
-  scrollTo({ top: 0, behavior: still() ? 'auto' : 'smooth' });
-});
-
-// ---------- The seal: press it and it stamps again ----------
+// ---------- The seals: press one and it stamps again ----------
 document.querySelectorAll<SVGElement>('[data-seal]').forEach(seal => {
   const stamp = () => {
     if (still()) return;
     seal.classList.remove('is-stamping');
     void seal.getBoundingClientRect();
     seal.classList.add('is-stamping');
-    const ring = document.createElement('span');
-    ring.className = 'seal-ring';
-    ring.setAttribute('aria-hidden', 'true');
     const box = seal.getBoundingClientRect();
-    ring.style.left = `${box.left + box.width / 2}px`;
-    ring.style.top = `${box.top + box.height / 2}px`;
-    document.body.appendChild(ring);
-    ring.addEventListener('animationend', () => ring.remove(), { once: true });
+    for (const cls of ['seal-blot', 'seal-ring']) {
+      const mark = document.createElement('span');
+      mark.className = cls;
+      mark.setAttribute('aria-hidden', 'true');
+      mark.style.left = `${box.left + box.width / 2}px`;
+      mark.style.top = `${box.top + box.height / 2}px`;
+      document.body.appendChild(mark);
+      mark.addEventListener('animationend', () => mark.remove(), { once: true });
+    }
+    (window as any).__inkSplat?.((box.left + box.width / 2) / innerWidth, 1 - (box.top + box.height / 2) / innerHeight, 0.55, [0.52, 0.13, 0.08]);
     try { navigator.vibrate?.(12); } catch {}
   };
   seal.addEventListener('click', stamp);
   seal.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stamp(); } });
 });
 
-// ---------- Ink on press: a drop spreads from where a button was touched ----------
+// ---------- Ink on press ----------
 document.addEventListener('pointerdown', event => {
   if (still()) return;
   const button = (event.target as HTMLElement | null)?.closest<HTMLElement>('.btn, .hero-document, .skill-tile, .view-toggle, .journey-filter');
@@ -302,10 +339,8 @@ if (trail && fine.matches && !still()) {
     let frame = 0, lastX = 0, lastY = 0, lastT = 0, dpr = 1;
     const resize = () => {
       dpr = Math.min(2, devicePixelRatio || 1);
-      trail.width = Math.round(innerWidth * dpr);
-      trail.height = Math.round(innerHeight * dpr);
-      trail.style.width = `${innerWidth}px`;
-      trail.style.height = `${innerHeight}px`;
+      trail.width = Math.round(innerWidth * dpr); trail.height = Math.round(innerHeight * dpr);
+      trail.style.width = `${innerWidth}px`; trail.style.height = `${innerHeight}px`;
     };
     resize();
     addEventListener('resize', resize, { passive: true });
@@ -314,12 +349,12 @@ if (trail && fine.matches && !still()) {
       ctx!.clearRect(0, 0, trail!.width, trail!.height);
       for (let i = drops.length - 1; i >= 0; i--) {
         const d = drops[i];
-        const t = (now - d.born) / d.life;
-        if (t >= 1) { drops.splice(i, 1); continue; }
-        const ease = 1 - Math.pow(1 - t, 3);
+        const p = (now - d.born) / d.life;
+        if (p >= 1) { drops.splice(i, 1); continue; }
+        const ease = 1 - Math.pow(1 - p, 3);
         const r = d.r * (0.4 + ease * 1.2) * dpr;
         const g = ctx!.createRadialGradient(d.x * dpr, d.y * dpr, 0, d.x * dpr, d.y * dpr, r);
-        const a = (1 - t) * 0.42;
+        const a = (1 - p) * 0.42;
         g.addColorStop(0, `hsla(${d.hue}, 45%, 72%, ${a})`);
         g.addColorStop(0.6, `hsla(${d.hue}, 45%, 62%, ${a * 0.45})`);
         g.addColorStop(1, `hsla(${d.hue}, 45%, 55%, 0)`);
@@ -338,18 +373,27 @@ if (trail && fine.matches && !still()) {
       if (speed < 9 || drops.length > 80) return;
       const n = Math.min(3, Math.floor(speed / 14));
       for (let i = 0; i < n; i++) {
-        drops.push({
-          x: e.clientX + (Math.random() - 0.5) * speed * 0.6,
-          y: e.clientY + (Math.random() - 0.5) * speed * 0.6,
-          r: 2 + Math.min(14, speed * 0.28) * Math.random(),
-          born: now,
-          life: 700 + Math.random() * 600,
-          hue: Math.random() < 0.82 ? 150 + Math.random() * 20 : 38
-        });
+        drops.push({ x: e.clientX + (Math.random() - 0.5) * speed * 0.6, y: e.clientY + (Math.random() - 0.5) * speed * 0.6, r: 2 + Math.min(14, speed * 0.28) * Math.random(), born: now, life: 700 + Math.random() * 600, hue: Math.random() < 0.82 ? 150 + Math.random() * 20 : 38 });
       }
       if (!frame) frame = requestAnimationFrame(paint);
     }, { passive: true });
   }
+}
+
+// ---------- Footer: the giant name ----------
+const giant = document.querySelector<HTMLElement>('.footer-giant');
+if (giant) {
+  const io = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) { giant.classList.add('is-inview'); io.disconnect(); } }, { threshold: 0.3 });
+  io.observe(giant);
+}
+
+// ---------- Time in Wageningen ----------
+const clockFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Amsterdam' });
+const clocks = document.querySelectorAll<HTMLElement>('.footer-clock b:not([data-solar-term]):not([data-lunar-date]), [data-intro-time], [data-ticker-time]');
+if (clocks.length) {
+  const paint = () => clocks.forEach(el => { el.innerHTML = clockFormat.format(new Date()).replace(':', '<i>:</i>'); });
+  paint();
+  setInterval(paint, 15000);
 }
 
 // ---------- The solar term, 节气: the Sun's ecliptic longitude in 15° steps ----------
@@ -369,7 +413,32 @@ function solarTerm(date = new Date()): [string, string] {
   const lambda = (((L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)) % 360) + 360) % 360;
   return TERMS[Math.floor(lambda / 15) % 24];
 }
-document.querySelectorAll<HTMLElement>('[data-solar-term]').forEach(el => {
+{
   const [zh, en] = solarTerm();
-  el.innerHTML = `<span lang="zh">${zh}</span><i>·</i>${en}`;
+  document.querySelectorAll<HTMLElement>('[data-solar-term]').forEach(el => { el.innerHTML = `<span lang="zh">${zh}</span><i>·</i>${en}`; });
+  document.querySelectorAll<HTMLElement>('[data-intro-term]').forEach(el => { el.innerHTML = `<span lang="zh">${zh}</span> ${en}`; });
+}
+
+// ---------- The lunar date, 农历, from the browser's Chinese calendar ----------
+function lunarDate(date = new Date()): string | null {
+  try {
+    const parts = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { month: 'long', day: 'numeric' }).formatToParts(date);
+    const month = parts.find(p => p.type === 'month')?.value;
+    const day = Number(parts.find(p => p.type === 'day')?.value);
+    if (!month || !day || !/月/.test(month)) return null;
+    const digits = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+    const dayName = day <= 10 ? `初${digits[day]}` : day < 20 ? `十${digits[day - 10]}` : day === 20 ? '二十' : day < 30 ? `廿${digits[day - 20]}` : '三十';
+    return `${month}${dayName}`;
+  } catch { return null; }
+}
+document.querySelectorAll<HTMLElement>('[data-lunar-date]').forEach(el => {
+  const lunar = lunarDate();
+  const row = el.closest<HTMLElement>('.footer-lunar, .ticker-item');
+  if (!lunar) { row?.setAttribute('hidden', ''); return; }
+  el.innerHTML = `<span lang="zh">${lunar}</span>`;
+});
+
+document.querySelector<HTMLElement>('.to-top')?.addEventListener('click', event => {
+  event.preventDefault();
+  scrollTo({ top: 0, behavior: still() ? 'auto' : 'smooth' });
 });

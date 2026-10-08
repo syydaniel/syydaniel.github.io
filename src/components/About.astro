@@ -1,15 +1,9 @@
 ---
 import { profile } from '../data/profile';
 import { films, filmLabel } from '../data/films';
-import { photos } from '../data/photos-loader';
 
-// Newest featured film and three recent frames from different places.
+// Newest featured film.
 const latest = films.find((f) => f.featured)!;
-const places = new Set<string>();
-const frames = [...photos]
-  .sort((a, b) => (a.takenAt < b.takenAt ? 1 : -1))
-  .filter((p) => (places.has(p.location.country) ? false : (places.add(p.location.country), true)))
-  .slice(0, 3);
 
 // Line icons drawn to one 24px grid, so the tiles read as a set.
 const ICON: Record<string, string> = {
@@ -64,18 +58,6 @@ const skills = [
               </span>
             </span>
           </button>
-          <div class="mt-3 grid grid-cols-3 gap-3">
-            {frames.map((p, i) => (
-              <a href="#photography" class="group block">
-                <span class="relative block aspect-square overflow-hidden rounded-xl ring-1 ring-white/10">
-                  <img src={p.thumb ?? p.src} alt={p.caption ?? p.location.name} loading="lazy" decoding="async" class="media-img absolute inset-0 w-full h-full object-cover" />
-                  <span class="grain"></span>
-                  <span class="absolute left-2 top-1.5 font-mono text-[9px] tracking-[0.2em] text-ink-100/70">{String(i + 1).padStart(2, '0')}A</span>
-                </span>
-                <span class="meta-line mt-2 !text-[9px] !flex-nowrap"><span class="truncate">{p.location.country}</span></span>
-              </a>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -99,17 +81,16 @@ const skills = [
           This site is a working notebook: my research, the places I've stood in, and the photographs I've made there.
         </p>
 
-        <div class="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <ul class="skill-line" aria-label="Fields">
           {
-            skills.map((s, i) => (
-              <div class="skill-tile glass-soft card-hover">
-                <span class="skill-index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            skills.map((s) => (
+              <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={ICON[s.icon]} />
-                <span class="skill-label" data-i18n={s.key}>{s.label}</span>
-              </div>
+                <span data-i18n={s.key}>{s.label}</span>
+              </li>
             ))
           }
-        </div>
+        </ul>
       </div>
     </div>
   </div>

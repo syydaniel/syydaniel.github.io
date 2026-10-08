@@ -11,7 +11,8 @@
     "astro": "astro",
     "photos:manifest": "node scripts/build-photo-manifest.mjs",
     "og:image": "node scripts/build-og-image.mjs",
-    "travel": "node scripts/build-travel.mjs"
+    "travel": "node scripts/build-travel.mjs",
+    "fonts": "node scripts/fetch-fonts.mjs"
   },
   "dependencies": {
     "astro": "^5.1.0",

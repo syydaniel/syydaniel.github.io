@@ -5,6 +5,7 @@
 import travel from '../data/travel.generated.json';
 import { photos } from '../data/photos-loader';
 import { films } from '../data/films';
+import Globe from './Globe.astro';
 
 const { stats, countries } = travel;
 const CITY_PREVIEW = 8;
@@ -16,8 +17,8 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
 
 <section id="places" class="relative py-28 md:py-40 scroll-mt-20">
   <div class="mx-auto max-w-7xl px-6">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 reveal">
-      <div>
+    <div class="places-head reveal">
+      <div class="places-intro">
         <span class="section-eyebrow" data-chapter="03" data-i18n="places.eyebrow">Places</span>
         <h2 class="section-title mt-4 max-w-3xl">
           <span data-i18n="places.title.a">Everywhere my</span>
@@ -28,8 +29,7 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
           Drawn from years of GPS tracks I've recorded. Each glowing square is a roughly 10 km patch of
           the world I've passed through. Brighter means more time spent there.
         </p>
-      </div>
-      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-3 gap-6 min-w-[280px]">
+      <div class="glass rounded-2xl p-4 text-sm text-ink-300 grid grid-cols-3 gap-6 places-stats mt-8 max-w-md">
         <div>
           <div class="font-display text-2xl text-ink-100">{stats.countries}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.countries">Countries</div>
@@ -42,6 +42,10 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
           <div class="font-display text-2xl text-ink-100">{stats.km.toLocaleString('en-US')}</div>
           <div class="text-[10px] uppercase tracking-[0.2em] text-ink-400" data-i18n="places.stat.km">km tracked</div>
         </div>
+      </div>
+      </div>
+      <div class="places-globe">
+        <Globe />
       </div>
     </div>
 

@@ -9,8 +9,8 @@ Personal site of Yiyang Shen (Daniel, 沈亦旸): environmental researcher and p
 - [Astro 5](https://astro.build): static site generator
 - [Tailwind CSS](https://tailwindcss.com)
 - [MapLibre GL JS](https://maplibre.org): interactive maps (no API key, lazy loaded)
-- [Three.js](https://threejs.org): interactive hero globe and a separate particle atmosphere
-- Raw WebGL shader for the full-page atmosphere (no library)
+- [Three.js](https://threejs.org): the catchment terrain in the hero and the interactive globe in Places
+- Raw WebGL for the full-page ink fluid simulation (no library)
 - [exifr](https://github.com/MikeKovarik/exifr): EXIF extraction for photos
 - [sharp](https://sharp.pixelplumbing.com): builds the social share card
 
@@ -77,37 +77,49 @@ Per-post previews use the post's `cover` automatically.
 
 Type: [Fraunces](https://fonts.google.com/specimen/Fraunces) with its full variable axes
 (`opsz`, `wght`, `SOFT`, `WONK`) for display, [Instrument Sans](https://fonts.google.com/specimen/Instrument+Sans)
-for text, JetBrains Mono for metadata, and a three-glyph subset of Noto Serif SC for 沈亦旸.
+for text, JetBrains Mono for metadata, and a 15-glyph subset of Noto Serif SC for 沈亦旸, the
+seals and the chapter numerals. The fonts are self-hosted (`npm run fonts` →
+`scripts/fetch-fonts.mjs` → `public/fonts`, `src/styles/fonts.css`), so they load without a third
+party and where Google Fonts is unreachable. The Chinese interface adds the full Noto Serif SC
+from Google on demand for its headings.
 
-- **Atmosphere** (`src/scripts/atmosphere.ts`, `Atmosphere.astro`): a raw WebGL fragment shader
-  of domain-warped noise, lit by the pointer, rendered at ≤640 px wide and 30 fps. It stops in hidden
-  tabs, draws one still frame for reduced motion, and leaves the CSS aurora in place where WebGL fails.
-- **Opening** (`Intro.astro`): plays once per session (`sessionStorage`), decided before first paint
-  by an inline script in `Base.astro`; click or any key skips it. Reduced motion never sees it.
-- **Kinetics** (`src/scripts/kinetics.ts`, `src/styles/kinetics.css`): the hero name is split into
-  letters that rise in sequence and respond to the pointer through the variable font's weight and
-  softness axes; section titles rise out of masks phrase by phrase; chapter numbers float behind
-  each section with a scroll-driven parallax (`animation-timeline: view()` where supported);
-  `Marquee.astro` ribbons drift and lean with scroll velocity; buttons are magnetic; the hero stats
-  count up; a cursor lamp follows the pointer; the navigation slips away while scrolling down and
-  returns on the way up; the footer carries the name at display size and a live Wageningen clock.
-  The hero tagline's accent carries a hand-drawn ink underline that draws itself, and
-  `Statement.astro` sets a three-line typographic statement in alternating upright, italic and
-  outlined Fraunces. Everything is skipped or static under `prefers-reduced-motion`, and the text
-  is simply visible without JavaScript.
-- **Chinese elements, kept quiet**: `Seal.astro` is a carved name seal, 沈亦旸印, that stamps in
-  at the end of the opening, sits beside the alias in the hero and signs the footer (press it and
-  it stamps again); the footer clock also names the current solar term, 节气, computed from the
-  Sun's ecliptic longitude; chapter watermarks use the financial numerals 壹 贰 叁; fast pointer
-  strokes leave an ink trail and buttons ripple with ink when pressed. The atmosphere warms at
-  dawn and dusk in Wageningen and cools at night.
+- **The catchment, 流域** (`Catchment.astro`, `src/scripts/catchment.ts`): the hero is a living
+  3D ink-wash height field drawn as contour lines, a five-density wash (墨分五色), a hillshade and
+  one vermilion shoreline. The pointer is a rain cloud: each drop lands on the terrain and runs
+  downhill along the gradient, the way runoff is routed in a hydrological model, until it reaches
+  the water in the valley, pools and seeps into the ink of the page background. Hold to pour.
+  The camera lands from above after the opening and climbs away as the page scrolls. Three.js
+  loads only when the hero is on screen; reduced motion gets one still frame.
+- **Ink** (`Atmosphere.astro`, `src/scripts/ink.ts`): a real-time fluid simulation (velocity
+  advected, curled and projected on a small grid, dye on a larger one) behind the whole site, in
+  月白, mist grey and 黛青 with one drop in twenty of 朱砂. The pointer drags it, scrolling stirs
+  it, a drop lands on its own now and then, a pressed seal and the catchment's pooled water pour
+  into it, and the opening ends with one drop blooming in the middle. Where half-float render
+  targets are missing, `src/scripts/atmosphere.ts` draws a noise atmosphere instead.
+- **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
+  The name rises letter by letter in the display face, a counter runs, the seal stamps beside the
+  name, the curtain lifts. Click or any key skips it.
+- **Typography in motion** (`src/scripts/kinetics.ts`, `src/styles/kinetics.css`): the hero name
+  is split into letters that respond to the pointer through the font's weight and softness axes;
+  a vertical signature column (题款 + 印) beside it; a hand-drawn ink underline under the tagline's
+  accent; section titles rising out of masks; `Statement.astro`, whose softness and weight follow
+  its place on screen; outlined `Marquee.astro` ribbons that lean with scroll velocity; the footer
+  name at display size over 远山, ridges in mist.
+- **Chinese elements, kept quiet**: `Seal.astro` is a carved name seal, 沈亦旸印 (白文), and a
+  leisure seal 水土 (朱文); press one and it stamps again. The clocks show the time in
+  Wageningen, the current solar term 节气 from the Sun's ecliptic longitude, and the lunar date
+  农历 from the browser's Chinese calendar. Chapters are numbered 壹 贰 叁 on 题签 slips.
+- **Mechanics**: `Ticker.astro`, an instrument readout along the hero's foot; inertial wheel
+  scrolling on desktop (`src/scripts/inertia.ts`, never over maps, the globe, the gallery or
+  anything that scrolls on its own); a cursor badge that names what a frame does; magnetic buttons
+  with an ink ripple; an ink trail behind fast pointer strokes; counting numbers; a navigation bar
+  that slips away while reading. Everything is skipped or static under `prefers-reduced-motion`,
+  and the text is simply visible without JavaScript.
 
 ## Visual interactions
 
-The hero retains the original interactive globe, visited-country colors, research locations,
-and orbiting photo previews. The Places and Photography maps keep their existing controls.
-`ParticleScene.astro` adds a separate decorative particle atmosphere behind the globe; its
-Terrain / Orbit / Flow controls do not change the globe or either map.
+The interactive globe (visited-country colors, research locations, orbiting photo previews)
+now opens the Places section. The Places and Photography maps keep their existing controls.
 
 The Liquid Glass inspired control surfaces use transparent fills, moving edge reflections,
 and shared spring-animated selection capsules. Navigation and particle controls also use a
@@ -123,12 +135,6 @@ page. Unsupported browsers and reduced-motion users keep normal anchor navigatio
 Photography and text have separate entrance treatments; map surfaces only fade. The
 existing photo lightboxes gain a soft opening animation without changing their controls.
 
-The particle system interpolates its three forms in a shader. It initializes when visible,
-shares the site's existing Three.js dependency, caps pixel density and particle count on small or lower-powered devices, suspends rendering
-outside the viewport and in hidden tabs, and provides a pause control. Reduced-motion users
-get a still composition by default; a static SVG remains available if this particle renderer
-cannot initialize. These lifecycle controls apply to the new particle layer; the original
-globe component is preserved.
 
 ## Spatial photography exhibition
 
@@ -159,8 +165,8 @@ settings, Pages, Source: **GitHub Actions**.
 
 ```
 src/
-├── components/     # Nav, Footer, Hero, About, Journey, Places, Photography, Films,
-│                   # FilmPlayer, FilmPoster, Filmstrip, Contact, Globe, Arcade, ...
+├── components/     # Nav, Footer, Hero, Catchment, Ticker, Intro, Seal, Statement, Marquee,
+│                   # About, Journey, Places, Globe, Photography, Films, Contact, ...
 ├── content/blog/   # unpublished journal posts (Markdown, EN + ZH)
 ├── content.config.ts
 ├── data/           # profile, journey, photos, films, travel, i18n
@@ -168,6 +174,7 @@ src/
 ├── pages/          # index.astro, nya-translator.astro, sitemap.xml.ts
 └── styles/         # global.css, liquid-glass.css, kinetics.css
 scripts/
+├── fetch-fonts.mjs            # self-hosted web fonts -> public/fonts + src/styles/fonts.css
 ├── build-photo-manifest.mjs   # EXIF -> photos.generated.json + copies to public/photos
 ├── build-og-image.mjs         # branded social share card
 └── notify-bluesky.mjs         # new-post announcer (Journal is unpublished)

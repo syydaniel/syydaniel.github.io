@@ -1,4 +1,5 @@
 ---
+import '../styles/fonts.css';
 import '../styles/global.css';
 import '../styles/liquid-glass.css';
 import '../styles/kinetics.css';
@@ -98,17 +99,13 @@ const siteLd = {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
+    <!-- Fonts are served from this origin (scripts/fetch-fonts.mjs). The Chinese interface adds Noto Serif SC from Google Fonts on demand. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/fraunces-normal-100-900-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/fraunces-italic-100-900-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/instrument-sans-normal-400-700-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/noto-serif-sc-display-normal-200-900.woff2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Only the glyphs we set in display sizes (the name, the seal, chapter numerals): a few kilobytes of Noto Serif SC. -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500&text=%E6%B2%88%E4%BA%A6%E6%97%B8%E5%8D%B0%E5%A3%B9%E8%B4%B0%E5%8F%81%E8%82%86%E4%BC%8D%E9%99%86%E6%9F%92%E6%8D%8C%E7%8E%96&display=swap"
-      rel="stylesheet"
-    />
     <!-- Decide before first paint whether the cinematic intro plays (once per session). -->
     <script is:inline>
       (function () {
@@ -129,6 +126,7 @@ const siteLd = {
     <div class="aurora" aria-hidden="true"></div>
     <div id="spotlight" aria-hidden="true"></div>
     <canvas id="ink-trail" aria-hidden="true"></canvas>
+    <div id="cursor-badge" aria-hidden="true"><span></span></div>
     <a href="#main-content" class="skip-link" data-i18n="nav.skip">Skip to content</a>
     <div id="reading-progress" aria-hidden="true"></div>
     <Nav />
@@ -145,6 +143,7 @@ const siteLd = {
       import '../scripts/site-interactions';
       import '../scripts/liquid-motion';
       import '../scripts/kinetics';
+      import '../scripts/inertia';
     </script>
   </body>
 </html>

@@ -28,7 +28,9 @@ const HTML_LANG: Record<UILang, string> = {
 // Playful display font for the cat language, loaded on demand so it costs
 // nothing for everyone else.
 const FONT_LINKS: Record<string, string> = {
-  cat: 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap'
+  cat: 'https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap',
+  // 宋体 display type for Chinese headings; Google serves it in unicode-range slices, so only the glyphs on the page download.
+  zh: 'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500;700&display=swap'
 };
 function ensureFont(lang: UILang) {
   const href = FONT_LINKS[lang];

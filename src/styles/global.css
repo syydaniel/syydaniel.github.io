@@ -74,7 +74,7 @@ main { overflow-x: clip; }
 .font-display.italic, .font-display i, .font-display em { font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1; }
 
 .text-gradient {
-  background: linear-gradient(110deg, #e6f3e2 0%, #9fdccb 28%, #e9dcae 52%, #b6e3d0 76%, #f0f4e8 100%);
+  background: linear-gradient(110deg, #f0f4e8 0%, #c9dcd2 30%, #e9dcae 55%, #d7e6dd 78%, #f0f4e8 100%);
   background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;

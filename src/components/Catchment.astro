@@ -1,0 +1,22 @@
+---
+// The hero's living catchment model (scripts/catchment.ts): rain on it, the water
+// finds the valley. Three.js loads only when the hero is on screen.
+---
+<div class="catchment" aria-hidden="true">
+  <canvas id="catchment-canvas"></canvas>
+  <div class="catchment-shade"></div>
+</div>
+
+<script>
+  import { initCatchment } from '../scripts/catchment';
+  const host = document.querySelector<HTMLElement>('.catchment');
+  const canvas = document.getElementById('catchment-canvas') as HTMLCanvasElement | null;
+  if (host && canvas) {
+    const io = new IntersectionObserver(entries => {
+      if (!entries.some(e => e.isIntersecting)) return;
+      io.disconnect();
+      initCatchment(host, canvas).catch(() => { host.dataset.renderer = 'fallback'; });
+    }, { rootMargin: '200px' });
+    io.observe(host);
+  }
+</script>
