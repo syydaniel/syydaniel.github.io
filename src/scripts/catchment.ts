@@ -24,6 +24,7 @@ uniform float uSpeed[10];
 uniform vec3 uCamera;
 uniform vec3 uLight;
 uniform vec3 uPress; // x, z and depth of the hand on the paper
+uniform vec2 uFogRange; // where the mist begins and where it closes
 varying float vH;
 varying float vFog;
 varying vec2 vXZ;
@@ -46,7 +47,7 @@ void main() {
   vec3 n = normalize(vec3(relief(p.xz - vec2(e, 0.0)) - relief(p.xz + vec2(e, 0.0)), 2.0 * e, relief(p.xz - vec2(0.0, e)) - relief(p.xz + vec2(0.0, e))));
   vShade = dot(n, normalize(uLight));
   vec4 world = modelMatrix * vec4(p, 1.0);
-  vFog = 1.0 - smoothstep(4.5, 9.5, distance(world.xyz, uCamera));
+  vFog = 1.0 - smoothstep(uFogRange.x, uFogRange.y, distance(world.xyz, uCamera));
   gl_Position = projectionMatrix * viewMatrix * world;
 }`;
 
@@ -57,6 +58,8 @@ uniform float uLevels;
 uniform float uTime;
 uniform float uDark;
 uniform float uDiffuse; // cloud cover flattens the light
+uniform float uRain; // rain there lifts the water here and stirs it
+uniform float uSnow; // snow there lies on the heights here
 varying float vH;
 varying float vFog;
 varying vec2 vXZ;
@@ -73,14 +76,14 @@ void main() {
   float line = max(minor * 0.5, major * 0.92);
   // 墨分五色: five densities of wash by elevation band, lit by the hillshade.
   float band = clamp(floor((vH + 0.7) / 1.4 * 5.0), 0.0, 4.0);
-  float lit = mix(smoothstep(-0.2, 0.9, vShade), 0.58, uDiffuse * 0.65);
+  float lit = mix(smoothstep(-0.2, 0.9, vShade), 0.58, uDiffuse * 0.4);
   // On paper the wash is ink: deepest on the shadowed slopes and in the lowest band.
   float wash = (0.04 + (4.0 - band) * 0.035) * (0.6 + (1.0 - lit) * 0.9);
   float shadow = (1.0 - lit) * 0.34;
   float below = smoothstep(uWater, uWater - 0.22, vH);
   float shoreW = max(fwidth(vH), 1e-4) * 2.2;
   float shore = 1.0 - smoothstep(0.0, shoreW, abs(vH - uWater));
-  float ripple = 0.5 + 0.5 * sin(vXZ.x * 7.0 + vXZ.y * 3.0 + uTime * 0.9);
+  float ripple = 0.5 + 0.5 * sin(vXZ.x * 7.0 + vXZ.y * 3.0 + uTime * (0.9 + uRain * 1.4));
   // By night the same drawing is mist and lamplight on lamp-black paper.
   vec3 ink = mix(vec3(0.09, 0.11, 0.11), vec3(0.80, 0.84, 0.82), uDark);
   vec3 wet = mix(vec3(0.24, 0.30, 0.30), vec3(0.48, 0.58, 0.56), uDark);
@@ -91,12 +94,17 @@ void main() {
   vec3 color = mix(wet, ink, shadow / max(wash + shadow, 1e-4));
   float alpha = wash + shadow;
   color = mix(color, water, below);
-  alpha = mix(alpha, 0.45 + ripple * 0.08, below);
+  alpha = mix(alpha, 0.45 + ripple * (0.08 + uRain * 0.07), below);
   float lineA = line * (1.0 - below * 0.5);
   color = mix(color, ink, lineA);
   alpha = max(alpha, lineA);
   color = mix(color, cinnabar, shore);
   alpha = max(alpha, shore * 0.95);
+  // Snow: the upper bands whiten, the lines stay.
+  float snowy = uSnow * smoothstep(0.12, 0.42, vH) * (1.0 - below);
+  vec3 snow = mix(vec3(0.90, 0.93, 0.97), vec3(0.72, 0.78, 0.84), uDark);
+  color = mix(color, snow, snowy * (1.0 - lineA * 0.85));
+  alpha = max(alpha, snowy * mix(0.5, 0.35, uDark));
   gl_FragColor = vec4(color, alpha * vFog);
 }`;
 
@@ -120,6 +128,9 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     uLight: { value: new THREE.Vector3(-0.55, 0.62, 0.55) },
     uPress: { value: new THREE.Vector3(0, 0, 0) },
     uDiffuse: { value: 0 },
+    uFogRange: { value: new THREE.Vector2(4.5, 9.5) },
+    uRain: { value: 0 },
+    uSnow: { value: 0 },
     uDark: { value: document.documentElement.dataset.theme === 'dark' ? 1 : 0 }
   };
   addEventListener('themechange', () => { uniforms.uDark.value = document.documentElement.dataset.theme === 'dark' ? 1 : 0; wake(); });
@@ -169,7 +180,16 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     const sun = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el));
     lightRest.copy(LAMP).lerp(sun, sky.daylight).normalize();
     if (!handOn) lightAim.copy(lightRest);
-    uniforms.uDiffuse.value = sky.weather ? sky.weather.cloud : 0;
+    const w = sky.weather;
+    uniforms.uDiffuse.value = w ? w.cloud : 0;
+    // Real rain fills the valley a little; snow lies on the heights; fog or heavy cloud brings the mist in.
+    const kind = w ? (w.code >= 71 && w.code <= 77) || w.code === 85 || w.code === 86 ? 'snow' : w.code === 45 || w.code === 48 ? 'fog' : 'other' : 'other';
+    const rain = w && kind !== 'snow' ? w.rain : 0;
+    uniforms.uRain.value = rain;
+    uniforms.uWater.value = WATER + rain * 0.07;
+    uniforms.uSnow.value = kind === 'snow' ? 1 : 0;
+    const mist = kind === 'fog' ? 1 : w ? Math.max(0, w.cloud - 0.7) * 0.6 : 0;
+    uniforms.uFogRange.value.set(4.5 - mist * 1.2, 9.5 - mist * 2.4);
     wake();
   }
   function locate(clientX: number, clientY: number): boolean {

@@ -28,11 +28,12 @@ const year = new Date().getFullYear();
       <div class="footer-meta">
         <p class="footer-clock"><span data-i18n="footer.local_time">Local time, Wageningen</span><b>--<i>:</i>--</b></p>
         <p class="footer-clock footer-term"><span data-i18n="footer.term">Solar term</span><b data-solar-term></b></p>
-        <p class="footer-clock footer-lunar"><span data-i18n="footer.lunar">Lunar date</span><b data-lunar-date></b></p>
+        <p class="footer-clock footer-lunar"><span data-i18n="footer.lunar">Lunar date</span><b data-lunar-date></b><span class="moon" data-moon></span></p>
         <p class="footer-clock footer-sun" hidden><span data-i18n="footer.sun">Sun</span><b data-sky-sun></b></p>
         <p class="footer-clock footer-weather" hidden><span data-i18n="footer.weather">Weather</span><b data-sky-weather></b></p>
       </div>
       <a href="#hero" class="to-top"><span data-i18n="footer.top">Back to top</span><span aria-hidden="true">↑</span></a>
+      <p class="footer-alive" data-i18n="footer.alive">The paper follows the Sun over Wageningen; when it rains there, it rains in the ink here.</p>
     </div>
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
       <div>

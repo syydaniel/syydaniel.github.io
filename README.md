@@ -101,7 +101,19 @@ from Google on demand for its headings.
   Open-Meteo when it can be reached and is remembered for a quarter of an hour. The paper warms
   while the Sun is low and cools and dims once it has set; the catchment is lit from where the Sun
   stands, flatter under cloud; rain there lands as drops in the ink here and a wind there is a slow
-  drift; the globe shows the real day-night line; the footer and the ticker read it all out.
+  drift; the globe shows the real day-night line; the footer and the ticker read it all out, with
+  the Moon's phase beside the lunar date. The page wears its day ink while the Sun is up there and
+  its night ink after; the toggle pins an ink until the next sunrise or sunset. Real rain lifts the
+  water in the catchment and stirs it, snow lies on its heights, fog closes the mist in, a storm
+  lights the paper now and then, and the wind moves the marquee ribbons. A sheet of 天光 lies over
+  the paper (`.skylight`): the Sun's glow comes in from the left at dawn and the right at dusk,
+  less of it under cloud, and an overcast or rainy sky lays a grey veil over the top; the cursor
+  lamp is cool daylight, warmer and smaller after dark, broad and dim under cloud; the dot beside
+  the hero's weather line takes the colour of the light. All of it is registered CSS properties,
+  so a change in the weather eases in over a couple of seconds. The theme toggle's tooltip says
+  why the page wears its ink and until when. To see a state the sky is not in, add `?sky=night`
+  (or `dawn`, `day`, `dusk`) and `?weather=rain` (or `clear`, `cloud`, `fog`, `snow`, `storm`)
+  to the address.
 - **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
   The name rises letter by letter in the display face, a counter runs, the seal stamps beside the
   name, the curtain lifts. Click or any key skips it.
