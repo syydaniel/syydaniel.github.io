@@ -112,6 +112,11 @@ from Google on demand for its headings.
   the hero's weather line takes the colour of the light. All of it is registered CSS properties,
   so a change in the weather eases in over a couple of seconds, and the WebGL layers ease too (the
   water rises, the snow settles, the paper tints) rather than snapping when the forecast arrives.
+  The paper itself takes the weather's cast in the ink shader: amber at the golden hours, cooler
+  at night, greyer and flatter under cloud, blue-grey in rain, colder and whiter in snow; rain
+  lands as denser, heavier drops and a storm flashes every few seconds. A chip in the navigation
+  shows the sky's glyph (tonight's Moon on a clear night) and the temperature, and opens a card
+  with the weather, the Sun's times, the Moon, which ink the page wears until when, and the note.
   The theme toggle's tooltip says why the page wears its ink and until when, and at night its moon
   shows tonight's phase. The hero's live line opens with the hour's word (morning, afternoon,
   evening, night, in Wageningen's own time), a strong wind shows an arrow pointing where it blows,

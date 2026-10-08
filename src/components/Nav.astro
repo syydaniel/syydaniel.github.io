@@ -44,6 +44,18 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
       </ul>
 
       <div class="flex items-center gap-3">
+        <!-- The sky over Wageningen, as a chip: its glyph and temperature, and a card with the rest (scripts/sky.ts). -->
+        <div class="sky-cluster max-md:hidden">
+          <button type="button" class="sky-chip" id="sky-chip" data-sky-chip hidden aria-expanded="false" aria-controls="sky-card" data-i18n-attr='{"aria-label":"sky.chip","title":"sky.chip"}' aria-label="The sky over Wageningen, and what it does to the page" title="The sky over Wageningen, and what it does to the page"></button>
+          <div class="sky-card" id="sky-card" hidden>
+            <p class="sky-card-title" data-i18n="sky.card.title">Wageningen right now</p>
+            <p class="sky-row"><span data-i18n="sky.card.weather">Weather</span><b data-sky-weather></b></p>
+            <p class="sky-row"><span data-i18n="sky.card.sun">Sun</span><b data-sky-sun></b></p>
+            <p class="sky-row"><span data-i18n="sky.card.moon">Moon</span><b><i class="moon" data-moon></i></b></p>
+            <p class="sky-row"><span data-i18n="sky.card.theme">Ink</span><b data-sky-theme></b></p>
+            <p class="sky-card-note" data-sky-note></p>
+          </div>
+        </div>
         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to night ink">
           <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
             <defs><mask id="theme-bite-mask"><rect width="24" height="24" fill="#fff" /><circle class="theme-bite" cx="17" cy="7" r="6" fill="#000" /></mask></defs>
@@ -130,6 +142,17 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
     update();
     window.addEventListener('scroll', update, { passive: true });
   }
+
+  // The sky card opens under its chip and closes on a click elsewhere or Escape.
+  const chip = document.getElementById('sky-chip');
+  const card = document.getElementById('sky-card');
+  const closeCard = () => { card?.setAttribute('hidden', ''); chip?.setAttribute('aria-expanded', 'false'); };
+  chip?.addEventListener('click', () => {
+    const open = card?.hasAttribute('hidden');
+    if (open) { card?.removeAttribute('hidden'); chip.setAttribute('aria-expanded', 'true'); } else closeCard();
+  });
+  document.addEventListener('click', e => { if (card && !card.hasAttribute('hidden') && !(e.target instanceof Node && (card.contains(e.target) || chip?.contains(e.target)))) closeCard(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && card && !card.hasAttribute('hidden')) { closeCard(); chip?.focus(); } });
 
   const toggle = document.getElementById('nav-toggle');
   const menu = document.getElementById('mobile-menu');
