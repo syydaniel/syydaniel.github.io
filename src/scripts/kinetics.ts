@@ -234,6 +234,15 @@ document.querySelectorAll<HTMLElement>('.section-eyebrow[data-chapter]').forEach
   mark.setAttribute('aria-hidden', 'true');
   mark.textContent = numeral.textContent;
   section.prepend(mark);
+  // A wash of the chapter's own colour behind its head (--chapter-hue, kinetics.css),
+  // its edge roughened like a brush wash and faded in as the chapter enters.
+  const wash = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  wash.setAttribute('class', 'chapter-wash');
+  wash.setAttribute('viewBox', '0 0 600 400');
+  wash.setAttribute('preserveAspectRatio', 'none');
+  wash.setAttribute('aria-hidden', 'true');
+  wash.innerHTML = `<defs><filter id="wash-${n}" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency="0.011 0.019" numOctaves="2" seed="${n * 7 + 3}"/><feDisplacementMap in="SourceGraphic" scale="70" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="16"/></filter></defs><ellipse cx="300" cy="200" rx="240" ry="130" filter="url(#wash-${n})"/>`;
+  section.prepend(wash);
   slipped = true;
 });
 if (slipped && lang() !== 'en') (window as any).__applyI18n?.();
@@ -271,6 +280,8 @@ if (chapters.length > 1) {
     let current = -1;
     chapters.forEach((c, i) => { if (c.section.getBoundingClientRect().top + scrollY <= probe) current = i; });
     items.forEach((a, i) => { a.classList.toggle('is-current', i === current); if (i === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+    // The page knows which chapter it is in: the ambient tint follows (kinetics.css, --chapter-tint).
+    if (current >= 0) root.dataset.chapter = chapters[current].section.id; else delete root.dataset.chapter;
     const max = root.scrollHeight - innerHeight;
     rail.classList.toggle('is-on', scrollY > innerHeight * 0.55 && scrollY < max - innerHeight * 0.6);
     line.style.setProperty('--p', String(Math.min(1, Math.max(0, scrollY / Math.max(1, max)))));
