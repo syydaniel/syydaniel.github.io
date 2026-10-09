@@ -1,6 +1,8 @@
-// 天色: the sky over Wageningen, read into the page. The Sun's place is worked
-// out here, no network needed; the weather comes from Open-Meteo when it can be
-// reached and is remembered for a quarter of an hour. Everything downstream
+// 天色: two skies, read into the page. The sky over the reader decides the
+// page's light (which ink it wears, the glow on the paper, the lamp, the Moon
+// in the toggle), worked out from their clock and time zone, no network needed.
+// The sky over Wageningen is the page's weather and its readouts: it comes from
+// Open-Meteo when it can be reached and is remembered for a quarter of an hour. Everything downstream
 // (the ink, the catchment's light, the globe's night side, the footer and the
 // ticker) reads `window.__sky` and listens for `skychange`. Nothing waits on
 // the network: the sun is published at once, the weather when it arrives.
@@ -24,7 +26,10 @@ export type Sky = {
   phase: Phase;
   daylight: number; // 0 at night … 1 in full day
   golden: number; // 1 with the Sun on the horizon, 0 when it is high or long gone
-  night: boolean; // the Sun is below the horizon: the page wears its night ink
+  night: boolean; // the Sun is below the reader's horizon: the page wears its night ink
+  mySunrise: string | null; // the reader's own, estimated from their time zone
+  mySunset: string | null;
+  there: { elevation: number; azimuth: number; phase: Phase; daylight: number; golden: number; night: boolean }; // over Wageningen
   sunrise: string | null; // "07:52", Wageningen time
   sunset: string | null;
   dayMinutes: number | null; // minutes of daylight today
@@ -50,12 +55,25 @@ const CANNED: Record<string, Partial<Weather>> = {
 
 const LAT = 51.97, LON = 5.66;
 const ZONE = 'Europe/Amsterdam';
+type Place = { lat: number; lon: number; zone: string };
+const THERE: Place = { lat: LAT, lon: LON, zone: ZONE };
+// Where the reader is, near enough for sunrise and sunset: the longitude from
+// their clock's offset (15° an hour), a temperate latitude for their hemisphere.
+function readerPlace(): Place {
+  try {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ZONE;
+    if (zone === ZONE) return THERE;
+    const south = /^(Australia|Antarctica|Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Port_Moresby)|Africa\/(Johannesburg|Windhoek|Maputo|Harare|Lusaka|Gaborone|Maseru|Mbabane|Luanda)|America\/(Sao_Paulo|Argentina|Buenos_Aires|Santiago|Montevideo|Asuncion|La_Paz|Lima)|Indian\/(Mauritius|Reunion))/.test(zone);
+    return { lat: south ? -35 : 42, lon: -new Date().getTimezoneOffset() / 4, zone };
+  } catch { return THERE; }
+}
+const HERE: Place = readerPlace();
 const CACHE = 'sky-weather';
 const rad = Math.PI / 180;
 const root = document.documentElement;
 
 // ---- the Sun (NOAA's low-precision ephemeris; a few arcminutes is plenty) ----
-function sunAt(date: Date): { elevation: number; azimuth: number } {
+function sunAt(date: Date, at: Place = THERE): { elevation: number; azimuth: number } {
   const d = date.getTime() / 86400000 - 10957.5; // days since J2000.0
   const L = (280.46 + 0.9856474 * d) % 360;
   const g = ((357.528 + 0.9856003 * d) % 360) * rad;
@@ -64,8 +82,8 @@ function sunAt(date: Date): { elevation: number; azimuth: number } {
   const ra = Math.atan2(Math.cos(eps) * Math.sin(lambda), Math.cos(lambda));
   const dec = Math.asin(Math.sin(eps) * Math.sin(lambda));
   const gmst = (((18.697374558 + 24.06570982441908 * d) % 24) + 24) % 24;
-  const h = (gmst * 15 + LON) * rad - ra;
-  const lat = LAT * rad;
+  const h = (gmst * 15 + at.lon) * rad - ra;
+  const lat = at.lat * rad;
   const elevation = Math.asin(Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(h));
   const azimuth = Math.atan2(Math.sin(h), Math.cos(h) * Math.sin(lat) - Math.tan(dec) * Math.cos(lat)) / rad + 180;
   return { elevation: elevation / rad, azimuth: ((azimuth % 360) + 360) % 360 };
@@ -87,25 +105,25 @@ export function subsolar(date = new Date()): { lon: number; lat: number } {
 }
 
 // Wageningen's clock: its UTC offset now, so a local minute of the day maps to a Date.
-function zoneOffsetMinutes(date: Date): number {
+function zoneOffsetMinutes(date: Date, zone = ZONE): number {
   try {
-    const local = new Date(date.toLocaleString('en-US', { timeZone: ZONE }));
+    const local = new Date(date.toLocaleString('en-US', { timeZone: zone }));
     const utc = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
     return Math.round((local.getTime() - utc.getTime()) / 60000);
   } catch { return 60; }
 }
-function localMidnight(date: Date): Date {
-  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
+function localMidnight(date: Date, zone = ZONE): Date {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
   const get = (t: string) => Number(parts.find((p) => p.type === t)?.value);
-  return new Date(Date.UTC(get('year'), get('month') - 1, get('day')) - zoneOffsetMinutes(date) * 60000);
+  return new Date(Date.UTC(get('year'), get('month') - 1, get('day')) - zoneOffsetMinutes(date, zone) * 60000);
 }
 const hhmm = (minute: number) => `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
-function sunTimes(date: Date): { sunrise: string | null; sunset: string | null; daylight: number | null } {
-  const midnight = localMidnight(date).getTime();
+function sunTimes(date: Date, at: Place = THERE): { sunrise: string | null; sunset: string | null; daylight: number | null } {
+  const midnight = localMidnight(date, at.zone).getTime();
   let sunrise: string | null = null, sunset: string | null = null, rise = -1, set = -1;
-  let above = sunAt(new Date(midnight)).elevation > -0.833;
+  let above = sunAt(new Date(midnight), at).elevation > -0.833;
   for (let m = 1; m < 1440; m++) {
-    const up = sunAt(new Date(midnight + m * 60000)).elevation > -0.833;
+    const up = sunAt(new Date(midnight + m * 60000), at).elevation > -0.833;
     if (up && !above) { sunrise = hhmm(m); rise = m; }
     if (!up && above) { sunset = hhmm(m); set = m; }
     above = up;
@@ -151,7 +169,7 @@ async function fetchWeather(): Promise<Weather | null> {
 }
 
 // ---- publish ----
-const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false, sunrise: null, sunset: null, dayMinutes: null, dayDelta: null, moon: null, weather: null };
+const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false, mySunrise: null, mySunset: null, there: { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false }, sunrise: null, sunset: null, dayMinutes: null, dayDelta: null, moon: null, weather: null };
 
 // The Moon's age from the Chinese calendar the browser already keeps: day 1 is
 // new, day 15 full. Enough for a glyph in the footer.
@@ -196,26 +214,30 @@ const localHour = (now = new Date()) => Number(new Intl.DateTimeFormat('en-GB', 
 // The hour's word for the hero line: morning, afternoon, evening, night, in Wageningen's own time.
 function hourWord(): string {
   const h = localHour();
-  const key = sky.phase === 'dawn' ? 'dawn' : sky.phase === 'dusk' ? 'dusk' : sky.phase === 'night' ? (h >= 4 && h < 10 ? 'small' : 'night') : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  const ph = sky.there.phase;
+  const key = ph === 'dawn' ? 'dawn' : ph === 'dusk' ? 'dusk' : ph === 'night' ? (h >= 4 && h < 10 ? 'small' : 'night') : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
   const en: Record<string, string> = { dawn: 'Dawn in Wageningen', dusk: 'Dusk in Wageningen', small: 'Before dawn in Wageningen', night: 'Night in Wageningen', morning: 'Morning in Wageningen', afternoon: 'Afternoon in Wageningen', evening: 'Evening in Wageningen' };
   return phrase(`sky.hour.${key}`, en[key]);
 }
 let timesDay = '';
 
+const FORCED = FORCED_PHASE && ['night', 'dawn', 'day', 'dusk'].includes(FORCED_PHASE) ? FORCED_PHASE : null;
+function light(now: Date, at: Place) {
+  const sun = sunAt(now, at);
+  if (FORCED) { sun.elevation = { night: -20, dawn: 1, day: 35, dusk: 1 }[FORCED]!; sun.azimuth = { night: 350, dawn: 95, day: 190, dusk: 265 }[FORCED]!; }
+  const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hour12: false, timeZone: at.zone }).format(now)) % 24;
+  return {
+    elevation: sun.elevation, azimuth: sun.azimuth,
+    daylight: smooth(-6, 6, sun.elevation),
+    golden: (1 - smooth(0, 12, Math.abs(sun.elevation))) * smooth(-8, -2, sun.elevation),
+    night: sun.elevation < -1.2,
+    phase: (FORCED ?? (sun.elevation < -6 ? 'night' : sun.elevation < 6 ? (hour < 12 ? 'dawn' : 'dusk') : 'day')) as Phase
+  };
+}
 function readSun() {
   const now = new Date();
-  const sun = sunAt(now);
-  if (FORCED_PHASE && ['night', 'dawn', 'day', 'dusk'].includes(FORCED_PHASE)) {
-    const el = { night: -20, dawn: 1, day: 35, dusk: 1 }[FORCED_PHASE]!;
-    sun.elevation = el; sun.azimuth = { night: 350, dawn: 95, day: 190, dusk: 265 }[FORCED_PHASE]!;
-  }
-  sky.elevation = sun.elevation;
-  sky.azimuth = sun.azimuth;
-  sky.daylight = smooth(-6, 6, sun.elevation);
-  sky.golden = (1 - smooth(0, 12, Math.abs(sun.elevation))) * smooth(-8, -2, sun.elevation);
-  sky.night = sun.elevation < -1.2;
-  const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hour12: false, timeZone: ZONE }).format(now)) % 24;
-  sky.phase = FORCED_PHASE && ['night', 'dawn', 'day', 'dusk'].includes(FORCED_PHASE) ? FORCED_PHASE : sun.elevation < -6 ? 'night' : sun.elevation < 6 ? (hour < 12 ? 'dawn' : 'dusk') : 'day';
+  Object.assign(sky, light(now, HERE)); // the reader's sky: the page's light
+  sky.there = light(now, THERE); // Wageningen's: the weather's
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: ZONE }).format(now);
   if (day !== timesDay) {
     timesDay = day;
@@ -223,6 +245,8 @@ function readSun() {
     sky.sunrise = today.sunrise; sky.sunset = today.sunset;
     sky.dayMinutes = today.daylight;
     sky.dayDelta = today.daylight !== null && yesterday.daylight !== null ? today.daylight - yesterday.daylight : null;
+    const mine = HERE === THERE ? today : sunTimes(now, HERE);
+    sky.mySunrise = mine.sunrise; sky.mySunset = mine.sunset;
     sky.moon = moonPhase(now);
   }
 }
@@ -233,8 +257,10 @@ function paint() {
   root.dataset.season = month >= 3 && month <= 5 ? 'spring' : month >= 6 && month <= 8 ? 'summer' : month >= 9 && month <= 11 ? 'autumn' : 'winter';
   root.style.setProperty('--sky-daylight', sky.daylight.toFixed(3));
   root.style.setProperty('--sky-golden', sky.golden.toFixed(3));
-  root.dataset.night = sky.night ? '' : undefined as unknown as string;
-  if (!sky.night) delete root.dataset.night;
+  // The night's own effects (the cool glow, the lamp) belong to the night ink: a
+  // page kept light after dark stays a lit room, not a dim one.
+  const dusky = sky.night && root.dataset.theme === 'dark';
+  if (dusky) root.dataset.night = ''; else delete root.dataset.night;
   const w = sky.weather;
   // The light outside, for the stylesheet: where the Sun stands (east on the
   // left, west on the right), how much of its glow gets through the cloud, and
@@ -242,8 +268,8 @@ function paint() {
   const cloud = w ? w.cloud : 0.5;
   const kind = w ? weatherKind(w.code) : 'cloud';
   const through = 1 - cloud * (kind === 'fog' || kind === 'storm' ? 0.95 : 0.8);
-  const glow = sky.night ? 0.35 * through : (0.3 + 0.7 * sky.golden) * through;
-  const glowColor = sky.night ? '#5f7a99' : sky.phase === 'dawn' ? '#f0bc98' : sky.phase === 'dusk' ? '#e9a476' : '#f2d6a2';
+  const glow = dusky ? 0.35 * through : sky.night ? 0.2 * through : (0.3 + 0.7 * sky.golden) * through;
+  const glowColor = dusky ? '#5f7a99' : sky.phase === 'dawn' ? '#f0bc98' : sky.phase === 'dusk' ? '#e9a476' : '#f2d6a2';
   const veil = Math.min(1, cloud * 0.6 + (w ? w.rain * 0.5 : 0) + (kind === 'fog' ? 0.5 : 0) + (kind === 'storm' ? 0.5 : 0));
   const veilColor = kind === 'snow' ? '#aeb8c4' : kind === 'storm' ? '#3f4a55' : kind === 'rain' ? '#5a6a78' : '#6a7076';
   // Fog rises from the foot of the page; snow lays a cold whiteness there too.
@@ -253,7 +279,7 @@ function paint() {
   root.style.setProperty('--sky-glow-color', glowColor);
   root.style.setProperty('--sky-veil', veil.toFixed(3));
   root.style.setProperty('--sky-veil-color', veilColor);
-  root.style.setProperty('--sky-dot', sky.night ? 'var(--daiqing-2)' : kind === 'storm' ? 'var(--zhusha)' : kind === 'rain' || kind === 'snow' || kind === 'fog' ? 'var(--ink-4)' : kind === 'cloud' ? 'var(--moss)' : 'var(--ochre-2)');
+  root.style.setProperty('--sky-dot', sky.there.night ? 'var(--daiqing-2)' : kind === 'storm' ? 'var(--zhusha)' : kind === 'rain' || kind === 'snow' || kind === 'fog' ? 'var(--ink-4)' : kind === 'cloud' ? 'var(--moss)' : 'var(--ochre-2)');
   if (w) {
     root.dataset.weather = kind;
     root.style.setProperty('--sky-warmth', Math.max(-1, Math.min(1, (w.temp - 12) / 14)).toFixed(3));
@@ -261,7 +287,14 @@ function paint() {
     root.style.setProperty('--sky-rain', w.rain.toFixed(3));
     root.style.setProperty('--sky-wind', Math.min(1, w.wind / 40).toFixed(3));
   }
-  if (sky.moon) document.querySelectorAll<HTMLElement>('[data-moon]').forEach((el) => { el.innerHTML = moonSvg(sky.moon!); el.title = `${lang() === 'zh' ? '农历' : 'Lunar day'} ${sky.moon!.day}`; });
+  if (sky.moon) {
+    document.querySelectorAll<HTMLElement>('[data-moon]').forEach((el) => { el.innerHTML = moonSvg(sky.moon!); el.title = `${lang() === 'zh' ? '农历' : 'Lunar day'} ${sky.moon!.day}`; });
+    // The phase by name: new, a crescent, a quarter, gibbous, full, and back.
+    const d = sky.moon.day;
+    const key = d <= 2 ? 'new' : d <= 6 ? 'waxingCrescent' : d <= 9 ? 'firstQuarter' : d <= 13 ? 'waxingGibbous' : d <= 16 ? 'full' : d <= 21 ? 'waningGibbous' : d <= 24 ? 'lastQuarter' : 'waningCrescent';
+    const en: Record<string, string> = { new: 'new moon', waxingCrescent: 'waxing crescent', firstQuarter: 'first quarter', waxingGibbous: 'waxing gibbous', full: 'full moon', waningGibbous: 'waning gibbous', lastQuarter: 'last quarter', waningCrescent: 'waning crescent' };
+    document.querySelectorAll<HTMLElement>('[data-moon-name]').forEach((el) => { el.textContent = phrase(`sky.moon.${key}`, en[key]); });
+  }
   const sunText = sky.sunrise && sky.sunset ? `<span class="sky-mark">↑</span>${sky.sunrise}<span class="sky-mark">↓</span>${sky.sunset}` : '';
   const dayText = sky.dayMinutes !== null ? (() => {
     const h = Math.floor(sky.dayMinutes! / 60), m = sky.dayMinutes! % 60, d = sky.dayDelta ?? 0;
@@ -296,10 +329,11 @@ function paint() {
     const row = el.closest<HTMLElement>('.hero-live');
     if (!w) { row?.setAttribute('hidden', ''); return; }
     const zh = lang() === 'zh';
-    const next = sky.phase === 'night' || sky.phase === 'dawn' ? (zh ? `日出 ${sky.sunrise ?? ''}` : `sunrise ${sky.sunrise ?? ''}`) : (zh ? `日落 ${sky.sunset ?? ''}` : `sunset ${sky.sunset ?? ''}`);
+    const next = sky.there.phase === 'night' || sky.there.phase === 'dawn' ? (zh ? `日出 ${sky.sunrise ?? ''}` : `sunrise ${sky.sunrise ?? ''}`) : (zh ? `日落 ${sky.sunset ?? ''}` : `sunset ${sky.sunset ?? ''}`);
+    // Each part holds together when the line wraps on a phone.
     el.innerHTML = zh
-      ? `<span lang="zh">${hourWord()}</span> · ${Math.round(w.temp)}° <span lang="zh">${weatherLabel(w.code, 'zh')}</span> · <span lang="zh">${next}</span>`
-      : `${hourWord()} · ${Math.round(w.temp)}° ${weatherLabel(w.code, 'en')} · ${next}`;
+      ? `<span lang="zh" class="hold">${hourWord()}</span> · <span class="hold">${Math.round(w.temp)}° <span lang="zh">${weatherLabel(w.code, 'zh')}</span></span> · <span lang="zh" class="hold">${next}</span>`
+      : `<span class="hold">${hourWord()}</span> · <span class="hold">${Math.round(w.temp)}° ${weatherLabel(w.code, 'en')}</span> · <span class="hold">${next}</span>`;
     row?.removeAttribute('hidden');
   });
   // The footer's note says what the sky is doing to the page right now.
@@ -310,9 +344,9 @@ function paint() {
     else if (kind === 'snow') note = phrase('sky.note.snow', 'It is snowing in Wageningen: snow lies on the heights of the catchment above.');
     else if (kind === 'storm') note = phrase('sky.note.storm', 'A thunderstorm over Wageningen: now and then the paper lights up.');
     else if (kind === 'fog') note = phrase('sky.note.fog', 'Fog in Wageningen: the mist has closed in on the contours above.');
-    else if (sky.night) note = phrase('sky.note.night', 'Night over Wageningen: the page wears its night ink until sunrise {t}.').replace('{t}', sky.sunrise ?? '');
+    else if (sky.there.night) note = phrase('sky.note.night', 'Night over Wageningen; sunrise there at {t}.').replace('{t}', sky.sunrise ?? '');
     else if (w && w.cloud >= 0.6) note = phrase('sky.note.cloud', 'An overcast sky over Wageningen: the light on the page is flat and grey today.');
-    else if (w) note = phrase('sky.note.clear', 'The Sun is out over Wageningen; the paper follows it and turns to its night ink at sunset {t}.').replace('{t}', sky.sunset ?? '');
+    else if (w) note = phrase('sky.note.clear', 'The Sun is out over Wageningen; sunset there at {t}.').replace('{t}', sky.sunset ?? '');
     // Once the note is live it leaves the dictionary's hands (the runtime re-applies
     // data-i18n after late DOM changes and would put the standing text back).
     if (note) { delete el.dataset.i18n; el.textContent = note; }
@@ -321,22 +355,23 @@ function paint() {
   document.querySelectorAll<HTMLElement>('[data-sky-chip]').forEach((el) => {
     if (!w) { el.setAttribute('hidden', ''); return; }
     const kind = weatherKind(w.code);
-    const glyph = sky.night && (kind === 'clear' || kind === 'cloud') && sky.moon ? moonSvg(sky.moon).replace('width="12" height="12"', 'width="14" height="14"') : GLYPHS[kind] ?? GLYPHS.cloud;
+    const glyph = sky.there.night && (kind === 'clear' || kind === 'cloud') && sky.moon ? moonSvg(sky.moon).replace('width="12" height="12"', 'width="14" height="14"') : GLYPHS[kind] ?? GLYPHS.cloud;
     el.innerHTML = `${glyph}<b>${Math.round(w.temp)}°</b>`;
     el.removeAttribute('hidden');
   });
   document.querySelectorAll<HTMLElement>('[data-sky-theme]').forEach((el) => {
-    el.textContent = sky.night ? phrase('sky.card.night', 'night ink until sunrise {t}').replace('{t}', sky.sunrise ?? '') : phrase('sky.card.day', 'day ink until sunset {t}').replace('{t}', sky.sunset ?? '');
+    el.textContent = sky.night ? phrase('sky.card.night', 'night ink until your sunrise, about {t}').replace('{t}', sky.mySunrise ?? '') : phrase('sky.card.day', 'day ink until your sunset, about {t}').replace('{t}', sky.mySunset ?? '');
   });
   // Photography: the light a photographer waits for.
   document.querySelectorAll<HTMLElement>('[data-sky-light]').forEach((el) => {
     const text = el.querySelector<HTMLElement>('[data-sky-light-text]');
     if (!text || !sky.sunrise) { el.setAttribute('hidden', ''); return; }
     const closed = w && (w.rain > 0.15 || w.cloud >= 0.85 || ['fog', 'storm', 'snow'].includes(weatherKind(w.code)));
-    const now = sky.golden > 0.45 && !closed;
+    const t = sky.there;
+    const now = t.golden > 0.45 && !closed;
     text.textContent = now ? phrase('sky.light.now', 'Golden hour in Wageningen right now')
-      : closed && !sky.night ? phrase('sky.light.none', 'No golden light today: the sky over Wageningen is closed')
-      : sky.night || sky.phase === 'dawn' ? phrase('sky.light.sunrise', 'Next golden hour: sunrise {t}').replace('{t}', sky.sunrise ?? '')
+      : closed && !t.night ? phrase('sky.light.none', 'No golden light today: the sky over Wageningen is closed')
+      : t.night || t.phase === 'dawn' ? phrase('sky.light.sunrise', 'Next golden hour: sunrise {t}').replace('{t}', sky.sunrise ?? '')
       : phrase('sky.light.sunset', 'Next golden hour: sunset {t}').replace('{t}', sky.sunset ?? '');
     el.classList.toggle('is-now', now);
     el.classList.toggle('is-off', !!closed && !now);
@@ -356,7 +391,7 @@ function paint() {
     restore?.toggleAttribute('hidden', el.dataset.touched === undefined);
     if (el.dataset.touched !== undefined) return;
     const kind = weatherKind(w.code);
-    const say = kind === 'rain' ? 'It is raining in Wageningen today.' : kind === 'snow' ? 'It is snowing in Wageningen today.' : kind === 'storm' ? 'There is a thunderstorm over Wageningen.' : kind === 'fog' ? 'Fog lies over Wageningen today.' : kind === 'cloud' ? 'It is cloudy in Wageningen today.' : sky.night ? 'It is a clear night in Wageningen.' : 'The sun is out over Wageningen today.';
+    const say = kind === 'rain' ? 'It is raining in Wageningen today.' : kind === 'snow' ? 'It is snowing in Wageningen today.' : kind === 'storm' ? 'There is a thunderstorm over Wageningen.' : kind === 'fog' ? 'Fog lies over Wageningen today.' : kind === 'cloud' ? 'It is cloudy in Wageningen today.' : sky.there.night ? 'It is a clear night in Wageningen.' : 'The sun is out over Wageningen today.';
     if (el.value !== say) { el.value = say; el.dispatchEvent(new Event('input')); }
   });
   paintBar(glowColor, glow, veilColor, veil);
@@ -386,7 +421,7 @@ function paintBar(glowColor: string, glow: number, veilColor: string, veil: numb
   c = mixHex(c, veilColor, veil * (dark ? 0.08 : 0.14));
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => { m.content = c; });
 }
-addEventListener('themechange', () => safely(() => paintBar(...lastBar)));
+addEventListener('themechange', () => safely(paint));
 
 // Nothing here may take the rest of the page down with it: an older browser
 // without these Intl features simply gets no sky.
@@ -397,7 +432,7 @@ addEventListener('lang:change', () => safely(paint));
 
 async function refreshWeather() {
   if (FORCED_WEATHER && CANNED[FORCED_WEATHER]) {
-    sky.weather = { temp: 12, feels: null, humidity: null, code: 3, wind: 10, windDir: 200, cloud: 0.5, rain: 0, isDay: !sky.night, at: Date.now(), ...CANNED[FORCED_WEATHER] };
+    sky.weather = { temp: 12, feels: null, humidity: null, code: 3, wind: 10, windDir: 200, cloud: 0.5, rain: 0, isDay: !sky.there.night, at: Date.now(), ...CANNED[FORCED_WEATHER] };
     safely(paint);
     return;
   }

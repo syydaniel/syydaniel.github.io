@@ -545,7 +545,7 @@ html[data-lang='cat'] .meta-line {
 
 /* ---------- On paper: the text and the cards, without the sky, the ink or the controls ---------- */
 @media print {
-  #atmosphere, .aurora, .skylight, #spotlight, #ink-trail, #cursor-badge, #intro, .chapter-rail, .chapter-slip, .chapter-watermark,
+  #atmosphere, .aurora, .skylight, #spotlight, #ink-trail, #cursor-badge, #intro, .chapter-rail, .chapter-slip, .chapter-watermark, .chapter-wash,
   .footer-ridges, .marquee, .hero-ticker, .sky-cluster, .sky-card, .hero-live, .theme-toggle, .nav-cta, #nav-toggle, canvas { display: none !important; }
   html, body { background: #fff !important; color: #111 !important; }
   body::before, body::after { display: none !important; }

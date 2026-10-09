@@ -107,7 +107,7 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
       </div>
       <div class="text-xs text-ink-400 font-mono">
         <i class="legend-dot legend-photo" aria-hidden="true"></i><span id="photo-count">{total}</span> <span data-i18n="photo.frames_visible">frames visible</span>
-        <span id="film-count-wrap"> · <i class="legend-dot legend-film" aria-hidden="true"></i><span id="film-count">{films.length}</span> <span data-i18n="photo.films_visible">films</span></span>
+        <span id="film-count-wrap" class="ml-3 whitespace-nowrap"><i class="legend-dot legend-film" aria-hidden="true"></i><span id="film-count">{films.length}</span> <span data-i18n="photo.films_visible">films</span></span>
       </div>
     </div>
 

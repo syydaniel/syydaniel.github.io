@@ -108,7 +108,7 @@ const siteLd = {
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/noto-serif-sc-display-normal-200-900.woff2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Decide before first paint which ink the page wears (the day ink while the Sun is up over Wageningen, the night ink after; a pin lasts until the sky next changes) and whether the opening plays (once per session). -->
+    <!-- Decide before first paint which ink the page wears (the day ink while the Sun is up where the reader is, the night ink after; a pin lasts until their sky next changes) and whether the opening plays (once per session). -->
     <script is:inline>
       (function () {
         var up = true;
@@ -116,11 +116,16 @@ const siteLd = {
           var forced = new URLSearchParams(location.search).get('sky');
           if (forced) up = forced !== 'night';
           else {
+            // The reader's own sky, near enough: the longitude from the clock's offset, a temperate latitude for the hemisphere.
+            var zone = ''; try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+            var here = zone === 'Europe/Amsterdam';
+            var lon = here ? 5.66 : -new Date().getTimezoneOffset() / 4;
+            var latDeg = here ? 51.97 : (/^(Australia|Antarctica|Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Port_Moresby)|Africa\/(Johannesburg|Windhoek|Maputo|Harare|Lusaka|Gaborone|Maseru|Mbabane|Luanda)|America\/(Sao_Paulo|Argentina|Buenos_Aires|Santiago|Montevideo|Asuncion|La_Paz|Lima)|Indian\/(Mauritius|Reunion))/.test(zone) ? -35 : 42);
             var d = Date.now() / 864e5 - 10957.5, r = Math.PI / 180;
             var L = (280.46 + 0.9856474 * d) % 360, g = ((357.528 + 0.9856003 * d) % 360) * r;
             var lam = (L + 1.915 * Math.sin(g) + 0.02 * Math.sin(2 * g)) * r, eps = (23.439 - 4e-7 * d) * r;
             var ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam)), dec = Math.asin(Math.sin(eps) * Math.sin(lam));
-            var gmst = ((18.697374558 + 24.06570982441908 * d) % 24 + 24) % 24, h = (gmst * 15 + 5.66) * r - ra, lat = 51.97 * r;
+            var gmst = ((18.697374558 + 24.06570982441908 * d) % 24 + 24) % 24, h = (gmst * 15 + lon) * r - ra, lat = latDeg * r;
             up = Math.asin(Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(h)) / r > -1.2;
           }
         } catch (e) {}
