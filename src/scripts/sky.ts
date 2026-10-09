@@ -1,6 +1,8 @@
 // 天色: two skies, read into the page. The sky over the reader decides the
-// page's light (which ink it wears, the glow on the paper, the lamp, the Moon
-// in the toggle), worked out from their clock and time zone, no network needed.
+// page's light (daylight on the paper by day; after dark a lamp on the day ink,
+// or the night's own cool glow on the night ink; the Moon in the toggle), worked
+// out from their clock and time zone, no network needed. Which ink the page
+// wears is the device's choice (scripts/theme.ts), never the sky's.
 // The sky over Wageningen is the page's weather and its readouts: it comes from
 // Open-Meteo when it can be reached and is remembered for a quarter of an hour. Everything downstream
 // (the ink, the catchment's light, the globe's night side, the footer and the
@@ -26,7 +28,8 @@ export type Sky = {
   phase: Phase;
   daylight: number; // 0 at night … 1 in full day
   golden: number; // 1 with the Sun on the horizon, 0 when it is high or long gone
-  night: boolean; // the Sun is below the reader's horizon: the page wears its night ink
+  night: boolean; // the Sun is below the reader's horizon: the lamp is on, or the night ink wears its own glow
+  lightText: string; // the light on the page, in words, for the card and the toggle's tooltip
   mySunrise: string | null; // the reader's own, estimated from their time zone
   mySunset: string | null;
   there: { elevation: number; azimuth: number; phase: Phase; daylight: number; golden: number; night: boolean }; // over Wageningen
@@ -169,7 +172,7 @@ async function fetchWeather(): Promise<Weather | null> {
 }
 
 // ---- publish ----
-const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false, mySunrise: null, mySunset: null, there: { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false }, sunrise: null, sunset: null, dayMinutes: null, dayDelta: null, moon: null, weather: null };
+const sky: Sky = { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false, lightText: '', mySunrise: null, mySunset: null, there: { elevation: 0, azimuth: 180, phase: 'day', daylight: 1, golden: 0, night: false }, sunrise: null, sunset: null, dayMinutes: null, dayDelta: null, moon: null, weather: null };
 
 // The Moon's age from the Chinese calendar the browser already keeps: day 1 is
 // new, day 15 full. Enough for a glyph in the footer.
@@ -257,10 +260,15 @@ function paint() {
   root.dataset.season = month >= 3 && month <= 5 ? 'spring' : month >= 6 && month <= 8 ? 'summer' : month >= 9 && month <= 11 ? 'autumn' : 'winter';
   root.style.setProperty('--sky-daylight', sky.daylight.toFixed(3));
   root.style.setProperty('--sky-golden', sky.golden.toFixed(3));
-  // The night's own effects (the cool glow, the lamp) belong to the night ink: a
-  // page kept light after dark stays a lit room, not a dim one.
-  const dusky = sky.night && root.dataset.theme === 'dark';
-  if (dusky) root.dataset.night = ''; else delete root.dataset.night;
+  // After dark the page is lit from inside: on the night ink by the night's own
+  // cool glow (data-night), on the day ink by a lamp over the reader's shoulder
+  // (data-lamp, kinetics.css and theme.css): the paper a shade dimmer and
+  // warmer, never black.
+  const dark = root.dataset.theme === 'dark';
+  const dusky = sky.night && dark;
+  const lamp = sky.night && !dark;
+  root.toggleAttribute('data-night', dusky);
+  root.toggleAttribute('data-lamp', lamp);
   const w = sky.weather;
   // The light outside, for the stylesheet: where the Sun stands (east on the
   // left, west on the right), how much of its glow gets through the cloud, and
@@ -268,13 +276,14 @@ function paint() {
   const cloud = w ? w.cloud : 0.5;
   const kind = w ? weatherKind(w.code) : 'cloud';
   const through = 1 - cloud * (kind === 'fog' || kind === 'storm' ? 0.95 : 0.8);
-  const glow = dusky ? 0.35 * through : sky.night ? 0.2 * through : (0.3 + 0.7 * sky.golden) * through;
-  const glowColor = dusky ? '#5f7a99' : sky.phase === 'dawn' ? '#f0bc98' : sky.phase === 'dusk' ? '#e9a476' : '#f2d6a2';
+  const glow = dusky ? 0.35 * through : lamp ? 0.6 : (0.3 + 0.7 * sky.golden) * through;
+  const glowColor = dusky ? '#5f7a99' : lamp ? '#e3b874' : sky.phase === 'dawn' ? '#f0bc98' : sky.phase === 'dusk' ? '#e9a476' : '#f2d6a2';
   const veil = Math.min(1, cloud * 0.6 + (w ? w.rain * 0.5 : 0) + (kind === 'fog' ? 0.5 : 0) + (kind === 'storm' ? 0.5 : 0));
   const veilColor = kind === 'snow' ? '#aeb8c4' : kind === 'storm' ? '#3f4a55' : kind === 'rain' ? '#5a6a78' : '#6a7076';
   // Fog rises from the foot of the page; snow lays a cold whiteness there too.
   root.style.setProperty('--sky-fog', (kind === 'fog' ? 1 : kind === 'snow' ? 0.5 : 0).toFixed(1));
-  root.style.setProperty('--sky-x', Math.max(0, Math.min(1, (sky.azimuth - 70) / 220)).toFixed(3));
+  // Two decimals: the Sun's drift from one minute to the next is not worth a transition.
+  root.style.setProperty('--sky-x', lamp ? '0.12' : Math.max(0, Math.min(1, (sky.azimuth - 70) / 220)).toFixed(2));
   root.style.setProperty('--sky-glow', glow.toFixed(3));
   root.style.setProperty('--sky-glow-color', glowColor);
   root.style.setProperty('--sky-veil', veil.toFixed(3));
@@ -359,9 +368,13 @@ function paint() {
     el.innerHTML = `${glyph}<b>${Math.round(w.temp)}°</b>`;
     el.removeAttribute('hidden');
   });
-  document.querySelectorAll<HTMLElement>('[data-sky-theme]').forEach((el) => {
-    el.textContent = sky.night ? phrase('sky.card.night', 'night ink until your sunrise, about {t}').replace('{t}', sky.mySunrise ?? '') : phrase('sky.card.day', 'day ink until your sunset, about {t}').replace('{t}', sky.mySunset ?? '');
-  });
+  // The light on the page, in words: daylight, the lamp, or the night ink by night or by day.
+  {
+    const key = sky.night ? (dark ? 'night' : 'lamp') : dark ? 'darkday' : 'day';
+    const en: Record<string, string> = { day: 'daylight until your sunset, about {t}', lamp: 'lamp-lit paper until your sunrise, about {t}', night: 'night ink until your sunrise, about {t}', darkday: 'night ink in daylight until your sunset, about {t}' };
+    sky.lightText = phrase(`sky.card.lit.${key}`, en[key]).replace('{t}', (sky.night ? sky.mySunrise : sky.mySunset) ?? '');
+    document.querySelectorAll<HTMLElement>('[data-sky-theme]').forEach((el) => { el.textContent = sky.lightText; });
+  }
   // Photography: the light a photographer waits for.
   document.querySelectorAll<HTMLElement>('[data-sky-light]').forEach((el) => {
     const text = el.querySelector<HTMLElement>('[data-sky-light-text]');

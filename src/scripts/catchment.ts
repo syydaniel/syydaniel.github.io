@@ -155,7 +155,12 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     uniforms.uCamera.value.copy(camera.position);
     host.style.setProperty('--catchment-fade', String(Math.max(0, 1 - scrollT * 1.35)));
   }
-  addEventListener('scroll', () => { scrollT = Math.max(0, Math.min(1, scrollY / Math.max(1, host.offsetHeight))); }, { passive: true });
+  // The host's height is measured when it changes, not on every scroll event
+  // (reading it there would force a layout mid-scroll).
+  let hostHeight = Math.max(1, host.offsetHeight);
+  if ('ResizeObserver' in window) new ResizeObserver(() => { hostHeight = Math.max(1, host.offsetHeight); }).observe(host);
+  else addEventListener('resize', () => { hostHeight = Math.max(1, host.offsetHeight); }, { passive: true });
+  addEventListener('scroll', () => { scrollT = Math.max(0, Math.min(1, scrollY / hostHeight)); }, { passive: true });
 
   // ---- pointer: the light and the hand ----
   // The pointer's place on the ground plane steers the light (it comes from
