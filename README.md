@@ -136,6 +136,14 @@ from Google on demand for its headings.
   on the heights, a storm lighting the paper, fog closing in, or the night ink until sunrise). To see a state the sky is not in, add `?sky=night`
   (or `dawn`, `day`, `dusk`) and `?weather=rain` (or `clear`, `cloud`, `fog`, `snow`, `storm`)
   to the address.
+- **Each chapter has a colour** (`src/styles/kinetics.css`, `--chapter-hue`): a mineral from the
+  painter's box for each chapter (黛青 for About, 石青 for Journey, 石绿 for Places, a golden
+  ochre for Photography, cinnabar for Contact…). It tints the chapter's number and watermark, a
+  brush-edged wash behind its head (an SVG ellipse roughened with turbulence, faded in as the
+  chapter enters), the shadow its cards lift with, and, as the reader arrives, the ambient light
+  of the page (`--chapter-tint` on the skylight, eased over two seconds). The ink carries the
+  same minerals: now and then a drop of azurite, malachite, ochre or gamboge, and where the dye
+  lies thick its colour deepens like a glaze.
 - **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
   The name rises letter by letter in the display face, a counter runs, the seal stamps beside the
   name, the curtain lifts. Click or any key skips it.

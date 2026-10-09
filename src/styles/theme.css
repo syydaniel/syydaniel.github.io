@@ -31,6 +31,10 @@
   --daiqing-2: light-dark(#3f7570, #9ccbc3);
   --daiqing-3: light-dark(#214744, #5f948f);
 
+  /* ---- 石青, azurite: the mineral blue, for the Journey chapter and a rare drop in the ink ---- */
+  --shiqing: light-dark(#3b5f86, #86a7c9);
+  --shiqing-2: light-dark(#4f739a, #9dbad8);
+
   /* ---- 朱砂, cinnabar: one accent, used sparingly for the thing to look at ---- */
   --zhusha: light-dark(#bd3620, #d9583a);
   --zhusha-2: light-dark(#a52c18, #e2694c);

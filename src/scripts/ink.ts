@@ -97,6 +97,9 @@ void main () {
   paper = mix(paper, vec3(0.975, 0.98, 0.985), uSnow * 0.35);
   vec3 absorb = clamp(a * 0.6 * uDim, 0.0, 0.9);
   vec3 day = paper * (vec3(1.0) - absorb) * mix(1.0, 0.955, uNight);
+  // A glaze: where the dye lies thick, its colour deepens rather than greys.
+  float dense = smoothstep(0.3, 0.95, dot(a, vec3(0.3333)));
+  day = mix(vec3(dot(day, vec3(0.299, 0.587, 0.114))), day, 1.0 + dense * 0.4);
   vec3 lamp = vec3(0.071, 0.082, 0.086) + uFlash * vec3(0.16, 0.17, 0.2);
   lamp = mix(lamp, lamp * vec3(1.12, 1.0, 0.9), uGolden * 0.4);
   lamp = mix(lamp, lamp * vec3(0.88, 0.94, 1.08), uRain * 0.5);
@@ -111,11 +114,14 @@ void main () {
 }`;
 
 // Ink on paper. Each entry is what the ink absorbs (1 - its colour), so a drop
-// darkens the paper toward its own hue: 墨, 淡墨, 黛青, 清墨 and, one in twenty, 朱砂.
+// darkens the paper toward its own hue: 墨, 淡墨, 黛青, 清墨 and, now and then,
+// a mineral from the painter's box: 朱砂, 石青 (azurite), 石绿 (malachite),
+// 赭石 (ochre) and 藤黄 (gamboge).
 const PALETTE: [number, number, number][] = [
-  [0.86, 0.84, 0.82], [0.55, 0.50, 0.50], [0.80, 0.62, 0.64], [0.30, 0.26, 0.27], [0.62, 0.58, 0.58], [0.26, 0.80, 0.88]
+  [0.86, 0.84, 0.82], [0.55, 0.50, 0.50], [0.80, 0.62, 0.64], [0.30, 0.26, 0.27], [0.62, 0.58, 0.58], [0.26, 0.80, 0.88],
+  [0.78, 0.56, 0.28], [0.68, 0.36, 0.52], [0.36, 0.56, 0.74], [0.14, 0.30, 0.84]
 ];
-const PALETTE_WEIGHTS = [0.24, 0.3, 0.2, 0.12, 0.09, 0.05];
+const PALETTE_WEIGHTS = [0.22, 0.27, 0.18, 0.11, 0.08, 0.05, 0.03, 0.025, 0.03, 0.015];
 
 function pickColor(): [number, number, number] {
   let r = Math.random();
