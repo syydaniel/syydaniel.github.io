@@ -115,7 +115,8 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
 </section>
 
 <script>
-  // The atlas loads only when the map nears view. Cells are the 10 km squares
+  import { warm } from '../scripts/warm';
+  // The atlas loads in idle time after the page is up, or when the map nears view. Cells are the 10 km squares
   // of my GPS tracks, raised as columns by time spent: a table-top model of
   // where I have walked. The country list and the globe stay in step with it.
   import { createAtlas } from '../scripts/atlas';
@@ -234,8 +235,8 @@ const filmsIn = (a3: string) => films.filter((f) => f.a3 === a3);
       });
     };
 
-    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { io.disconnect(); initMap(); } }, { rootMargin: '300px' });
-    io.observe(el);
+    // Built in idle time after the page has loaded, or at once if the reader gets here first (scripts/warm.ts).
+    warm(el, initMap);
   }
 </script>
 

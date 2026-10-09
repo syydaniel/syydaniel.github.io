@@ -273,22 +273,37 @@ if (chapters.length > 1) {
     return a;
   });
   document.body.appendChild(rail);
-  let railFrame = 0;
+  // Where each chapter starts is measured when the page changes shape (a map
+  // arriving, a language switching, a resize), never on the scroll itself: a
+  // layout read in every scroll frame, after other layers have written their
+  // styles, is a forced layout in every scroll frame.
+  let railFrame = 0, tops: number[] = [], max = 1, lastCurrent = -2;
+  const measure = () => {
+    tops = chapters.map(c => c.section.getBoundingClientRect().top + scrollY);
+    max = Math.max(1, root.scrollHeight - innerHeight);
+    lastCurrent = -2;
+    if (!railFrame) railFrame = requestAnimationFrame(paintRail);
+  };
   const paintRail = () => {
     railFrame = 0;
-    const probe = scrollY + innerHeight * 0.42;
+    const y = scrollY;
+    const probe = y + innerHeight * 0.42;
     let current = -1;
-    chapters.forEach((c, i) => { if (c.section.getBoundingClientRect().top + scrollY <= probe) current = i; });
-    items.forEach((a, i) => { a.classList.toggle('is-current', i === current); if (i === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
-    // The page knows which chapter it is in: the ambient tint follows (kinetics.css, --chapter-tint).
-    if (current >= 0) root.dataset.chapter = chapters[current].section.id; else delete root.dataset.chapter;
-    const max = root.scrollHeight - innerHeight;
-    rail.classList.toggle('is-on', scrollY > innerHeight * 0.55 && scrollY < max - innerHeight * 0.6);
-    line.style.setProperty('--p', String(Math.min(1, Math.max(0, scrollY / Math.max(1, max)))));
+    for (let i = 0; i < tops.length; i++) if (tops[i] <= probe) current = i;
+    if (current !== lastCurrent) {
+      lastCurrent = current;
+      items.forEach((a, i) => { a.classList.toggle('is-current', i === current); if (i === current) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+      // The page knows which chapter it is in: the ambient tint follows (kinetics.css, --chapter-tint).
+      if (current >= 0) root.dataset.chapter = chapters[current].section.id; else delete root.dataset.chapter;
+    }
+    rail.classList.toggle('is-on', y > innerHeight * 0.55 && y < max - innerHeight * 0.6);
+    line.style.setProperty('--p', (Math.min(1, Math.max(0, y / max))).toFixed(4));
   };
   addEventListener('scroll', () => { if (!railFrame) railFrame = requestAnimationFrame(paintRail); }, { passive: true });
-  addEventListener('resize', paintRail, { passive: true });
-  paintRail();
+  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
+  addEventListener('resize', measure, { passive: true });
+  addEventListener('load', measure);
+  measure();
 
   chapters.forEach((c, i) => {
     const next = chapters[i + 1];

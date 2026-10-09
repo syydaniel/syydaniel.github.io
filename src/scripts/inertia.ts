@@ -3,7 +3,8 @@
 // taken over (keyboard, scrollbar, anchors and touch stay native) and only where
 // nothing else wants it: never over the maps, the globe, the gallery stage, a
 // canvas, a text field, or any element that can still scroll on its own.
-// Reduced motion and coarse pointers never see it.
+// Reduced motion and coarse pointers never see it, and a machine that cannot
+// keep the frames up gets its native scrolling back (the governor below).
 
 const fine = matchMedia('(hover: hover) and (pointer: fine)');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -31,6 +32,11 @@ if (fine.matches && !reduced.matches && navigator.maxTouchPoints === 0) {
     scrollTo({ top: y, behavior: 'instant' as ScrollBehavior });
   }
   let previous = 0;
+  // The governor: easing the scroll in script is only smoother than the native
+  // scroll while the frames keep up. A run of long frames (a busy main thread,
+  // a weak machine) hands the wheel back to the browser for the rest of the
+  // visit, whose own scrolling never waits on the main thread.
+  let longFrames = 0;
   function tick(now: number) {
     frame = 0;
     // Someone else moved the page (an anchor, a key, the scrollbar): let go at once.
@@ -41,6 +47,10 @@ if (fine.matches && !reduced.matches && navigator.maxTouchPoints === 0) {
     if (Math.abs(diff) < 0.4) { place(target); previous = 0; return; }
     // The same ease at every refresh rate: a fixed fraction of the gap per unit of time.
     const dt = previous ? Math.min(0.05, (now - previous) / 1000) : 1 / 60;
+    if (previous) {
+      longFrames = now - previous > 34 ? longFrames + 1 : Math.max(0, longFrames - 1);
+      if (longFrames > 24) { root.dataset.smooth = 'off'; place(target); previous = 0; return; }
+    }
     previous = now;
     place(current + diff * (1 - Math.exp(-dt * 10)));
     frame = requestAnimationFrame(tick);

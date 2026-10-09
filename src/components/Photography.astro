@@ -213,8 +213,9 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
 </script>
 
 <script>
-  // The atlas (and MapLibre, ~800 KB) load lazily, only when the map nears view.
+  // The atlas (and MapLibre, ~800 KB) load in idle time after the page is up, or when the map nears view.
   import { createAtlas } from '../scripts/atlas';
+  import { warm } from '../scripts/warm';
   let maplibregl: any = null;
   let map: any = null;
 
@@ -438,18 +439,8 @@ const yearTicks = Array.from({ length: yearMax - yearMin + 1 }, (_, k) => yearMi
     }
   }
 
-  if (mapEl) {
-    const mapIO = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          mapIO.disconnect();
-          initMap();
-        }
-      },
-      { rootMargin: '300px' }
-    );
-    mapIO.observe(mapEl);
-  }
+  // Built in idle time after the page has loaded, or at once if the reader gets here first (scripts/warm.ts).
+  if (mapEl) warm(mapEl, () => { initMap(); });
 
   // ---------- TIME RANGE ----------
   const trackEl = document.getElementById('scrubber-track') as HTMLElement;

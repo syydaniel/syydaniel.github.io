@@ -96,19 +96,21 @@ from Google on demand for its headings.
   scrolling stirs it, a drop lands on its own now and then, and a pressed seal pours
   into it, and the opening ends with one drop blooming in the middle. Where half-float render
   targets are missing, `src/scripts/atmosphere.ts` draws a noise atmosphere instead.
-- **The sky, 天色** (`src/scripts/sky.ts`): two skies. The sky over the reader decides the page's
-  light: which ink it wears (day ink while their Sun is up, night ink after; a pin lasts until
-  their sky next changes), the glow on the paper, the lamp, the Moon in the toggle. It is worked
-  out from their clock and time zone, no network and no location asked: the longitude from the
-  clock's offset, a temperate latitude for the hemisphere. The sky over Wageningen is the page's
-  weather and its readouts: the Sun's height and bearing there, today's sunrise and sunset, and
-  the weather from Open-Meteo when it can be reached, remembered for a quarter of an hour. The
-  night's own effects belong to the night ink, so a page kept light after dark stays a lit room. The paper warms
-  while the Sun is low and cools and dims once it has set; the catchment is lit from where the Sun
-  stands, flatter under cloud; rain there lands as drops in the ink here and a wind there is a slow
-  drift; the globe shows the real day-night line; the footer and the ticker read it all out, with
-  the Moon's phase beside the lunar date. The page wears its day ink while the Sun is up there and
-  its night ink after; the toggle pins an ink until the next sunrise or sunset. Real rain lifts the
+- **The sky, 天色** (`src/scripts/sky.ts`): two skies. The reader's device decides which ink the
+  page wears (its colour scheme; the toggle pins the other one until the sky next changes). The
+  sky over the reader decides the light on it: daylight on the paper while their Sun is up, and
+  after dark a lamp over their shoulder on the day ink (`html[data-lamp]`: the paper a shade
+  dimmer and warmer, a warm glow at the upper left, the corners of the room falling off, the
+  small text a touch darker to keep its contrast; nothing goes black) or the night's own cool
+  glow on the night ink (`html[data-night]`); the Moon sits in the toggle. It is worked out from
+  their clock and time zone, no network and no location asked: the longitude from the clock's
+  offset, a temperate latitude for the hemisphere. The sky over Wageningen is the page's weather
+  and its readouts: the Sun's height and bearing there, today's sunrise and sunset, and the
+  weather from Open-Meteo when it can be reached, remembered for a quarter of an hour. The paper
+  warms while the Sun is low; the catchment is lit from where the Sun stands, flatter under
+  cloud; rain there lands as drops in the ink here and a wind there is a slow drift; the globe
+  shows the real day-night line; the footer and the ticker read it all out, with the Moon's
+  phase beside the lunar date. Real rain lifts the
   water in the catchment and stirs it, snow lies on its heights, fog closes the mist in, a storm
   lights the paper now and then, and the wind moves the marquee ribbons. A sheet of 天光 lies over
   the paper (`.skylight`): the Sun's glow comes in from the left at dawn and the right at dusk,
@@ -138,7 +140,7 @@ from Google on demand for its headings.
   or the controls; and `404.astro` is the page for a path that is not on any of the maps. The hero's live line opens with the hour's word (morning, afternoon,
   evening, night, in Wageningen's own time), a strong wind shows an arrow pointing where it blows,
   and the footer's note says what the sky is doing to the page right now (raining in the ink, snow
-  on the heights, a storm lighting the paper, fog closing in, or the night ink until sunrise). To see a state the sky is not in, add `?sky=night`
+  on the heights, a storm lighting the paper, fog closing in, or the night ink until sunrise). To see a state the sky is not in, add `?sky=night` (and `?ink=light` or `?ink=dark` for the other ink)
   (or `dawn`, `day`, `dusk`) and `?weather=rain` (or `clear`, `cloud`, `fog`, `snow`, `storm`)
   to the address.
 - **Each chapter has a colour** (`src/styles/kinetics.css`, `--chapter-hue`): a mineral from the
@@ -149,6 +151,13 @@ from Google on demand for its headings.
   of the page (`--chapter-tint` on the skylight, eased over two seconds). The ink carries the
   same minerals: now and then a drop of azurite, malachite, ochre or gamboge, and where the dye
   lies thick its colour deepens like a glaze.
+- **Smoothness** (`src/scripts/warm.ts`): the three maps and their shaders are built in idle time
+  after the page is up, one at a time, instead of the moment they scroll into view (or at once if
+  the reader gets there first); phones short of memory, and readers who asked for less data, keep
+  the lazy behaviour. Scroll handlers read the page's position once and never measure layout
+  mid-scroll (chapter starts are measured when the page changes shape); the ink fluid runs at a
+  few frames a second far down the page, caps the strokes a frame can carry, and does not
+  reallocate its textures when a phone's address bar slides away.
 - **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
   The name rises letter by letter in the display face, a counter runs, the seal stamps beside the
   name, the curtain lifts. Click or any key skips it.

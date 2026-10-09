@@ -67,6 +67,23 @@
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"] { color-scheme: dark; }
 
+/* 灯下的纸: the day ink after dark. The reader's device keeps the day ink, so the
+   room is lit by a lamp instead of the sky (scripts/sky.ts sets html[data-lamp]
+   while the Sun is below their horizon): the paper a shade dimmer and warmer,
+   the smaller text a touch darker so that it keeps its contrast. Nothing on the
+   page goes black. check-contrast.mjs audits this scheme too. */
+:root[data-theme="light"][data-lamp] {
+  --paper: #ece6d9;
+  --paper-2: #e7e1d4;
+  --paper-3: #e0dacd;
+  --paper-4: #d3cec2;
+  --paper-hi: #f4efe5;
+  --ink-3: #46504c;
+  --ink-4: #535d5a;
+  --ink-5: #a0a8a3;
+  --hi: #fbf8f1;
+}
+
 /* Blend modes cannot be paired with light-dark(): the ink layers multiply onto
    paper and screen onto the night. */
 :root { --grain-blend: multiply; --grain-opacity: 0.3; --ink-blend: multiply; }

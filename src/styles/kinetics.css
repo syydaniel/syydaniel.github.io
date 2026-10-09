@@ -19,7 +19,7 @@ html[data-atmosphere] .aurora { opacity: 0.35; }
 
 /* ---------- 天光: the light outside, laid over the paper ----------
    scripts/sky.ts sets where the Sun is (--sky-x, left at dawn, right at dusk), how
-   much of its glow reaches the page (--sky-glow, less under cloud, none at night)
+   much of its glow reaches the page (--sky-glow, less under cloud; after dark it is a lamp)
    and the grey veil of an overcast or rainy sky (--sky-veil). Registered, so a
    change in the weather eases in over a couple of seconds instead of snapping. */
 @property --sky-x { syntax: '<number>'; inherits: true; initial-value: 0.5; }
@@ -37,6 +37,15 @@ html { transition: --sky-x 2.4s ease, --sky-glow 2.4s ease, --sky-veil 2.4s ease
     radial-gradient(ellipse 85% 70% at calc(var(--sky-x) * 100%) -12%, color-mix(in srgb, var(--sky-glow-color) calc(var(--sky-glow) * 30%), transparent), transparent 72%),
     linear-gradient(180deg, color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 18%), transparent), color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 6%), transparent) 55%, transparent),
     linear-gradient(0deg, color-mix(in srgb, #e6e9ec calc(var(--sky-fog) * 26%), transparent), color-mix(in srgb, #e6e9ec calc(var(--sky-fog) * 8%), transparent) 40%, transparent 70%),
+    radial-gradient(ellipse 95% 70% at 50% 45%, color-mix(in srgb, var(--chapter-tint) 8%, transparent), transparent 70%);
+}
+/* 灯下: the day ink after dark. The lamp stands at the reader's upper left and
+   the room beyond it is dim, so the corners of the page fall off a little. */
+html[data-lamp] .skylight { background:
+    radial-gradient(ellipse 70% 62% at 12% -10%, color-mix(in srgb, var(--sky-glow-color) calc(var(--sky-glow) * 36%), transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--sky-veil-color) calc(var(--sky-veil) * 12%), transparent), transparent 55%),
+    linear-gradient(0deg, color-mix(in srgb, #e6e9ec calc(var(--sky-fog) * 20%), transparent), transparent 60%),
+    radial-gradient(ellipse 118% 100% at 50% 42%, transparent 52%, color-mix(in srgb, #3b3127 12%, transparent)),
     radial-gradient(ellipse 95% 70% at 50% 45%, color-mix(in srgb, var(--chapter-tint) 8%, transparent), transparent 70%);
 }
 :root[data-theme="dark"] .skylight { background:
@@ -81,6 +90,7 @@ html[data-lang='zh'] .sky-card-title, html[data-lang='zh'] .sky-row span { font-
    at the lamp-lit hours, broad and dim under an overcast sky. */
 html[data-sky='dawn'], html[data-sky='dusk'] { --lamp-color: var(--ochre-2); }
 html[data-night] { --lamp-color: var(--ochre); --lamp-scale: 0.84; --lamp-strength: 1.3; }
+html[data-lamp] { --lamp-color: var(--ochre); --lamp-scale: 0.9; --lamp-strength: 1.15; }
 html[data-weather='cloud'], html[data-weather='fog'], html[data-weather='rain'], html[data-weather='storm'] { --lamp-scale: 1.22; --lamp-strength: 0.72; }
 html[data-weather='snow'] { --lamp-scale: 1.1; }
 

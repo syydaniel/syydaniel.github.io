@@ -169,6 +169,7 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
 
 <script>
   import { reflow } from '../scripts/reflow';
+  import { warm } from '../scripts/warm';
   // Filter chips: the cards slide into their new places rather than jump.
   const filterBtns = document.querySelectorAll<HTMLButtonElement>('.journey-filter');
   const items = document.querySelectorAll<HTMLElement>('.journey-item');
@@ -228,8 +229,8 @@ const tagLoc = (tag: string): string | Loc => tagT[tag] ?? tag;
         });
       }
     };
-    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { io.disconnect(); initMap(); } }, { rootMargin: '300px' });
-    io.observe(el);
+    // Built in idle time after the page has loaded, or at once if the reader gets here first (scripts/warm.ts).
+    warm(el, initMap);
   }
 </script>
 

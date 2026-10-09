@@ -392,7 +392,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     gl!.uniform1f(P.display.u.uRain, rain);
     gl!.uniform1f(P.display.u.uSnow, snow);
     gl!.uniform1f(P.display.u.uFlash, flash);
-    gl!.uniform1f(P.display.u.uDim, 1 - 0.7 * Math.min(1, scrollY / Math.max(1, innerHeight)));
+    gl!.uniform1f(P.display.u.uDim, 1 - 0.7 * Math.min(1, pageY / Math.max(1, innerHeight)));
     draw(null);
   }
 
@@ -418,7 +418,8 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
         strokeLeft = 0.35;
         const radius = CONFIG.splatRadius * (1.0 + Math.min(1.8, smoothV * 1.1));
         const stepLen = Math.sqrt(radius) * 0.55;
-        const n = Math.max(1, Math.min(24, Math.ceil(dist / stepLen)));
+        if (pending.length > 48) continue; // a frame can only take so many strokes
+        const n = Math.max(1, Math.min(12, Math.ceil(dist / stepLen)));
         const k = (Math.min(1, smoothV * 0.7) * 0.2 + 0.035) / Math.sqrt(n);
         const ux = dx / dist * smoothV * CONFIG.splatForce, uy = dy / dist * smoothV * CONFIG.splatForce;
         for (let i = 1; i <= n; i++) {
@@ -429,10 +430,14 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
       }
     }, { passive: true });
   }
-  let lastScroll = scrollY;
+  // The scroll position is read once per scroll event and kept for the frame
+  // loop: reading it in a frame after other layers have written styles would
+  // force a layout.
+  let pageY = scrollY, lastScroll = scrollY;
   addEventListener('scroll', () => {
-    const d = scrollY - lastScroll;
-    lastScroll = scrollY;
+    pageY = scrollY;
+    const d = pageY - lastScroll;
+    lastScroll = pageY;
     if (Math.abs(d) < 12) return;
     const c = pickColor();
     const k = Math.min(1, Math.abs(d) / 400) * 0.18;
@@ -466,8 +471,9 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   function tick(now: number) {
     frame = 0;
     if (!visible) return;
-    // Far down the page the ink is dim and nothing stirs it: half rate is plenty.
-    if (scrollY > innerHeight * 1.6 && now - last < 31) { frame = requestAnimationFrame(tick); return; }
+    // Far down the page the ink is dim and nothing stirs it: a few frames a
+    // second are plenty, and the maps and the globe get the rest of the GPU.
+    if (pageY > innerHeight * 1.6 && now - last < 80) { frame = requestAnimationFrame(tick); return; }
     const elapsed = last ? (now - last) / 1000 : 0.016;
     const dt = Math.min(0.033, elapsed);
     last = now;
@@ -477,7 +483,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     warmth += (skyAim.warmth - warmth) * ks; rain += (skyAim.rain - rain) * ks;
     cloud += (skyAim.cloud - cloud) * ks; snow += (skyAim.snow - snow) * ks;
     // The governor: a second of long frames in a row steps the quality down.
-    if (scrollY < innerHeight * 1.6) {
+    if (pageY < innerHeight * 1.6) {
       slowFrames = elapsed > 0.027 ? slowFrames + 1 : Math.max(0, slowFrames - 2);
       if (slowFrames > 45 && quality > 0) {
         quality--; slowFrames = 0; allocate();
@@ -510,10 +516,18 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     visible = !document.hidden;
     if (visible && !frame) { last = 0; frame = requestAnimationFrame(tick); }
   }
-  let resizeTimer = 0;
+  // A new width, or a much taller or shorter window, needs new textures. A
+  // phone's address bar sliding away does not: the ink stretches a few percent
+  // rather than stalling the scroll on a reallocation.
+  let resizeTimer = 0, allocW = innerWidth, allocH = innerHeight;
   addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(() => { allocate(); for (let i = 0; i < 3; i++) drop(0.2 + Math.random() * 0.6, 0.25 + Math.random() * 0.5, 0.2, 5); }, 250);
+    resizeTimer = window.setTimeout(() => {
+      if (innerWidth === allocW && Math.abs(innerHeight - allocH) < allocH * 0.22) return;
+      allocW = innerWidth; allocH = innerHeight;
+      allocate();
+      for (let i = 0; i < 3; i++) drop(0.2 + Math.random() * 0.6, 0.25 + Math.random() * 0.5, 0.2, 5);
+    }, 250);
   }, { passive: true });
   document.addEventListener('visibilitychange', wake);
   canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); visible = false; delete document.documentElement.dataset.atmosphere; });

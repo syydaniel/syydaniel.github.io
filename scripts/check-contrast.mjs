@@ -4,8 +4,13 @@
 import { readFileSync } from 'node:fs';
 const css = readFileSync(new URL('../src/styles/theme.css', import.meta.url), 'utf8');
 const tokens = {};
-for (const m of css.matchAll(/--([\w-]+):\s*light-dark\((#[0-9a-f]{6}),\s*(#[0-9a-f]{6})\)/gi)) tokens[m[1]] = { light: m[2], dark: m[3] };
-for (const m of css.matchAll(/--([\w-]+):\s*(#[0-9a-f]{6});/gi)) tokens[m[1]] = { light: m[2], dark: m[2] };
+// The lamp-lit scheme (html[data-lamp]: the day ink after dark) overrides a few tokens; the rest stay as by day.
+const lampBlock = css.match(/\[data-lamp\]\s*\{([^}]*)\}/);
+const base = lampBlock ? css.replace(lampBlock[0], '') : css;
+for (const m of base.matchAll(/--([\w-]+):\s*light-dark\((#[0-9a-f]{6}),\s*(#[0-9a-f]{6})\)/gi)) tokens[m[1]] = { light: m[2], dark: m[3] };
+for (const m of base.matchAll(/--([\w-]+):\s*(#[0-9a-f]{6});/gi)) tokens[m[1]] = { light: m[2], dark: m[2] };
+for (const t of Object.values(tokens)) t.lamp = t.light;
+if (lampBlock) for (const m of lampBlock[1].matchAll(/--([\w-]+):\s*(#[0-9a-f]{6});/gi)) tokens[m[1]].lamp = m[2];
 const lum = (hex) => {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
   return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
@@ -21,7 +26,7 @@ const pairs = [
   ['on-seal', 'seal', 4.5], ['on-seal', 'seal-2', 4.5], ['seal', 'paper', 3], ['paper', 'ink', 4.5], ['ink-5', 'paper', 1.5]
 ];
 let failed = 0;
-for (const scheme of ['light', 'dark']) {
+for (const scheme of ['light', 'dark', 'lamp']) {
   console.log(`\n${scheme}`);
   for (const [text, surface, min] of pairs) {
     const a = tokens[text]?.[scheme], b = tokens[surface]?.[scheme];

@@ -108,12 +108,13 @@ const siteLd = {
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/noto-serif-sc-display-normal-200-900.woff2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Decide before first paint which ink the page wears (the day ink while the Sun is up where the reader is, the night ink after; a pin lasts until their sky next changes) and whether the opening plays (once per session). -->
+    <!-- Decide before first paint which ink the page wears (the reader's device decides, or a pin, which lasts until their sky next changes) and whether the Sun is up where they are (after dark the day ink is lamp-lit), and whether the opening plays (once per session). -->
     <script is:inline>
       (function () {
         var up = true;
+        var params = new URLSearchParams(location.search);
         try {
-          var forced = new URLSearchParams(location.search).get('sky');
+          var forced = params.get('sky');
           if (forced) up = forced !== 'night';
           else {
             // The reader's own sky, near enough: the longitude from the clock's offset, a temperate latitude for the hemisphere.
@@ -135,8 +136,11 @@ const siteLd = {
           var until = localStorage.getItem('theme-until');
           if (theme && until && until !== (up ? 'day' : 'night')) { localStorage.removeItem('theme'); localStorage.removeItem('theme-until'); theme = null; }
         } catch (e) {}
-        if (theme !== 'light' && theme !== 'dark') theme = up ? 'light' : 'dark';
+        var ink = params.get('ink');
+        if (ink === 'light' || ink === 'dark') theme = ink;
+        if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.dataset.theme = theme;
+        if (!up && theme === 'light') document.documentElement.dataset.lamp = '';
         var seen = false;
         try { seen = !!sessionStorage.getItem('intro-seen'); } catch (e) {}
         var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
