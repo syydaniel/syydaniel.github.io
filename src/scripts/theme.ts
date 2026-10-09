@@ -1,5 +1,5 @@
-// Day ink, night ink. The page wears the day ink while the Sun is up over
-// Wageningen and the night ink once it has set (scripts/sky.ts); the system's
+// Day ink, night ink. The page wears the day ink while the Sun is up where the
+// reader is and the night ink once it has set (scripts/sky.ts); the system's
 // colour scheme decides only where the sky cannot be worked out. The toggle in
 // the navigation pins an ink, and the pin lasts until the sky next changes
 // (the following sunrise or sunset), after which the page follows the sky
@@ -88,11 +88,12 @@ function paintLabels() {
   // The tooltip says why the page wears this ink and how long that lasts: the
   // page follows the sky over Wageningen until the next sunset or sunrise, and
   // a chosen ink is kept until then too.
-  const sky = (window as any).__sky as { night?: boolean; sunrise?: string | null; sunset?: string | null } | undefined;
+  const sky = (window as any).__sky as { night?: boolean; mySunrise?: string | null; mySunset?: string | null } | undefined;
   let why = '';
   if (sky && typeof sky.night === 'boolean') {
-    const at = sky.night ? sky.sunrise : sky.sunset;
-    const event = (t?.(sky.night ? 'sky.sunrise' : 'sky.sunset') || (sky.night ? 'sunrise' : 'sunset')) + (at ? ` ${at}` : '');
+    const at = sky.night ? sky.mySunrise : sky.mySunset;
+    const zhAt = root.dataset.lang === 'zh';
+    const event = (t?.(sky.night ? 'sky.sunrise' : 'sky.sunset') || (sky.night ? 'sunrise' : 'sunset')) + (at ? (zhAt ? `（约 ${at}）` : `, about ${at}`) : '');
     const pinned = (() => { try { return !!localStorage.getItem(KEY); } catch { return false; } })();
     const zh = root.dataset.lang === 'zh';
     why = ` · ${t?.(pinned ? 'theme.pinned' : 'theme.follows') || (pinned ? 'kept until' : 'follows the sky until')}${zh ? '' : ' '}${event}`;

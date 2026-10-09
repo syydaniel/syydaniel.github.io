@@ -50,12 +50,13 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
         </div>
         <!-- The card sits outside the chip's cluster so a phone, which has no chip, can open it from the hero's live line. -->
         <div class="sky-card" id="sky-card" hidden>
+          <button type="button" class="sky-card-close" data-sky-close data-i18n-attr='{"aria-label":"sky.card.close","title":"sky.card.close"}' aria-label="Close" title="Close">×</button>
           <p class="sky-card-title" data-i18n="sky.card.title">Wageningen right now</p>
           <p class="sky-row"><span data-i18n="sky.card.weather">Weather</span><b data-sky-weather></b></p>
           <p class="sky-row" hidden><span data-i18n="sky.card.air">Air</span><b data-sky-humidity></b></p>
           <p class="sky-row"><span data-i18n="sky.card.sun">Sun</span><b data-sky-sun></b></p>
           <p class="sky-row" hidden><span data-i18n="sky.card.daylight">Daylight</span><b data-sky-daylight></b></p>
-          <p class="sky-row"><span data-i18n="sky.card.moon">Moon</span><b><i class="moon" data-moon></i></b></p>
+          <p class="sky-row"><span data-i18n="sky.card.moon">Moon</span><b><i class="moon" data-moon></i><span data-moon-name></span></b></p>
           <p class="sky-row"><span data-i18n="sky.card.theme">Ink</span><b data-sky-theme></b></p>
           <p class="sky-card-note" data-sky-note></p>
         </div>
@@ -149,12 +150,25 @@ const links: { href: string; target?: string; label: string; i18n: string }[] = 
   // The sky card opens under its chip and closes on a click elsewhere or Escape.
   const card = document.getElementById('sky-card');
   const openers = () => Array.from(document.querySelectorAll<HTMLElement>('[data-sky-open]'));
-  const setCard = (open: boolean) => { card?.toggleAttribute('hidden', !open); openers().forEach(b => b.setAttribute('aria-expanded', String(open))); };
+  let closing = 0;
+  const setCard = (open: boolean) => {
+    if (!card) return;
+    clearTimeout(closing);
+    openers().forEach(b => b.setAttribute('aria-expanded', String(open)));
+    if (open) { card.classList.remove('is-closing'); card.removeAttribute('hidden'); return; }
+    // The card leaves the way it came: a short fade, then it is gone.
+    if (card.hasAttribute('hidden')) return;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still) { card.setAttribute('hidden', ''); return; }
+    card.classList.add('is-closing');
+    closing = window.setTimeout(() => { card.setAttribute('hidden', ''); card.classList.remove('is-closing'); }, 230);
+  };
   const closeCard = () => setCard(false);
   document.addEventListener('click', e => {
     const t = e.target instanceof Element ? e.target : null;
     const opener = t?.closest('[data-sky-open]');
-    if (opener) { setCard(!!card?.hasAttribute('hidden')); return; }
+    if (opener) { setCard(!!card?.hasAttribute('hidden') || !!card?.classList.contains('is-closing')); return; }
+    if (t?.closest('[data-sky-close]')) { closeCard(); return; }
     if (card && !card.hasAttribute('hidden') && !(t && card.contains(t))) closeCard();
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && card && !card.hasAttribute('hidden')) { closeCard(); openers()[0]?.focus(); } });

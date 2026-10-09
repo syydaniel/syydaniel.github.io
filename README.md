@@ -96,9 +96,14 @@ from Google on demand for its headings.
   scrolling stirs it, a drop lands on its own now and then, and a pressed seal pours
   into it, and the opening ends with one drop blooming in the middle. Where half-float render
   targets are missing, `src/scripts/atmosphere.ts` draws a noise atmosphere instead.
-- **The sky, 天色** (`src/scripts/sky.ts`): the Sun's height and bearing over Wageningen are worked
-  out in the browser (no network), with today's sunrise and sunset; the weather comes from
-  Open-Meteo when it can be reached and is remembered for a quarter of an hour. The paper warms
+- **The sky, 天色** (`src/scripts/sky.ts`): two skies. The sky over the reader decides the page's
+  light: which ink it wears (day ink while their Sun is up, night ink after; a pin lasts until
+  their sky next changes), the glow on the paper, the lamp, the Moon in the toggle. It is worked
+  out from their clock and time zone, no network and no location asked: the longitude from the
+  clock's offset, a temperate latitude for the hemisphere. The sky over Wageningen is the page's
+  weather and its readouts: the Sun's height and bearing there, today's sunrise and sunset, and
+  the weather from Open-Meteo when it can be reached, remembered for a quarter of an hour. The
+  night's own effects belong to the night ink, so a page kept light after dark stays a lit room. The paper warms
   while the Sun is low and cools and dims once it has set; the catchment is lit from where the Sun
   stands, flatter under cloud; rain there lands as drops in the ink here and a wind there is a slow
   drift; the globe shows the real day-night line; the footer and the ticker read it all out, with

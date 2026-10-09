@@ -59,8 +59,15 @@ html { transition: --sky-x 2.4s ease, --sky-glow 2.4s ease, --sky-veil 2.4s ease
   transform-origin: top right; animation: sky-card-in 420ms var(--ease-out-expo) both; }
 .sky-card[hidden] { display: none; }
 .sky-row[hidden] { display: none; }
+.sky-row b .moon { margin-right: 0.45em; vertical-align: -1px; }
+.sky-card-close { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid transparent; background: none; color: var(--ink-4); font-size: 18px; line-height: 1; cursor: pointer; transition: color 300ms ease, border-color 300ms ease, background 300ms ease; }
+.sky-card-close:hover { color: var(--ink); border-color: var(--line); background: color-mix(in srgb, var(--paper) 60%, transparent); }
+.hero-live .hold { white-space: nowrap; }
+.footer-clock > span { white-space: nowrap; }
 @media (max-width: 767px) { .sky-card { position: fixed; top: 92px; left: 16px; right: 16px; width: auto; } }
 @keyframes sky-card-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
+.sky-card.is-closing { animation: sky-card-out 220ms ease both; pointer-events: none; }
+@keyframes sky-card-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-4px) scale(0.985); } }
 .sky-card-title { margin: 0 0 10px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--zhusha); }
 .sky-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0; padding: 5px 0; border-top: 1px solid var(--line); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); }
 .sky-row b { font-weight: 400; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0.08em; }
@@ -89,7 +96,8 @@ html[data-weather='snow'] { --lamp-scale: 1.1; }
 #notes { --chapter-hue: var(--daiqing-3); }
 #nyalang { --chapter-hue: var(--moss-2); }
 #contact { --chapter-hue: var(--zhusha); }
-.section-eyebrow[data-chapter]::before { color: var(--chapter-hue, var(--ink-4)); }
+/* Deepened with ink so the small digits keep AA contrast on the paper. */
+.section-eyebrow[data-chapter]::before { color: color-mix(in srgb, var(--chapter-hue, var(--ink-4)) 62%, var(--ink)); }
 .chapter-wash { position: absolute; z-index: -1; left: -6%; top: -2rem; width: min(72%, 980px); height: 26rem; fill: var(--chapter-hue, var(--daiqing)); opacity: 0.075; pointer-events: none; overflow: visible; }
 [data-theme="dark"] .chapter-wash { opacity: 0.11; }
 @supports (animation-timeline: view()) {
@@ -97,7 +105,7 @@ html[data-weather='snow'] { --lamp-scale: 1.1; }
   @keyframes wash-in { from { opacity: 0; transform: translateY(2rem) scale(0.96); } to { transform: none; } }
 }
 @media (max-width: 767px) { .chapter-wash { left: -25%; width: 130%; height: 20rem; } }
-@media (prefers-reduced-motion: reduce) { .chapter-wash { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .chapter-wash, .sky-chip, .sky-card, .photo-light, .photo-light .live-dot { animation: none; } }
 .card-hover:hover { box-shadow: 0 32px 56px -36px color-mix(in srgb, var(--chapter-hue, var(--ink)) 55%, transparent); }
 @property --chapter-tint { syntax: '<color>'; inherits: true; initial-value: transparent; }
 html[data-chapter='about'] { --chapter-tint: var(--daiqing); }

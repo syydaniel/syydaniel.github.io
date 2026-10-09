@@ -188,9 +188,13 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     const sky = (window as any).__sky;
     if (!sky) return;
     const deg = Math.PI / 180;
-    const az = sky.azimuth * deg, el = Math.max(10, sky.elevation) * deg;
-    const sun = new THREE.Vector3(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el));
-    lightRest.copy(LAMP).lerp(sun, sky.daylight).normalize();
+    // The relief is always lit from the upper left, where a painter would put the
+    // lamp; the Sun only swings that light a little (east: less from the left,
+    // west: more) and lifts it with its height. A Sun behind the reader would
+    // flatten the contours into nothing, so it never gets the light outright.
+    const az = sky.azimuth * deg, el = Math.min(40, Math.max(12, sky.elevation)) * deg;
+    const swing = sky.daylight * 0.16 * Math.sin(az - Math.PI);
+    lightRest.set(LAMP.x + swing, LAMP.y * (0.85 + 0.3 * Math.sin(el)), LAMP.z).normalize();
     if (!handOn) lightAim.copy(lightRest);
     const w = sky.weather;
     skyAim.diffuse = w ? w.cloud : 0;

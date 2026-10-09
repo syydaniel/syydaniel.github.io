@@ -151,8 +151,11 @@ document.addEventListener('click', (e) => {
   if (!target) return;
   const next = (target.dataset.lang as UILang) || 'en';
   try { localStorage.setItem(STORAGE_KEY, next); } catch {}
-  apply(next);
-  window.dispatchEvent(new CustomEvent('lang:change', { detail: { lang: next } }));
+  // The whole page crossfades into the other language rather than snapping word by word.
+  const swap = () => { apply(next); window.dispatchEvent(new CustomEvent('lang:change', { detail: { lang: next } })); };
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if ((document as any).startViewTransition && !still && !document.hidden) (document as any).startViewTransition(swap);
+  else swap();
 });
 
 // expose for other components if needed

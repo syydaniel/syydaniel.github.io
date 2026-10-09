@@ -354,13 +354,14 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
   // The sky over Wageningen (scripts/sky.ts): the Sun's height tints the paper;
   // rain there lands as drops here; a wind there is a slow drift here.
   let golden = 0, night = 0, warmth = 0, rain = 0, cloud = 0, snow = 0, windX = 0, windY = 0, storm = false, flash = 0, nextFlash = 0;
+  const isDark = () => document.documentElement.dataset.theme === 'dark';
   // Each reading is an aim; the paper tints and the rain sets in over a couple of seconds.
   const skyAim = { golden: 0, night: 0, warmth: 0, rain: 0, cloud: 0, snow: 0 };
   function readSky() {
     const sky = (window as any).__sky;
     if (!sky) return;
     skyAim.golden = sky.golden ?? 0;
-    skyAim.night = 1 - (sky.daylight ?? 1);
+    skyAim.night = isDark() ? 1 - (sky.daylight ?? 1) : 0;
     const w = sky.weather;
     if (w) {
       skyAim.warmth = Math.max(-1, Math.min(1, (w.temp - 12) / 14));
@@ -376,9 +377,8 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     wake();
   }
 
-  const isDark = () => document.documentElement.dataset.theme === 'dark';
   let dark = isDark() ? 1 : 0;
-  addEventListener('themechange', () => { dark = isDark() ? 1 : 0; wake(); });
+  addEventListener('themechange', () => { dark = isDark() ? 1 : 0; readSky(); wake(); });
   function present() {
     gl!.useProgram(P.display.p);
     gl!.uniform1f(P.display.u.uDark, dark);
