@@ -47,6 +47,11 @@ without its Bluesky secrets.
 with `data-film="<bvid>"` opens the shared player in `FilmPlayer.astro`, so films can be linked
 from any section.
 
+`FilmRibbon.astro` announces the newest film in a small glass card in the corner of the home
+page. It opens the film in the same player, folds into a tab once the reader scrolls on into the
+chapters (at once on a phone), steps aside while the film's own stage is on screen, and remembers
+per film (localStorage) whether it was folded away or closed, so the next film is announced afresh.
+
 ## Places (footprint map)
 
 The Places section is built from my GPX tracks (exported from the StepOfMyWorld app):
