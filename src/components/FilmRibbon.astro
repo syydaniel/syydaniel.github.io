@@ -1,211 +1,228 @@
 ---
-// Global floating ribbon announcing the newest film (the first entry in
-// src/data/films.ts, so it updates itself when a film is added). The ribbon
-// drifts across the page below the fixed nav. Its title opens the film in the
-// site-wide player; the heart "likes" the film, with a rising "+1", a particle
-// burst, a count pop and a toast. Each film keeps its own shared counter.
-import { films } from '../data/films';
+// The latest film, announced in a small glass card in the corner of the page.
+// It reads the newest film in src/data/films.ts, so it updates itself when a
+// film is added. Pressing the card opens the film in the site-wide player
+// (FilmPlayer.astro). While the reader is at the top of the page the card is
+// open; once they scroll on into the chapters it folds into a small tab that
+// keeps out of the way of the reading, and it steps aside while the film's own
+// stage in the Films chapter is on screen. Folding it away or closing it is
+// remembered per film (localStorage), so the next film is announced afresh.
+import { films, coverThumb } from '../data/films';
 
 const latest = [...films].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
-const label = { en: `New film: ${latest.title.en}`, zh: `新片：${latest.title.zh}` };
+const still = latest.featured?.stillSm;
+// A film without a still borrows its Bilibili cover, washed out like the posters.
+const img = still ?? coverThumb(latest.cover, 320, 180);
+const focus = latest.featured?.focus ?? '50% 50%';
+const self = (v: unknown) => JSON.stringify(v);
 ---
 
-<div class="gc-root" id="gc-root" aria-live="off">
-  <div class="gc-ribbon" id="gc-ribbon" role="group" data-film-id={latest.bvid}>
-    <button type="button" class="gc-play" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
-      <svg class="gc-play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
-      <span class="gc-text" data-i18n-self={JSON.stringify(label)}>{label.en}</span>
+<aside class="nf" id="nf" data-bvid={latest.bvid} data-state="off" aria-label="Latest film" data-i18n-attr={self({ 'aria-label': 'ribbon.latest' })}>
+  <div class="nf-card liquid-glass" inert>
+    <button type="button" class="nf-open group" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
+      <span class="nf-poster matted">
+        <img src={img} alt="" decoding="async" class:list={['media-img', !still && 'nf-wash']} style={`object-position:${focus}`} referrerpolicy={still ? undefined : 'no-referrer'} />
+        <span class="grain" aria-hidden="true"></span>
+        <span class="nf-play play-dot" aria-hidden="true">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="ml-0.5"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
+        </span>
+      </span>
+      <span class="nf-text">
+        <span class="meta-line nf-meta"><span class="nf-new" data-i18n="ribbon.latest">Latest film</span></span>
+        <span class="nf-title font-display italic" data-i18n-self={self(latest.title)}>{latest.title.en}</span>
+        {latest.featured && <span class="nf-line" data-i18n-self={self(latest.featured.tagline)}>{latest.featured.tagline.en}</span>}
+      </span>
     </button>
-    <button type="button" class="gc-like" id="gc-like" aria-label="Like this film">
-      <svg class="gc-heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-      <span class="gc-num" id="gc-num">0</span>
-    </button>
+    <span class="nf-tools">
+      <button type="button" class="nf-tool" data-nf="fold" aria-label="Fold away" title="Fold away" data-i18n-attr={self({ 'aria-label': 'ribbon.fold', title: 'ribbon.fold' })}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <button type="button" class="nf-tool" data-nf="close" aria-label="Close" title="Close" data-i18n-attr={self({ 'aria-label': 'ribbon.close', title: 'ribbon.close' })}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </span>
   </div>
-</div>
-<div class="gc-fx" id="gc-fx" aria-hidden="true"></div>
-<div class="gc-toast" id="gc-toast" role="status" aria-hidden="true"></div>
+  <button type="button" class="nf-tab liquid-glass" data-nf="unfold" aria-label="Show the latest film" data-i18n-attr={self({ 'aria-label': 'ribbon.unfold' })} inert>
+    <span class="nf-tab-img">
+      <img src={img} alt="" decoding="async" class:list={[!still && 'nf-wash']} style={`object-position:${focus}`} referrerpolicy={still ? undefined : 'no-referrer'} />
+    </span>
+    <span class="meta-line nf-tab-label"><span class="nf-new" data-i18n="ribbon.latest">Latest film</span></span>
+    <span class="nf-tab-title font-display italic" data-i18n-self={self(latest.title)}>{latest.title.en}</span>
+  </button>
+</aside>
 
 <style is:global>
-  .gc-root{position:fixed;top:0;left:0;z-index:45;width:max-content;pointer-events:none;will-change:transform;}
-  .gc-ribbon{
-    pointer-events:auto;display:inline-flex;align-items:center;gap:.7rem;
-    padding:.5rem 1.5rem;border:0;font-family:inherit;font-weight:700;
-    font-size:.92rem;letter-spacing:.03em;color:#fff;white-space:nowrap;
-    background:linear-gradient(135deg,#ff4646 0%,#e01b2b 48%,#a8101b 100%);
-    clip-path:polygon(0 0,100% 0,calc(100% - 13px) 50%,100% 100%,0 100%,13px 50%);
-    box-shadow:0 12px 32px -10px rgba(216,24,40,.75),inset 0 1px 0 color-mix(in srgb, var(--ink) 30%, transparent);
-    text-shadow:0 1px 2px color-mix(in srgb, var(--shadow) 28%, transparent);transform-origin:center;
-    animation:gc-flutter 3.8s ease-in-out infinite;transition:filter .2s ease;
+  /* Rules that meet a shared class (.liquid-glass, .meta-line, .font-display,
+     .play-dot) start at .nf, so they win in either stylesheet order (dev and
+     production bundle the CSS differently). The card sits above the hero's
+     instrument ticker, which runs along the foot of the first screen. */
+  .nf { position: fixed; right: 24px; bottom: 3.25rem; z-index: 45; pointer-events: none; }
+  .nf .nf-card,
+  .nf .nf-tab {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(14px) scale(0.96);
+    transform-origin: 100% 100%;
+    transition: opacity 0.45s var(--ease-film), transform 0.7s var(--ease-film), visibility 0s linear 0.7s, border-color 0.4s, box-shadow 0.5s, background 0.4s;
   }
-  .gc-ribbon:hover{filter:brightness(1.08) saturate(1.08);}
-  .gc-play,.gc-like{all:unset;cursor:pointer;display:inline-flex;align-items:center;}
-  .gc-play{gap:.5rem;}
-  .gc-play-icon{width:13px;height:13px;fill:#fff;flex:none;transition:transform .3s ease;}
-  .gc-play:hover .gc-play-icon{transform:scale(1.25);}
-  .gc-play:hover .gc-text{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;}
-  .gc-play:focus-visible,.gc-like:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:4px;}
-  @keyframes gc-flutter{
-    0%,100%{transform:rotate(-2.4deg) skewX(0) translateY(0);}
-    25%{transform:rotate(-1.1deg) skewX(2deg) translateY(-3px);}
-    50%{transform:rotate(-2.4deg) skewX(0) translateY(2px);}
-    75%{transform:rotate(-3.7deg) skewX(-2deg) translateY(-2px);}
+  .nf[data-state='card'] .nf-card,
+  .nf[data-state='tab'] .nf-tab {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition: opacity 0.45s var(--ease-film), transform 0.7s var(--ease-film), visibility 0s, border-color 0.4s, box-shadow 0.5s, background 0.4s;
   }
-  .gc-like{gap:.3rem;padding-left:.65rem;border-left:1px solid color-mix(in srgb, var(--ink) 40%, transparent);}
-  .gc-heart{width:15px;height:15px;fill:#fff;filter:drop-shadow(0 0 4px color-mix(in srgb, var(--ink) 55%, transparent));}
-  .gc-num{font-variant-numeric:tabular-nums;min-width:1ch;display:inline-block;}
-  .gc-num.gc-pop{animation:gc-pop .45s cubic-bezier(.2,1.5,.4,1);}
-  @keyframes gc-pop{0%{transform:scale(1);}35%{transform:scale(1.6);text-shadow:0 0 12px color-mix(in srgb, var(--ink) 95%, transparent);}100%{transform:scale(1);}}
-  .gc-fx{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden;}
-  .gc-plus{position:absolute;transform:translate(-50%,-50%);font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:3px;white-space:nowrap;text-shadow:0 2px 10px rgba(255,40,60,.55);}
-  .gc-plus svg{width:15px;height:15px;fill:currentColor;}
-  .gc-particle{position:absolute;transform:translate(-50%,-50%);border-radius:50%;}
-  .gc-particle svg{width:100%;height:100%;fill:currentColor;display:block;}
-  .gc-toast{
-    position:fixed;left:50%;bottom:2rem;transform:translate(-50%,150%);z-index:60;pointer-events:none;
-    display:flex;align-items:center;gap:.55rem;padding:.7rem 1.25rem;border-radius:999px;
-    background:rgba(22,7,11,.74);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    border:1px solid rgba(255,90,90,.45);color:#fff;font-weight:600;font-size:.9rem;
-    box-shadow:0 16px 44px -12px rgba(216,24,40,.6);opacity:0;
-    transition:transform .55s cubic-bezier(.2,1,.3,1),opacity .4s ease;
+  /* The tab waits for the card to fold before it rises, and the other way round. */
+  .nf[data-state='tab'] .nf-tab,
+  .nf[data-state='card'] .nf-card { transition-delay: 0.12s, 0.12s, 0s, 0s, 0s, 0s; }
+
+  /* ---- the card ---- */
+  .nf .nf-card { position: relative; width: 21.5rem; border-radius: 14px; }
+  .nf .nf-card:hover { border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
+  .nf-open { display: flex; align-items: stretch; gap: 0.9rem; width: 100%; padding: 0.55rem; text-align: left; border-radius: inherit; cursor: pointer; }
+  .nf-open:focus-visible { outline-offset: 2px; }
+  .nf-poster { position: relative; flex: none; width: 5.75rem; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 9px; background: var(--paper-3); box-shadow: 0 10px 24px -16px color-mix(in srgb, var(--shadow) 60%, transparent); }
+  .nf-poster.matted::after { inset: 4px; border-radius: 6px; }
+  .nf-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .nf-wash { filter: blur(10px) saturate(1.4) brightness(0.8) !important; transform: scale(1.4) !important; }
+  .nf .nf-play { position: absolute; right: 6px; bottom: 6px; z-index: 2; width: 1.6rem; height: 1.6rem; background: color-mix(in srgb, var(--paper-hi) 62%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .nf .nf-open:hover .nf-play,
+  .nf .nf-open:focus-visible .nf-play { background: var(--zhusha); color: var(--on-seal); box-shadow: inset 0 0 0 1px var(--zhusha); }
+
+  .nf-text { display: flex; min-width: 0; flex-direction: column; justify-content: center; padding: 0.15rem 0.2rem 0.15rem 0; }
+  .nf-meta { padding-right: 3.6rem; }
+  .nf-new { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--zhusha); }
+  .nf-new::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: nf-breathe 2.8s ease-in-out infinite; }
+  @keyframes nf-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .nf .nf-title { margin-top: 0.45rem; font-size: 1.22rem; line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; transition: color 0.3s ease; }
+  .nf .nf-open:hover .nf-title { color: var(--zhusha); }
+  .nf-line { display: -webkit-box; margin-top: 0.4rem; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; font-size: 0.78rem; line-height: 1.45; color: var(--ink-3); }
+
+  .nf-tools { position: absolute; top: 0.4rem; right: 0.4rem; z-index: 2; display: flex; gap: 0.1rem; }
+  .nf-tool { display: inline-flex; width: 1.65rem; height: 1.65rem; align-items: center; justify-content: center; border-radius: 999px; color: var(--ink-4); transition: background 0.25s ease, color 0.25s ease, opacity 0.3s ease; }
+  .nf-tool:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, transparent); }
+  @media (hover: hover) and (pointer: fine) {
+    .nf-tool { opacity: 0.55; }
+    .nf-card:hover .nf-tool, .nf-card:focus-within .nf-tool { opacity: 1; }
   }
-  .gc-toast.gc-show{transform:translate(-50%,0);opacity:1;}
-  .gc-toast svg{width:18px;height:18px;fill:#ff5a5a;flex:none;}
-  .gc-toast strong{font-variant-numeric:tabular-nums;}
-  /* Phones: no drifting over the content; the ribbon docks at the bottom instead. */
-  @media (max-width:640px){
-    .gc-root{top:auto;bottom:14px;left:50%;transform:translateX(-50%)!important;max-width:calc(100vw - 24px);}
-    .gc-ribbon{font-size:.74rem;padding:.42rem 1.1rem;gap:.5rem;max-width:100%;animation:none;transform:rotate(-1.5deg);}
-    .gc-text{overflow:hidden;text-overflow:ellipsis;}
-    .gc-play{min-width:0;}
-    .gc-toast{bottom:4.5rem;}
+
+  /* ---- the tab ---- */
+  .nf .nf-tab { position: absolute; right: 0; bottom: 0; display: inline-flex; align-items: center; gap: 0.6rem; max-width: calc(100vw - 24px); height: 2.75rem; padding: 0.3rem 1rem 0.3rem 0.3rem; border-radius: 999px; white-space: nowrap; cursor: pointer; }
+  .nf .nf-tab:hover { border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
+  .nf-tab-img { position: relative; flex: none; width: 2.15rem; height: 2.15rem; overflow: hidden; border-radius: 50%; background: var(--paper-3); }
+  .nf-tab-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s var(--ease-film); }
+  .nf-tab:hover .nf-tab-img img { transform: scale(1.12); }
+  .nf .nf-tab-label { flex: none; }
+  .nf .nf-tab-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 0.98rem; color: var(--ink); }
+
+  /* 猫语: the cat-sigils follow the type size instead of their fixed 25px. */
+  .nf .nya-cat { width: 1.3em !important; height: 1.3em !important; }
+
+  /* Phones: the card spans the foot of the screen, and folds as soon as the reader scrolls. */
+  @media (max-width: 639px) {
+    .nf { right: 12px; left: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: flex-end; }
+    .nf .nf-card { width: 100%; max-width: 25rem; }
+    .nf-open { gap: 0.8rem; padding: 0.5rem; }
+    .nf-poster { width: 4.75rem; }
+    .nf .nf-title { font-size: 1.08rem; }
+    .nf-line { -webkit-line-clamp: 3; }
+    .nf-tool { width: 2rem; height: 2rem; }
+    .nf-meta { padding-right: 4.4rem; }
+    /* The tab keeps to the thumbnail and the title, the narrowest it can be. */
+    .nf .nf-tab-label { display: none; }
   }
-  @media (prefers-reduced-motion:reduce){.gc-ribbon{animation:none;}}
+  @media (prefers-reduced-motion: reduce) { .nf-new::before { animation: none; } }
+  @media print { .nf { display: none !important; } }
 </style>
 
 <script>
-  const HEART = 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
-  const svg = (cls) => `<svg class="${cls || ''}" viewBox="0 0 24 24"><path d="${HEART}"/></svg>`;
+  const nf = document.getElementById('nf');
+  const card = nf?.querySelector<HTMLElement>('.nf-card');
+  const tab = nf?.querySelector<HTMLButtonElement>('.nf-tab');
 
-  const root = document.getElementById('gc-root');
-  const ribbon = document.getElementById('gc-ribbon');
-  const likeBtn = document.getElementById('gc-like');
-  const numEl = document.getElementById('gc-num');
-  const fx = document.getElementById('gc-fx');
-  const toast = document.getElementById('gc-toast');
-
-  if (root && ribbon && likeBtn && numEl && fx && toast) {
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // Shared cross-visitor counter via the Abacus free counter API (no auth,
-    // CORS-enabled), cached in localStorage for instant paint + offline fallback.
-    const API = 'https://abacus.jasoncameron.dev';
-    const NS = 'syydaniel-portfolio';
-    const filmId = ribbon.dataset.filmId || 'latest';
-    const COUNTER = `film-likes-${filmId}`;
-    const CACHE = `gc_film_likes_${filmId}`;
-    const fmt = (n) => n.toLocaleString();
-    let likes = parseInt(localStorage.getItem(CACHE) || '0', 10);
-    if (!Number.isFinite(likes) || likes < 0) likes = 0;
-    numEl.textContent = fmt(likes);
-
-    const parseVal = (d) => {
-      if (!d) return null;
-      const v = typeof d.value === 'number' ? d.value : Number(d.value);
-      return Number.isFinite(v) ? v : null;
-    };
-    const applyServer = (v) => {
-      if (v == null) return;
-      try { localStorage.setItem(CACHE, String(v)); } catch (e) {}
-      if (v > likes) { likes = v; numEl.textContent = fmt(likes); }
-    };
-    const syncGet = () => fetch(`${API}/get/${NS}/${COUNTER}`, { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null)).then((d) => applyServer(parseVal(d))).catch(() => {});
-    const sendHit = () => fetch(`${API}/hit/${NS}/${COUNTER}`, { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null)).then((d) => applyServer(parseVal(d))).catch(() => {});
-    syncGet();
-    setInterval(() => { if (!document.hidden) syncGet(); }, 30000);
-    window.addEventListener('focus', syncGet);
-
-    // ---------- free drift, kept below the nav ----------
-    let raf = 0;
-    const drift = (now) => {
-      const t = now / 1000;
-      const vw = innerWidth, vh = innerHeight;
-      const rw = ribbon.offsetWidth, rh = ribbon.offsetHeight;
-      let x = vw * 0.30 + Math.sin(t * 0.15) * vw * 0.24 + Math.sin(t * 0.067) * vw * 0.06;
-      let y = vh * 0.46 + Math.sin(t * 0.11 + 1.2) * vh * 0.24 + Math.cos(t * 0.05) * vh * 0.05;
-      x = Math.max(12, Math.min(x, vw - rw - 12));
-      y = Math.max(100, Math.min(y, vh - rh - 16));
-      root.style.transform = `translate(${x}px, ${y}px)`;
-      raf = requestAnimationFrame(drift);
-    };
-    const phone = matchMedia('(max-width: 640px)').matches;
-    if (reduce) root.style.transform = 'translate(20px, 100px)';
-    else if (!phone) raf = requestAnimationFrame(drift);
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; }
-      else if (!reduce && !phone && !raf) raf = requestAnimationFrame(drift);
-    });
-
-    // ---------- effects ----------
-    const COLORS = ['#ff5a5a', '#ff8a3d', '#ffd25a', '#ff3b6b', '#ffffff'];
-    const floatPlus = (x, y) => {
-      const el = document.createElement('div');
-      el.className = 'gc-plus';
-      el.style.left = x + 'px'; el.style.top = y + 'px';
-      el.style.color = Math.random() < 0.28 ? '#ffd25a' : '#ff5a5a';
-      el.innerHTML = svg() + '<span>+1</span>';
-      fx.appendChild(el);
-      const dx = (Math.random() - 0.5) * 80;
-      el.animate([
-        { transform: 'translate(-50%,-50%) scale(.5)', opacity: 0 },
-        { transform: 'translate(-50%,-50%) scale(1.15)', opacity: 1, offset: .16 },
-        { transform: `translate(calc(-50% + ${dx}px), calc(-50% - 130px)) scale(1)`, opacity: 0 }
-      ], { duration: 1150, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => el.remove();
-    };
-    const burst = (x, y) => {
-      for (let i = 0; i < 16; i++) {
-        const p = document.createElement('div');
-        p.className = 'gc-particle';
-        const isHeart = Math.random() < 0.5;
-        const size = isHeart ? 9 + Math.random() * 9 : 4 + Math.random() * 5;
-        const col = COLORS[(Math.random() * COLORS.length) | 0];
-        p.style.left = x + 'px'; p.style.top = y + 'px';
-        p.style.width = size + 'px'; p.style.height = size + 'px';
-        if (isHeart) { p.style.color = col; p.innerHTML = svg(); }
-        else { p.style.background = col; p.style.boxShadow = `0 0 6px ${col}`; }
-        fx.appendChild(p);
-        const ang = Math.random() * Math.PI * 2;
-        const dist = 55 + Math.random() * 95;
-        const dx = Math.cos(ang) * dist;
-        const dy = Math.sin(ang) * dist - 28;
-        p.animate([
-          { transform: 'translate(-50%,-50%) scale(1) rotate(0deg)', opacity: 1 },
-          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.15) rotate(${(Math.random() - .5) * 420}deg)`, opacity: 0 }
-        ], { duration: 720 + Math.random() * 460, easing: 'cubic-bezier(.15,.6,.3,1)' }).onfinish = () => p.remove();
-      }
-    };
-    let toastTimer = 0;
-    const showToast = () => {
-      const lang = ((window).__getLang && (window).__getLang()) || localStorage.getItem('site-lang') || 'en';
-      const label = lang === 'zh' ? '个喜欢' : (likes === 1 ? 'like' : 'likes');
-      toast.innerHTML = svg() + `<strong>${fmt(likes)}</strong> <span>${label}</span>`;
-      toast.classList.add('gc-show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('gc-show'), 2400);
+  if (nf && card && tab) {
+    const root = document.documentElement;
+    const bvid = nf.dataset.bvid!;
+    const KEY = 'latest-film';
+    let saved = '';
+    try { saved = localStorage.getItem(KEY) ?? ''; } catch {}
+    const remember = (value: string | null) => {
+      try { value ? localStorage.setItem(KEY, value) : localStorage.removeItem(KEY); } catch {}
     };
 
-    const like = (ev) => {
-      likes++;
-      try { localStorage.setItem(CACHE, String(likes)); } catch (e) {}
-      numEl.textContent = fmt(likes);
-      numEl.classList.remove('gc-pop'); void numEl.offsetWidth; numEl.classList.add('gc-pop');
-      const r = likeBtn.getBoundingClientRect();
-      const x = (ev && ev.clientX) ? ev.clientX : r.left + r.width / 2;
-      const y = (ev && ev.clientY) ? ev.clientY : r.top + r.height / 2;
-      if (!reduce) { floatPlus(x, y - 12); burst(x, y); }
-      showToast();
-      sendHit();
-    };
-    likeBtn.addEventListener('click', like);
+    if (saved === `${bvid}:closed`) nf.remove();
+    else {
+      let shown = false; // waits for the opening to finish
+      let folded = saved === `${bvid}:folded`; // the reader folded it away
+      let away = false; // the film's own stage is on screen
+      let reading = false; // scrolled on into the chapters
+      let openedAt = -1; // where the reader unfolded it by hand
+
+      const render = () => {
+        const state = !shown || away ? 'off' : folded || reading ? 'tab' : 'card';
+        if (nf.dataset.state === state) return;
+        // Keep the keyboard on whichever face is showing.
+        const focused = nf.contains(document.activeElement);
+        nf.dataset.state = state;
+        card.inert = state !== 'card';
+        tab.inert = state !== 'tab';
+        if (focused) (state === 'card' ? card.querySelector<HTMLElement>('.nf-open') : state === 'tab' ? tab : null)?.focus({ preventScroll: true });
+      };
+
+      // Open at the top of the page; fold once the reader is into the chapters
+      // (on a phone, as soon as they scroll), or has scrolled a little way past
+      // where they unfolded it.
+      const phone = () => innerWidth < 640;
+      const into = (y: number) => y > (phone() ? 80 : innerHeight * 0.55);
+      let frame = 0;
+      const onScroll = () => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const y = scrollY;
+          if (openedAt >= 0 && Math.abs(y - openedAt) < (phone() ? 220 : 360)) reading = false;
+          else {
+            openedAt = -1;
+            reading = into(y);
+          }
+          render();
+        });
+      };
+      addEventListener('scroll', onScroll, { passive: true });
+      reading = into(scrollY);
+
+      // The Films chapter shows this film full size; the card makes way for it.
+      const stage = document.querySelector(`.film-feature[data-bvid="${bvid}"]`);
+      if (stage) new IntersectionObserver(([entry]) => { away = entry.isIntersecting; render(); }, { threshold: 0.2 }).observe(stage);
+
+      nf.addEventListener('click', (event) => {
+        const action = (event.target as HTMLElement).closest<HTMLElement>('[data-nf]')?.dataset.nf;
+        if (action === 'fold') {
+          folded = true;
+          remember(`${bvid}:folded`);
+          render();
+        } else if (action === 'unfold') {
+          folded = false;
+          reading = false;
+          openedAt = scrollY;
+          remember(null);
+          render();
+        } else if (action === 'close') {
+          remember(`${bvid}:closed`);
+          removeEventListener('scroll', onScroll);
+          const focused = nf.contains(document.activeElement);
+          shown = false;
+          render();
+          if (focused) document.getElementById('main-content')?.focus({ preventScroll: true });
+          setTimeout(() => nf.remove(), 800);
+        }
+      });
+
+      const begin = () => setTimeout(() => { shown = true; render(); }, 1400);
+      if (root.dataset.intro === 'pending' || root.dataset.intro === 'playing') addEventListener('intro:done', begin, { once: true });
+      else begin();
+    }
   }
 </script>

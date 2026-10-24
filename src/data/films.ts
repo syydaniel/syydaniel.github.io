@@ -1,7 +1,8 @@
 // Films I've published on Bilibili (space.bilibili.com/437321627), newest first.
 // Videos are embedded with Bilibili's player, nothing is self-hosted.
 // `cover` is the Bilibili archive image id; featured films use a still pulled
-// from the 4K master instead (public/films/*.jpg).
+// from the 4K master instead, or for the animation the cover art without its
+// lettering (public/films/*.jpg).
 import type { Loc } from './journey';
 
 export const BILIBILI_SPACE = 'https://space.bilibili.com/437321627';
@@ -28,6 +29,16 @@ export interface Film {
 const hd = (id: string, ext = 'jpg') => `https://i1.hdslb.com/bfs/archive/${id}.${ext}`;
 
 export const films: Film[] = [
+  {
+    bvid: 'BV15cn664EJQ', date: '2026-10-22', duration: '08:28',
+    title: { en: 'Naiwa Beyond', zh: '奶蛙·彼岸' },
+    cover: hd('5d0c605440f1e65e4197b0606cfb51d90255b855'),
+    featured: {
+      still: '/films/naiwa-beyond.jpg', stillSm: '/films/naiwa-beyond-sm.jpg',
+      tagline: { en: 'An animated short I made with AI: the ponds have dried up, and Naiwa carries a lotus seed across the stars to find water.', zh: '和 AI 一起做的动画短片：池塘干了，奶蛙带着一颗莲子飞过星海，去找有水的地方。' },
+      focus: '41% 60%'
+    }
+  },
   {
     bvid: 'BV1mLNn6nEef', date: '2026-07-10', duration: '02:50', a3: 'ZAF', coords: [31.59, -24.39],
     title: { en: 'What I filmed in South Africa', zh: '我在南非都拍到了什么？' },
