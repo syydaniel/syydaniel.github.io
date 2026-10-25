@@ -1,63 +1,135 @@
 ---
-// The latest film, announced in a small glass card in the corner of the page.
-// It reads the newest film in src/data/films.ts, so it updates itself when a
-// film is added. Pressing the card opens the film in the site-wide player
-// (FilmPlayer.astro). While the reader is at the top of the page the card is
-// open; once they scroll on into the chapters it folds into a small tab that
-// keeps out of the way of the reading, and it steps aside while the film's own
-// stage in the Films chapter is on screen. Folding it away or closing it is
-// remembered per film (localStorage), so the next film is announced afresh.
-import { films, coverThumb } from '../data/films';
+// The latest three things, announced in a small stack of glass cards in the
+// corner of the page: the films in src/data/films.ts and the LinkedIn posts in
+// src/data/notes.ts, merged by date, the newest on top and larger. A film
+// opens in the site-wide player (FilmPlayer.astro); a post opens on LinkedIn.
+// While the reader is at the top of the page the stack is open; once they
+// scroll on into the chapters it folds into a small tab (three thumbnails and
+// the newest title) that keeps out of the way of the reading, and it steps
+// aside while the newest film's own stage in the Films chapter is on screen.
+// On a phone the two older items are a row of two thumbnails under the top
+// card, so the stack never covers more than the foot of the screen. Folding it
+// away or closing it is remembered per newest item (localStorage), so the next
+// film or post is announced afresh.
+import { films, filmByBvid, filmLabel, coverThumb } from '../data/films';
+import { notes, LINKEDIN_ACTIVITY } from '../data/notes';
+import type { Loc } from '../data/journey';
 
-const latest = [...films].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
-const still = latest.featured?.stillSm;
-// A film without a still borrows its Bilibili cover, washed out like the posters.
-const img = still ?? coverThumb(latest.cover, 320, 180);
-const focus = latest.featured?.focus ?? '50% 50%';
+type Item = { kind: 'film' | 'note'; id: string; date: string; label: Loc; title: Loc; line?: Loc; img?: string; wash: boolean; focus: string; bvid?: string; href?: string };
+
+// The first clause or so of a post, for a title.
+const excerpt = (text: string, max = 92) => {
+  const s = text.replace(/\s+/g, ' ').trim();
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const at = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf(': '), cut.lastIndexOf(', '), cut.lastIndexOf(' '));
+  return cut.slice(0, at > 48 ? at : max).replace(/[,.;:]$/, '') + '…';
+};
+
+const filmItems: Item[] = films.map((f) => ({
+  kind: 'film', id: f.bvid, date: f.date, bvid: f.bvid,
+  label: filmLabel(f.bvid), title: f.title, line: f.featured?.tagline,
+  img: f.featured?.stillSm ?? coverThumb(f.cover, 320, 400), wash: !f.featured, focus: f.featured?.focus ?? '50% 50%'
+}));
+const noteItems: Item[] = notes.map((n, i) => {
+  const film = n.film ? filmByBvid(n.film) : undefined;
+  const text = excerpt(n.text);
+  return {
+    kind: 'note', id: n.href ?? `note:${n.date}:${i}`,
+    // A post is dated to the month: it ranks after a film from the same month's later days.
+    date: n.date.length === 7 ? `${n.date}-15` : `${n.date}-07-01`,
+    label: { en: `On LinkedIn · ${n.kind.en}`, zh: `领英 · ${n.kind.zh}` }, title: { en: text, zh: text },
+    img: film?.featured?.stillSm ?? (film ? coverThumb(film.cover, 320, 400) : n.photo), wash: !!film && !film.featured, focus: film?.featured?.focus ?? '50% 50%',
+    href: n.href ?? LINKEDIN_ACTIVITY
+  };
+});
+const items = [...filmItems, ...noteItems].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.kind === b.kind ? 0 : a.kind === 'film' ? -1 : 1)).slice(0, 3);
+const top = items[0];
 const self = (v: unknown) => JSON.stringify(v);
+const open = (it: Item) => it.kind === 'film'
+  ? { type: 'button', 'data-film': it.bvid, 'aria-label': `Play: ${it.title.en}` }
+  : { href: it.href, target: '_blank', rel: 'noopener', 'aria-label': `Open on LinkedIn: ${it.title.en}` };
 ---
 
-<aside class="nf" id="nf" data-bvid={latest.bvid} data-state="off" aria-label="Latest film" data-i18n-attr={self({ 'aria-label': 'ribbon.latest' })}>
-  <div class="nf-card liquid-glass" inert>
-    <button type="button" class="nf-open group" data-film={latest.bvid} aria-label={`Play: ${latest.title.en}`}>
-      <span class="nf-poster matted">
-        <img src={img} alt="" decoding="async" class:list={['media-img', !still && 'nf-wash']} style={`object-position:${focus}`} referrerpolicy={still ? undefined : 'no-referrer'} />
-        <span class="grain" aria-hidden="true"></span>
-        <span class="nf-play play-dot" aria-hidden="true">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="ml-0.5"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg>
-        </span>
-      </span>
-      <span class="nf-text">
-        <span class="meta-line nf-meta"><span class="nf-new" data-i18n="ribbon.latest">Latest film</span></span>
-        <span class="nf-title font-display italic" data-i18n-self={self(latest.title)}>{latest.title.en}</span>
-        {latest.featured && <span class="nf-line" data-i18n-self={self(latest.featured.tagline)}>{latest.featured.tagline.en}</span>}
-      </span>
-    </button>
-    <span class="nf-tools">
-      <button type="button" class="nf-tool" data-nf="fold" aria-label="Fold away" title="Fold away" data-i18n-attr={self({ 'aria-label': 'ribbon.fold', title: 'ribbon.fold' })}>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-      <button type="button" class="nf-tool" data-nf="close" aria-label="Close" title="Close" data-i18n-attr={self({ 'aria-label': 'ribbon.close', title: 'ribbon.close' })}>
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-    </span>
+<aside class="nf" id="nf" data-key={top.id} data-bvid={top.kind === 'film' ? top.bvid : ''} data-state="off" aria-label="The latest three" data-i18n-attr={self({ 'aria-label': 'ribbon.stack' })}>
+  <div class="nf-stack" inert>
+    {items.map((it, i) => {
+      const Tag = it.kind === 'film' ? 'button' : 'a';
+      return (
+        <div class:list={['nf-card liquid-glass', i === 0 ? 'nf-lead' : 'nf-next']} style={`--i:${i}`}>
+          <Tag class="nf-open group" {...open(it)}>
+            <span class="nf-poster matted">
+              {it.img
+                ? <img src={it.img} alt="" decoding="async" loading={i === 0 ? undefined : 'lazy'} class:list={['media-img', it.wash && 'nf-wash']} style={`object-position:${it.focus}`} referrerpolicy={it.img.startsWith('/') ? undefined : 'no-referrer'} />
+                : <span class="nf-letter font-display italic" aria-hidden="true">in</span>}
+              <span class="grain" aria-hidden="true"></span>
+              {it.kind === 'film'
+                ? <span class="nf-play play-dot" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="ml-0.5"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z"/></svg></span>
+                : <span class="nf-play play-dot" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>}
+            </span>
+            <span class="nf-text">
+              <span class="meta-line nf-meta">
+                {i === 0
+                  ? <span class="nf-new" data-i18n={it.kind === 'film' ? 'ribbon.latest' : 'ribbon.note'}>{it.kind === 'film' ? 'Latest film' : 'On LinkedIn'}</span>
+                  : <span class="nf-kind" data-i18n-self={self(it.label)}>{it.label.en}</span>}
+              </span>
+              <span class="nf-title font-display italic" data-i18n-self={self(it.title)}>{it.title.en}</span>
+              {i === 0 && it.line && <span class="nf-line" data-i18n-self={self(it.line)}>{it.line.en}</span>}
+            </span>
+          </Tag>
+          {i === 0 && (
+            <span class="nf-tools">
+              <button type="button" class="nf-tool" data-nf="fold" aria-label="Fold away" title="Fold away" data-i18n-attr={self({ 'aria-label': 'ribbon.fold', title: 'ribbon.fold' })}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <button type="button" class="nf-tool" data-nf="close" aria-label="Close" title="Close" data-i18n-attr={self({ 'aria-label': 'ribbon.close', title: 'ribbon.close' })}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </span>
+          )}
+        </div>
+      );
+    })}
+    {items.length > 1 && (
+      <div class="nf-more liquid-glass">
+        <span class="meta-line nf-more-label"><span data-i18n="ribbon.more">also new</span></span>
+        {items.slice(1).map((it) => {
+          const Tag = it.kind === 'film' ? 'button' : 'a';
+          return (
+            <Tag class="nf-mini" {...open(it)} title={it.title.en}>
+              {it.img
+                ? <img src={it.img} alt="" decoding="async" loading="lazy" class:list={[it.wash && 'nf-wash']} style={`object-position:${it.focus}`} referrerpolicy={it.img.startsWith('/') ? undefined : 'no-referrer'} />
+                : <span class="nf-letter font-display italic" aria-hidden="true">in</span>}
+            </Tag>
+          );
+        })}
+      </div>
+    )}
   </div>
-  <button type="button" class="nf-tab liquid-glass" data-nf="unfold" aria-label="Show the latest film" data-i18n-attr={self({ 'aria-label': 'ribbon.unfold' })} inert>
-    <span class="nf-tab-img">
-      <img src={img} alt="" decoding="async" class:list={[!still && 'nf-wash']} style={`object-position:${focus}`} referrerpolicy={still ? undefined : 'no-referrer'} />
+  <button type="button" class="nf-tab liquid-glass" data-nf="unfold" aria-label="Show the latest" data-i18n-attr={self({ 'aria-label': 'ribbon.unfold' })} inert>
+    <span class="nf-tab-imgs">
+      {items.map((it) => (
+        <span class="nf-tab-img">
+          {it.img
+            ? <img src={it.img} alt="" decoding="async" class:list={[it.wash && 'nf-wash']} style={`object-position:${it.focus}`} referrerpolicy={it.img.startsWith('/') ? undefined : 'no-referrer'} />
+            : <span class="nf-letter font-display italic" aria-hidden="true">in</span>}
+        </span>
+      ))}
     </span>
-    <span class="meta-line nf-tab-label"><span class="nf-new" data-i18n="ribbon.latest">Latest film</span></span>
-    <span class="nf-tab-title font-display italic" data-i18n-self={self(latest.title)}>{latest.title.en}</span>
+    <span class="meta-line nf-tab-label"><span class="nf-new" data-i18n="ribbon.recent">Latest</span></span>
+    <span class="nf-tab-title font-display italic" data-i18n-self={self(top.title)}>{top.title.en}</span>
   </button>
 </aside>
 
 <style is:global>
   /* Rules that meet a shared class (.liquid-glass, .meta-line, .font-display,
      .play-dot) start at .nf, so they win in either stylesheet order (dev and
-     production bundle the CSS differently). The card sits above the hero's
+     production bundle the CSS differently). The stack sits above the hero's
      instrument ticker, which runs along the foot of the first screen. */
   .nf { position: fixed; right: 24px; bottom: 3.25rem; z-index: 45; pointer-events: none; }
+  .nf-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
   .nf .nf-card,
+  .nf .nf-more,
   .nf .nf-tab {
     opacity: 0;
     visibility: hidden;
@@ -67,6 +139,7 @@ const self = (v: unknown) => JSON.stringify(v);
     transition: opacity 0.45s var(--ease-film), transform 0.7s var(--ease-film), visibility 0s linear 0.7s, border-color 0.4s, box-shadow 0.5s, background 0.4s;
   }
   .nf[data-state='card'] .nf-card,
+  .nf[data-state='card'] .nf-more,
   .nf[data-state='tab'] .nf-tab {
     opacity: 1;
     visibility: visible;
@@ -74,19 +147,23 @@ const self = (v: unknown) => JSON.stringify(v);
     transform: none;
     transition: opacity 0.45s var(--ease-film), transform 0.7s var(--ease-film), visibility 0s, border-color 0.4s, box-shadow 0.5s, background 0.4s;
   }
-  /* The tab waits for the card to fold before it rises, and the other way round. */
-  .nf[data-state='tab'] .nf-tab,
-  .nf[data-state='card'] .nf-card { transition-delay: 0.12s, 0.12s, 0s, 0s, 0s, 0s; }
+  /* The tab waits for the stack to fold before it rises, and the other way
+     round; the cards of the stack rise one after another, the newest first. */
+  .nf[data-state='tab'] .nf-tab { transition-delay: 0.12s, 0.12s, 0s, 0s, 0s, 0s; }
+  .nf[data-state='card'] .nf-card,
+  .nf[data-state='card'] .nf-more { transition-delay: calc(0.12s + var(--i, 1) * 0.09s), calc(0.12s + var(--i, 1) * 0.09s), 0s, 0s, 0s, 0s; }
 
-  /* ---- the card ---- */
+  /* ---- the cards ---- */
   .nf .nf-card { position: relative; width: 21.5rem; border-radius: 14px; }
   .nf .nf-card:hover { border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
-  .nf-open { display: flex; align-items: stretch; gap: 0.9rem; width: 100%; padding: 0.55rem; text-align: left; border-radius: inherit; cursor: pointer; }
+  .nf-open { display: flex; align-items: stretch; gap: 0.9rem; width: 100%; padding: 0.55rem; text-align: left; border-radius: inherit; cursor: pointer; color: inherit; text-decoration: none; }
   .nf-open:focus-visible { outline-offset: 2px; }
   .nf-poster { position: relative; flex: none; width: 5.75rem; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 9px; background: var(--paper-3); box-shadow: 0 10px 24px -16px color-mix(in srgb, var(--shadow) 60%, transparent); }
   .nf-poster.matted::after { inset: 4px; border-radius: 6px; }
   .nf-poster img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .nf-wash { filter: blur(10px) saturate(1.4) brightness(0.8) !important; transform: scale(1.4) !important; }
+  /* A post without a frame of its own: the LinkedIn mark, set in the display face. */
+  .nf-letter { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; letter-spacing: -0.04em; color: var(--daiqing); background: color-mix(in srgb, var(--daiqing) 9%, var(--paper-hi)); }
   .nf .nf-play { position: absolute; right: 6px; bottom: 6px; z-index: 2; width: 1.6rem; height: 1.6rem; background: color-mix(in srgb, var(--paper-hi) 62%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
   .nf .nf-open:hover .nf-play,
   .nf .nf-open:focus-visible .nf-play { background: var(--zhusha); color: var(--on-seal); box-shadow: inset 0 0 0 1px var(--zhusha); }
@@ -96,9 +173,20 @@ const self = (v: unknown) => JSON.stringify(v);
   .nf-new { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--zhusha); }
   .nf-new::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: nf-breathe 2.8s ease-in-out infinite; }
   @keyframes nf-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .nf-kind { color: var(--ink-4); }
   .nf .nf-title { margin-top: 0.45rem; font-size: 1.22rem; line-height: 1.08; letter-spacing: -0.01em; color: var(--ink); text-wrap: balance; transition: color 0.3s ease; }
   .nf .nf-open:hover .nf-title { color: var(--zhusha); }
   .nf-line { display: -webkit-box; margin-top: 0.4rem; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; font-size: 0.78rem; line-height: 1.45; color: var(--ink-3); }
+
+  /* The two older items: a row each, a round thumbnail and a line or two of title. */
+  .nf .nf-next { border-radius: 12px; }
+  .nf-next .nf-open { align-items: center; gap: 0.7rem; padding: 0.4rem 0.75rem 0.4rem 0.4rem; }
+  .nf-next .nf-poster { width: 2.5rem; aspect-ratio: 1; border-radius: 50%; box-shadow: none; }
+  .nf-next .nf-poster.matted::after { inset: 2px; border-radius: 50%; }
+  .nf-next .nf-letter { font-size: 0.95rem; }
+  .nf-next .nf-play { display: none; }
+  .nf-next .nf-meta { padding-right: 0; }
+  .nf .nf-next .nf-title { display: -webkit-box; margin-top: 0.12rem; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 0.96rem; line-height: 1.2; text-wrap: pretty; }
 
   .nf-tools { position: absolute; top: 0.4rem; right: 0.4rem; z-index: 2; display: flex; gap: 0.1rem; }
   .nf-tool { display: inline-flex; width: 1.65rem; height: 1.65rem; align-items: center; justify-content: center; border-radius: 999px; color: var(--ink-4); transition: background 0.25s ease, color 0.25s ease, opacity 0.3s ease; }
@@ -108,11 +196,22 @@ const self = (v: unknown) => JSON.stringify(v);
     .nf-card:hover .nf-tool, .nf-card:focus-within .nf-tool { opacity: 1; }
   }
 
+  /* The phone's row of the two older items (hidden where the rows themselves show). */
+  .nf .nf-more { display: none; }
+  .nf-mini { position: relative; flex: none; width: 2.1rem; height: 2.1rem; overflow: hidden; border-radius: 50%; background: var(--paper-3); box-shadow: 0 0 0 2px var(--paper-hi); cursor: pointer; }
+  .nf-mini img { width: 100%; height: 100%; object-fit: cover; }
+  .nf-mini .nf-letter { font-size: 0.85rem; }
+  .nf-mini + .nf-mini { margin-left: -0.45rem; }
+  .nf .nf-more-label { flex: none; margin-right: 0.3rem; color: var(--ink-4); }
+
   /* ---- the tab ---- */
   .nf .nf-tab { position: absolute; right: 0; bottom: 0; display: inline-flex; align-items: center; gap: 0.6rem; max-width: calc(100vw - 24px); height: 2.75rem; padding: 0.3rem 1rem 0.3rem 0.3rem; border-radius: 999px; white-space: nowrap; cursor: pointer; }
   .nf .nf-tab:hover { border-color: color-mix(in srgb, var(--ink) 24%, transparent); }
-  .nf-tab-img { position: relative; flex: none; width: 2.15rem; height: 2.15rem; overflow: hidden; border-radius: 50%; background: var(--paper-3); }
+  .nf-tab-imgs { display: flex; flex: none; align-items: center; }
+  .nf-tab-img { position: relative; flex: none; width: 2.15rem; height: 2.15rem; overflow: hidden; border-radius: 50%; background: var(--paper-3); box-shadow: 0 0 0 2px var(--paper-hi); }
+  .nf-tab-img + .nf-tab-img { margin-left: -0.75rem; }
   .nf-tab-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.9s var(--ease-film); }
+  .nf-tab-img .nf-letter { font-size: 0.85rem; }
   .nf-tab:hover .nf-tab-img img { transform: scale(1.12); }
   .nf .nf-tab-label { flex: none; }
   .nf .nf-tab-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 0.98rem; color: var(--ink); }
@@ -120,17 +219,23 @@ const self = (v: unknown) => JSON.stringify(v);
   /* 猫语: the cat-sigils follow the type size instead of their fixed 25px. */
   .nf .nya-cat { width: 1.3em !important; height: 1.3em !important; }
 
-  /* Phones: the card spans the foot of the screen, and folds as soon as the reader scrolls. */
+  /* Phones: the top card spans the foot of the screen with the two older items
+     as a row of thumbnails under it, and the stack folds as soon as the reader scrolls. */
   @media (max-width: 639px) {
-    .nf { right: 12px; left: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: flex-end; }
-    .nf .nf-card { width: 100%; max-width: 25rem; }
+    /* Above the instrument ticker at the foot of the first screen, which stays readable. */
+    .nf { right: 12px; left: 12px; bottom: calc(2.8rem + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: flex-end; }
+    .nf-stack { width: 100%; max-width: 25rem; align-items: stretch; }
+    .nf .nf-card { width: 100%; }
+    .nf .nf-next { display: none; }
+    .nf .nf-more { display: inline-flex; align-self: flex-end; align-items: center; gap: 0.3rem; height: 2.6rem; padding: 0.25rem 0.5rem 0.25rem 0.95rem; border-radius: 999px; }
     .nf-open { gap: 0.8rem; padding: 0.5rem; }
     .nf-poster { width: 4.75rem; }
-    .nf .nf-title { font-size: 1.08rem; }
-    .nf-line { -webkit-line-clamp: 3; }
+    /* Two lines of title and two of tagline, so the top card never climbs over the hero's buttons. */
+    .nf .nf-lead .nf-title { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 1.08rem; }
+    .nf-line { -webkit-line-clamp: 2; }
     .nf-tool { width: 2rem; height: 2rem; }
     .nf-meta { padding-right: 4.4rem; }
-    /* The tab keeps to the thumbnail and the title, the narrowest it can be. */
+    /* The tab keeps to the thumbnails and the title, the narrowest it can be. */
     .nf .nf-tab-label { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .nf-new::before { animation: none; } }
@@ -139,24 +244,25 @@ const self = (v: unknown) => JSON.stringify(v);
 
 <script>
   const nf = document.getElementById('nf');
-  const card = nf?.querySelector<HTMLElement>('.nf-card');
+  const stack = nf?.querySelector<HTMLElement>('.nf-stack');
   const tab = nf?.querySelector<HTMLButtonElement>('.nf-tab');
 
-  if (nf && card && tab) {
+  if (nf && stack && tab) {
     const root = document.documentElement;
-    const bvid = nf.dataset.bvid!;
-    const KEY = 'latest-film';
+    const key = nf.dataset.key!;
+    const bvid = nf.dataset.bvid || '';
+    const KEY = 'latest-stack';
     let saved = '';
     try { saved = localStorage.getItem(KEY) ?? ''; } catch {}
     const remember = (value: string | null) => {
       try { value ? localStorage.setItem(KEY, value) : localStorage.removeItem(KEY); } catch {}
     };
 
-    if (saved === `${bvid}:closed`) nf.remove();
+    if (saved === `${key}:closed`) nf.remove();
     else {
       let shown = false; // waits for the opening to finish
-      let folded = saved === `${bvid}:folded`; // the reader folded it away
-      let away = false; // the film's own stage is on screen
+      let folded = saved === `${key}:folded`; // the reader folded it away
+      let away = false; // the newest film's own stage is on screen
       let reading = false; // scrolled on into the chapters
       let openedAt = -1; // where the reader unfolded it by hand
 
@@ -166,9 +272,9 @@ const self = (v: unknown) => JSON.stringify(v);
         // Keep the keyboard on whichever face is showing.
         const focused = nf.contains(document.activeElement);
         nf.dataset.state = state;
-        card.inert = state !== 'card';
+        stack.inert = state !== 'card';
         tab.inert = state !== 'tab';
-        if (focused) (state === 'card' ? card.querySelector<HTMLElement>('.nf-open') : state === 'tab' ? tab : null)?.focus({ preventScroll: true });
+        if (focused) (state === 'card' ? stack.querySelector<HTMLElement>('.nf-open') : state === 'tab' ? tab : null)?.focus({ preventScroll: true });
       };
 
       // Open at the top of the page; fold once the reader is into the chapters
@@ -193,15 +299,15 @@ const self = (v: unknown) => JSON.stringify(v);
       addEventListener('scroll', onScroll, { passive: true });
       reading = into(scrollY);
 
-      // The Films chapter shows this film full size; the card makes way for it.
-      const stage = document.querySelector(`.film-feature[data-bvid="${bvid}"]`);
+      // The Films chapter shows the newest film full size; the stack makes way for it.
+      const stage = bvid ? document.querySelector(`.film-feature[data-bvid="${bvid}"]`) : null;
       if (stage) new IntersectionObserver(([entry]) => { away = entry.isIntersecting; render(); }, { threshold: 0.2 }).observe(stage);
 
       nf.addEventListener('click', (event) => {
         const action = (event.target as HTMLElement).closest<HTMLElement>('[data-nf]')?.dataset.nf;
         if (action === 'fold') {
           folded = true;
-          remember(`${bvid}:folded`);
+          remember(`${key}:folded`);
           render();
         } else if (action === 'unfold') {
           folded = false;
@@ -210,7 +316,7 @@ const self = (v: unknown) => JSON.stringify(v);
           remember(null);
           render();
         } else if (action === 'close') {
-          remember(`${bvid}:closed`);
+          remember(`${key}:closed`);
           removeEventListener('scroll', onScroll);
           const focused = nf.contains(document.activeElement);
           shown = false;

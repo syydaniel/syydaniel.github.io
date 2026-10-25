@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-10-25T11:03:04.246Z",
+  "fetched": "2026-10-25T11:05:29.131Z",
   "mid": 437321627,
   "archives": [
     {
@@ -9,7 +9,9 @@
       "duration": 1250,
       "pic": "https://i1.hdslb.com/bfs/archive/cf03bdd1927a41d28a85eedc53185f7a12c67227.jpg",
       "desc": "本期两位主持人的声音由 AI 合成，部分画面由 AI 生成；宣传片里的旁白是配音老师的真人录音。\n\n在母校浙江农林大学建校六十八周年之际，我很荣幸参与制作了这部校庆宣传片。这一期两个人坐下来，把这部 110 秒的片子从头到尾拆开讲：老照片怎么用代码分出四块印版，再交给 Codex 补出木刻质感；Seedance 的首尾帧怎么接成一镜到底；小星球、校训金字、竹林和片尾年轮为什么用代码算；剪辑为什么写成一个 1071 行的 Python 文件；配乐怎么一个音一个音地写；最后怎么用脚本装配达芬奇，再逐帧检查。",
-      "view": 6
+      "view": 6,
+      "local": "/films/covers/BV1CTHL6uEky.jpg",
+      "localSm": "/films/covers/BV1CTHL6uEky-sm.jpg"
     },
     {
       "bvid": "BV15cn664EJQ",
@@ -18,7 +20,9 @@
       "duration": 508,
       "pic": "https://i0.hdslb.com/bfs/archive/5d0c605440f1e65e4197b0606cfb51d90255b855.jpg",
       "desc": "我觉得音乐比视频好, 彩蛋谢幕比正片好!\n\n简介:\n\n\"莲花亮了，我们就来找你。\"\n\n池塘一个接一个干了，沙暴在地平线上越压越近。\n爷爷把一颗莲子放进奶蛙的掌心，送它上了飞船。\n它要飞过星海、穿过黑洞，去找一个有水的地方，让这颗种子开花。\n\n可是，飞得这么远，它还回得去吗？\n爷爷说的\"我们\"，真的会来吗？\n\n所谓彼岸，也许不是很远的地方，而是有人替你守着一盏灯。\n走得再远，回头时那盏灯还亮着。\n\n这是我和 AI 一起一点一点做出来的 8 分钟动画短片。场景、动画、渲染、剪辑、配乐和片尾曲都用到了 AI 工",
-      "view": 73
+      "view": 73,
+      "local": "/films/covers/BV15cn664EJQ.jpg",
+      "localSm": "/films/covers/BV15cn664EJQ-sm.jpg"
     },
     {
       "bvid": "BV1mLNn6nEef",
@@ -27,7 +31,9 @@
       "duration": 170,
       "pic": "https://i0.hdslb.com/bfs/archive/8f2c45c1d744efdf3fb07795031a6bfc25769668.jpg",
       "desc": "南非去了13天，在Kruger国家公园看野生动物，在Hermanus看鲸鱼和海豹，在开普敦看企鹅。",
-      "view": 974
+      "view": 974,
+      "local": "/films/covers/BV1mLNn6nEef.jpg",
+      "localSm": "/films/covers/BV1mLNn6nEef-sm.jpg"
     },
     {
       "bvid": "BV1FJjr6bEKc",

@@ -47,10 +47,18 @@ without its Bluesky secrets.
 with `data-film="<bvid>"` opens the shared player in `FilmPlayer.astro`, so films can be linked
 from any section.
 
-`FilmRibbon.astro` announces the newest film in a small glass card in the corner of the home
-page. It opens the film in the same player, folds into a tab once the reader scrolls on into the
-chapters (at once on a phone), steps aside while the film's own stage is on screen, and remembers
-per film (localStorage) whether it was folded away or closed, so the next film is announced afresh.
+`FilmRibbon.astro` announces the latest three things in a small stack of glass cards in the
+corner of the home page: the films and the LinkedIn posts (`src/data/notes.ts`), merged by date,
+the newest on top and larger. A film opens in the same player, a post opens on LinkedIn. The stack
+folds into a tab (three thumbnails and the newest title) once the reader scrolls on into the
+chapters (at once on a phone, where the two older items are a row of thumbnails under the top
+card), steps aside while the newest film's own stage is on screen, and remembers per newest item
+(localStorage) whether it was folded away or closed, so the next film or post is announced afresh.
+
+The films list reads itself from the Bilibili space: `scripts/fetch-bilibili.mjs` writes
+`src/data/bilibili.generated.json` (run every morning and on demand by
+`.github/workflows/sync-bilibili.yml`, on GitHub's machines, which Bilibili lets in), and
+`films.ts` merges in any film not curated by hand, with the title as posted until it is.
 
 ## Places (footprint map)
 

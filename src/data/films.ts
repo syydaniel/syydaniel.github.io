@@ -34,6 +34,18 @@ const hd = (id: string, ext = 'jpg') => `https://i1.hdslb.com/bfs/archive/${id}.
 
 const curated: Film[] = [
   {
+    bvid: 'BV1CTHL6uEky', date: '2026-10-25', duration: '20:50', a3: 'CHN', coords: [119.72, 30.26],
+    title: { en: 'Old photographs as woodcuts, set in motion by AI: behind the ZAFU anniversary film', zh: '老照片刻成木刻版画，再让 AI 动起来｜浙农林 68 周年宣传片幕后' },
+    poster: { en: 'ZAFU at 68', zh: '浙农林 68 周年' },
+    place: { en: 'Hangzhou', zh: '杭州' },
+    cover: hd('cf03bdd1927a41d28a85eedc53185f7a12c67227'),
+    featured: {
+      still: '/films/covers/BV1CTHL6uEky.jpg', stillSm: '/films/covers/BV1CTHL6uEky-sm.jpg',
+      tagline: { en: 'For the 68th anniversary of my alma mater, Zhejiang A&F University, I helped make its 110-second film. Here the two of us take it apart: old photographs split into four printing blocks by code, the woodcut grain restored by Codex, first and last frames joined into one take, the whole cut written as a 1071-line Python file, and the music written note by note.', zh: '母校浙江农林大学建校六十八周年，我参与制作了这部 110 秒的校庆宣传片。这一期两个人坐下来把它从头拆开：老照片用代码分出四块印版，交给 Codex 补出木刻质感，首尾帧接成一镜到底，剪辑写成一个 1071 行的 Python 文件，配乐一个音一个音地写。' },
+      focus: '80% 55%'
+    }
+  },
+  {
     bvid: 'BV15cn664EJQ', date: '2026-10-22', duration: '08:28',
     title: { en: 'Naiwa Beyond', zh: '奶蛙·彼岸' },
     cover: hd('5d0c605440f1e65e4197b0606cfb51d90255b855'),
@@ -280,12 +292,18 @@ const curated: Film[] = [
 // The films read from the Bilibili space that are not curated above: the date
 // as published (Shanghai time), the title as posted in both languages, the
 // archive cover.
-type Archive = { bvid: string; title: string; pubdate: number; duration: number; pic: string };
+type Archive = { bvid: string; title: string; pubdate: number; duration: number; pic: string; desc?: string; local?: string; localSm?: string };
+// The first sentence of a description, for a tagline until one is written.
+const firstLine = (desc: string | undefined) => (desc ?? '').split(/\n/).map((l) => l.trim()).find((l) => l.length > 0)?.split(/(?<=[。！？.!?])\s*/)[0] ?? '';
 const dateInShanghai = (unix: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(unix * 1000));
 const mmss = (seconds: number) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
 const synced: Film[] = ((generated as { archives?: Archive[] }).archives ?? [])
   .filter((a) => a.bvid && a.pubdate && !curated.some((f) => f.bvid === a.bvid))
-  .map((a) => ({ bvid: a.bvid, date: dateInShanghai(a.pubdate), duration: mmss(a.duration || 0), title: { en: a.title, zh: a.title }, cover: a.pic.replace(/^http:/, 'https:') }));
+  .map((a) => ({
+    bvid: a.bvid, date: dateInShanghai(a.pubdate), duration: mmss(a.duration || 0), title: { en: a.title, zh: a.title }, cover: a.pic.replace(/^http:/, 'https:'),
+    // With its cover kept on this origin the film gets a stage of its own, the first line of its description for a tagline.
+    ...(a.local ? { featured: { still: a.local, stillSm: a.localSm ?? a.local, tagline: { en: firstLine(a.desc), zh: firstLine(a.desc) } } } : {})
+  }));
 export const films: Film[] = [...curated, ...synced].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
 // Films that belong to a chapter of the Journey timeline (by journey item id).
@@ -293,7 +311,7 @@ export const journeyFilms: Record<string, string[]> = {
   'msc-wur': ['BV1ve2SYdERq', 'BV16gHtexEFe', 'BV1fu4mexETY', 'BV1DK27YREM9'],
   'ra-uef': ['BV1MCabzbEK4'],
   'bsc-ubc': ['BV1394y167XK', 'BV1jW4y1t7us', 'BV1ka411R7i8', 'BV1CT411F76w'],
-  'bsc-zafu': ['BV1iw411o7Sy', 'BV19T4y1g7n8', 'BV1kZ4y1Q7YY']
+  'bsc-zafu': ['BV1CTHL6uEky', 'BV1iw411o7Sy', 'BV19T4y1g7n8', 'BV1kZ4y1Q7YY']
 };
 
 export const filmByBvid = (bvid: string) => films.find((f) => f.bvid === bvid);
