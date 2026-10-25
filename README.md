@@ -10,7 +10,6 @@ Personal site of Yiyang Shen (Daniel, 沈亦旸): environmental researcher and p
 - [Tailwind CSS](https://tailwindcss.com)
 - [MapLibre GL JS](https://maplibre.org): interactive maps (no API key, lazy loaded)
 - [Three.js](https://threejs.org): the catchment terrain in the hero and the interactive globe in Places
-- Raw WebGL for the full-page ink fluid simulation (no library)
 - [exifr](https://github.com/MikeKovarik/exifr): EXIF extraction for photos
 - [sharp](https://sharp.pixelplumbing.com): builds the social share card
 
@@ -102,13 +101,12 @@ from Google on demand for its headings.
   the ground gives a little under it, so the contours bend around the hand like paper under a
   finger. The camera lands from above after the opening and climbs away as the page scrolls.
   Three.js loads only when the hero is on screen; reduced motion gets one still frame.
-- **Ink** (`Atmosphere.astro`, `src/scripts/ink.ts`): a real-time fluid simulation (velocity
-  advected, curled and projected on a small grid, dye on a larger one) behind the whole site, in
-  月白, mist grey and 黛青 with one drop in twenty of 朱砂. The pointer drags it (its path is
-  resampled into an even trail of splats, so a fast stroke is one filament, not a row of blobs),
-  scrolling stirs it, a drop lands on its own now and then, and a pressed seal pours
-  into it, and the opening ends with one drop blooming in the middle. Where half-float render
-  targets are missing, `src/scripts/atmosphere.ts` draws a noise atmosphere instead.
+- **Ink, 墨晕** (`Atmosphere.astro`): three layers of soft pools in the site's own inks (黛青,
+  mist grey, 赭石, moss, a little 朱砂) behind the whole site, drawn once by the browser and then
+  only moved: each drifts on its own slow course, a transform the compositor runs by itself, so
+  the ink costs the main thread nothing and the page scrolls exactly as it would without it. A
+  fine pointer leans the pools a little its way. (A real-time fluid simulation used to run
+  here; it stuttered on machines that could not keep its frames up and was taken out.)
 - **The sky, 天色** (`src/scripts/sky.ts`): two skies. The reader's device decides which ink the
   page wears (its colour scheme; the toggle pins the other one until the sky next changes). The
   sky over the reader decides the light on it: daylight on the paper while their Sun is up, and
@@ -166,22 +164,20 @@ from Google on demand for its headings.
   lies thick its colour deepens like a glaze.
 - **The lite page, 轻装** (`src/scripts/lite.ts`): a phone or a tablet (a coarse pointer, no hover), a
   connection that asked for less data, or a device short of memory keeps the paper, the type and
-  the colours but not the GPU work: no ink fluid (a still wash of the same inks in CSS,
-  `html[data-atmosphere="still"]`), the catchment landed once and then kept as a picture with its
+  the colours but not the GPU work: the ink pools at rest, the catchment landed once and then kept as a picture with its
   WebGL context released, the globe asleep while off screen (its context released and restored
   as the reader comes back), the maps built only when reached, at a lower pixel ratio and
   without the raster detail, no hover map in Journey, no filtered washes, no blur behind the
   cards, no blend pass for the grain. Six WebGL contexts with their framebuffers at 3× is what
-  made a phone's browser give up on the page. On a desktop the ink runs, steps down its grain
-  when frames run long and, if even the coarsest cannot keep up, dries into the still wash.
-  `?lite=1` shows the lite page on a desktop, `?lite=0` the full one on a phone.
+  made a phone's browser give up on the page. `?lite=1` shows the lite page on a desktop,
+  `?lite=0` the full one on a phone.
 - **Smoothness** (`src/scripts/warm.ts`): the three maps and their shaders are built in idle time
   after the page is up, one at a time, instead of the moment they scroll into view (or at once if
   the reader gets there first); phones short of memory, and readers who asked for less data, keep
   the lazy behaviour. Scroll handlers read the page's position once and never measure layout
-  mid-scroll (chapter starts are measured when the page changes shape); the ink fluid runs at a
-  few frames a second far down the page, caps the strokes a frame can carry, and does not
-  reallocate its textures when a phone's address bar slides away.
+  mid-scroll (chapter starts are measured when the page changes shape). The catchment runs at
+  the full rate only while it lands, then at half rate, and at a quarter once the hand has been
+  away a while: a steady 30 beats a stuttering 60 for a full-screen shader.
 - **Opening** (`Intro.astro`): once per session, decided before first paint by an inline script.
   The name rises letter by letter in the display face, a counter runs, the seal stamps beside the
   name, the curtain lifts. Click or any key skips it.
@@ -215,8 +211,8 @@ is remembered per browser). Every colour on the site is a token in `src/styles/t
 `light-dark()` pair: 纸上墨, ink on 宣纸 by day, and 夜里墨, the same ink on lamp-black at night.
 Transparencies are `color-mix()`es of those tokens and the Tailwind palette reads them too, so
 every utility and `/opacity` modifier follows the theme. The toggle wipes the new ink out from
-the button with a View Transition. The fluid ink, the catchment and the globe carry a theme
-uniform and repaint on `themechange`; the maps repaint their layers. Text tokens are checked
+the button with a View Transition. The catchment and the globe carry a theme uniform and
+repaint on `themechange`; the maps repaint their layers; the ink pools are tokens and follow. Text tokens are checked
 against the surfaces they sit on in both schemes by `node scripts/check-contrast.mjs` (AA for
 body-size text). The seal paste and the primary button keep the deep cinnabar in both inks.
 

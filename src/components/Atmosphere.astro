@@ -1,29 +1,25 @@
 ---
-// Full-viewport living background: ink in water (scripts/ink.ts) where the GPU
-// offers half-float render targets, otherwise the noise atmosphere
-// (scripts/atmosphere.ts). Reduced motion, and the lite page (scripts/lite.ts:
-// phones, tablets, slow connections), get a still wash in CSS instead
-// (html[data-atmosphere="still"], global.css); the ink also dries into that
-// wash on a machine that cannot keep its frames up.
+// 墨晕: the ink on the paper. Three layers of soft pools in the site's own
+// inks, each drifting on its own slow course on the compositor (a transform
+// and nothing else): no simulation, no WebGL, no work on the main thread, so
+// the page scrolls exactly as it would without them. A fine pointer leans
+// the pools a little its way. The lite page and reduced motion get the pools
+// at rest. (The real-time fluid that used to run here stuttered on machines
+// that could not keep its frames up, and was taken out for this.)
 ---
-<canvas id="atmosphere" aria-hidden="true"></canvas>
+<div class="inkwash" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <script>
   import { lite } from '../scripts/lite';
-  import { initInk } from '../scripts/ink';
-  import { initAtmosphere } from '../scripts/atmosphere';
-  const canvas = document.getElementById('atmosphere') as HTMLCanvasElement | null;
-  if (canvas && (lite || matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-    canvas.remove();
-    document.documentElement.dataset.atmosphere = 'still';
-  } else if (canvas) {
-    let live = false;
-    try { live = initInk(canvas); } catch { live = false; }
-    if (!live) {
-      // A context of a different kind cannot be created on the same canvas.
-      const fallback = canvas.cloneNode() as HTMLCanvasElement;
-      canvas.replaceWith(fallback);
-      try { initAtmosphere(fallback); } catch { /* the CSS aurora remains */ }
-    }
+  const wash = document.querySelector<HTMLElement>('.inkwash');
+  const fine = matchMedia('(hover: hover) and (pointer: fine)');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  if (wash && fine.matches && !reduced.matches && !lite) {
+    let x = 0, y = 0, frame = 0;
+    addEventListener('pointermove', (e) => {
+      x = e.clientX / innerWidth - 0.5;
+      y = e.clientY / innerHeight - 0.5;
+      if (!frame) frame = requestAnimationFrame(() => { frame = 0; wash.style.transform = `translate3d(${(-x * 16).toFixed(1)}px, ${(-y * 12).toFixed(1)}px, 0)`; });
+    }, { passive: true });
   }
 </script>
