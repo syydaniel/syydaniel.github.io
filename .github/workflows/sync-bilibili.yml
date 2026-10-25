@@ -1,0 +1,54 @@
+name: Sync Bilibili
+
+# Reads the list of films on the Bilibili space (scripts/fetch-bilibili.mjs)
+# and commits it when it changed, so a new film reaches the site on its own.
+# Runs every morning and on demand; a push made with the workflow's own token
+# does not start the deploy, so it starts it itself.
+on:
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sync-bilibili
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Read the Bilibili space
+        run: node scripts/fetch-bilibili.mjs
+
+      - name: Commit the list when it changed
+        id: commit
+        run: |
+          if git diff --quiet -- src/data/bilibili.generated.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No change."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/data/bilibili.generated.json
+            git commit -m "Bilibili: the list of films, read on $(date -u +%Y-%m-%d)"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy the site with the new list
+        if: steps.commit.outputs.changed == 'true' && github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
