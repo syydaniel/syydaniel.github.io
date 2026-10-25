@@ -266,8 +266,12 @@ export const dict: Record<string, Record<Lang, string>> = {
   'films.on_bilibili': { en: 'Bilibili', zh: '哔哩哔哩' },
   // The latest film, in a card in the corner (FilmRibbon.astro)
   'ribbon.latest': { en: 'Latest film', zh: '最新作品' },
+  'ribbon.note': { en: 'On LinkedIn', zh: '领英新帖' },
+  'ribbon.recent': { en: 'Latest', zh: '最新' },
+  'ribbon.stack': { en: 'The latest three', zh: '最近三条' },
+  'ribbon.more': { en: 'also new', zh: '还有' },
   'ribbon.fold': { en: 'Fold away', zh: '收起' },
-  'ribbon.unfold': { en: 'Show the latest film', zh: '展开最新作品' },
+  'ribbon.unfold': { en: 'Show the latest', zh: '展开最新' },
   'ribbon.close': { en: 'Close', zh: '关闭' },
 
   'places.eyebrow': { en: 'Places', zh: '足迹' },
