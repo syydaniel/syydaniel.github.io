@@ -1,5 +1,336 @@
 {
-  "fetched": null,
+  "fetched": "2026-10-25T11:05:29.131Z",
   "mid": 437321627,
-  "archives": []
+  "archives": [
+    {
+      "bvid": "BV1CTHL6uEky",
+      "title": "老照片刻成木刻版画，再让AI动起来｜浙农林68周年宣传片幕后",
+      "pubdate": 1792919733,
+      "duration": 1250,
+      "pic": "https://i1.hdslb.com/bfs/archive/cf03bdd1927a41d28a85eedc53185f7a12c67227.jpg",
+      "desc": "本期两位主持人的声音由 AI 合成，部分画面由 AI 生成；宣传片里的旁白是配音老师的真人录音。\n\n在母校浙江农林大学建校六十八周年之际，我很荣幸参与制作了这部校庆宣传片。这一期两个人坐下来，把这部 110 秒的片子从头到尾拆开讲：老照片怎么用代码分出四块印版，再交给 Codex 补出木刻质感；Seedance 的首尾帧怎么接成一镜到底；小星球、校训金字、竹林和片尾年轮为什么用代码算；剪辑为什么写成一个 1071 行的 Python 文件；配乐怎么一个音一个音地写；最后怎么用脚本装配达芬奇，再逐帧检查。",
+      "view": 6,
+      "local": "/films/covers/BV1CTHL6uEky.jpg",
+      "localSm": "/films/covers/BV1CTHL6uEky-sm.jpg"
+    },
+    {
+      "bvid": "BV15cn664EJQ",
+      "title": "我完全用AI驱动建模软件做了一部短片!《奶蛙·彼岸》震撼登场!",
+      "pubdate": 1792638900,
+      "duration": 508,
+      "pic": "https://i0.hdslb.com/bfs/archive/5d0c605440f1e65e4197b0606cfb51d90255b855.jpg",
+      "desc": "我觉得音乐比视频好, 彩蛋谢幕比正片好!\n\n简介:\n\n\"莲花亮了，我们就来找你。\"\n\n池塘一个接一个干了，沙暴在地平线上越压越近。\n爷爷把一颗莲子放进奶蛙的掌心，送它上了飞船。\n它要飞过星海、穿过黑洞，去找一个有水的地方，让这颗种子开花。\n\n可是，飞得这么远，它还回得去吗？\n爷爷说的\"我们\"，真的会来吗？\n\n所谓彼岸，也许不是很远的地方，而是有人替你守着一盏灯。\n走得再远，回头时那盏灯还亮着。\n\n这是我和 AI 一起一点一点做出来的 8 分钟动画短片。场景、动画、渲染、剪辑、配乐和片尾曲都用到了 AI 工",
+      "view": 73,
+      "local": "/films/covers/BV15cn664EJQ.jpg",
+      "localSm": "/films/covers/BV15cn664EJQ-sm.jpg"
+    },
+    {
+      "bvid": "BV1mLNn6nEef",
+      "title": "我在南非都拍到了什么？",
+      "pubdate": 1783677936,
+      "duration": 170,
+      "pic": "https://i0.hdslb.com/bfs/archive/8f2c45c1d744efdf3fb07795031a6bfc25769668.jpg",
+      "desc": "南非去了13天，在Kruger国家公园看野生动物，在Hermanus看鲸鱼和海豹，在开普敦看企鹅。",
+      "view": 974,
+      "local": "/films/covers/BV1mLNn6nEef.jpg",
+      "localSm": "/films/covers/BV1mLNn6nEef-sm.jpg"
+    },
+    {
+      "bvid": "BV1FJjr6bEKc",
+      "title": "何 方 道 友 在 渡 劫!",
+      "pubdate": 1781904996,
+      "duration": 44,
+      "pic": "https://i1.hdslb.com/bfs/archive/26ee39c8ac506591cc9b1d3d8378ca65286e87ee.jpg",
+      "desc": "2026.06.19超级单体雷暴! 在荷兰遇见.",
+      "view": 181
+    },
+    {
+      "bvid": "BV1rJEG6XEfb",
+      "title": "朗伊尔城我又来了",
+      "pubdate": 1780928054,
+      "duration": 189,
+      "pic": "https://i0.hdslb.com/bfs/archive/b9a026143fd0de7ea4ad31f530373933416be221.jpg",
+      "desc": "第二次来到朗伊尔城",
+      "view": 1363
+    },
+    {
+      "bvid": "BV13uBcBSEBJ",
+      "title": "欧洲，坐在冰封王座回望2025！",
+      "pubdate": 1766176179,
+      "duration": 218,
+      "pic": "https://i2.hdslb.com/bfs/archive/eed44c37515986a2133e34ffcd6f5c0eb2d6853d.jpg",
+      "desc": "我曾坐在北极圈的冰原等待一场极光爆发，与北极熊隔岸相望；也曾迷失在瑞典国王之路的终点寻找彩色，在荷兰的花海风车旁发呆；上一秒还在仰望新海德堡古老的城堡回溯过往，下一秒就跌入了宇宙创造的奇迹...",
+      "view": 1191
+    },
+    {
+      "bvid": "BV1MCabzbEK4",
+      "title": "又来，芬兰又绿了我一次！",
+      "pubdate": 1757063985,
+      "duration": 80,
+      "pic": "https://i2.hdslb.com/bfs/archive/719582b5b977d544824c41543afcb32997f5d27e.jpg",
+      "desc": "2025年9月，地球再一次迎接极光，作为本轮太阳周期极大值的尾声，她依旧精彩！",
+      "view": 33
+    },
+    {
+      "bvid": "BV1iHjTzuEHW",
+      "title": "当 \"尼 康 战 歌\" 遇到 \"朗 伊 尔 城\"",
+      "pubdate": 1748136600,
+      "duration": 284,
+      "pic": "https://i2.hdslb.com/bfs/archive/a896513a4dabc2782017b41374bff6deb40347f6.jpg",
+      "desc": "朗伊尔城值得用一曲welcome home !!!\n记得点赞收藏转发噢~~~~",
+      "view": 1601
+    },
+    {
+      "bvid": "BV1WRVfzoEKS",
+      "title": "“朗伊尔城的后劲太大了”",
+      "pubdate": 1746930600,
+      "duration": 150,
+      "pic": "https://i0.hdslb.com/bfs/archive/f121493e2384528de349d11ea2e69fede565eefa.jpg",
+      "desc": "我一直在思考，朗伊尔城的视频该如何剪辑。或许可以用第一人称的视角讲述故事，我也确实拍了一些相应的素材。但后来我意识到，朗伊尔城并不适合浮躁的表达方式。这个地方的节奏很慢，很安静。它似乎在提醒我们：当我们习惯用长焦去观察世界，我们与自然之间的距离也悄然拉大了，因为我们忽视了更多的整体。但是与此同时，那些被拉近的细节，也许在某种程度上表达了世界的精细与逻辑。这段两分半的影像记录，我希望它能为你勾勒出朗伊尔城的轮廓：不仅仅是景观与生物，更是一种精神的回声。\n\n📷 拍摄设备包括：Nikon Zf + 18-600",
+      "view": 9987
+    },
+    {
+      "bvid": "BV1yXf2YFEFT",
+      "title": "千万别来北极圈！中国留学生破解欧若拉神谕后的离奇遭遇",
+      "pubdate": 1737956662,
+      "duration": 1403,
+      "pic": "https://i2.hdslb.com/bfs/archive/69826ad98eea5115302242e4b54bdcc8291bd6c0.jpg",
+      "desc": "三年前我在加拿大驯服极光，三年后又来到瑞典阿比司库看到了足以铭记一生的极光绽放。当中国留学生独自一人闯入北极圈的永夜， 驯鹿和驼鹿在啃食我的三脚架， 而暴雪后的欧若拉神谕，正在篡改所有时空坐标…",
+      "view": 4243
+    },
+    {
+      "bvid": "BV1pxwte2ELq",
+      "title": "我在北极圈内连续拍摄了7天才明白这才是真正的极光大爆发",
+      "pubdate": 1737428448,
+      "duration": 133,
+      "pic": "https://i2.hdslb.com/bfs/archive/2832a03d182eced099c6bf8e51436ed3c39c8291.jpg",
+      "desc": "在过去的一个月里面，我们从2024跨越到了2025，当极光洒满天际，我知道，这不单单是来自太阳的祝福，也是新的征程的开始。",
+      "view": 78
+    },
+    {
+      "bvid": "BV1vQr4Y7EZU",
+      "title": "飞机上极光大爆发｜想把此刻的幸运分享给大家",
+      "pubdate": 1736025002,
+      "duration": 26,
+      "pic": "https://i2.hdslb.com/bfs/archive/6e459c8dc4a2e6c9138dacaa652def2bdd1372ae.jpg",
+      "desc": "-",
+      "view": 94
+    },
+    {
+      "bvid": "BV1ENU4YNEGh",
+      "title": "我的2024年度风光延时摄影合集 | This is my 2024",
+      "pubdate": 1731966743,
+      "duration": 571,
+      "pic": "https://i0.hdslb.com/bfs/archive/77eb9d6e97d7875e8cdebd575d2de36b561b4c9f.jpg",
+      "desc": "2024从本科毕业到研究生开学，新的环境，新的旅程！\n本来打算过一段时间再放出来的，后来想了想，既然制作完成了，那就发出来吧\n也给大家拜个早年哈哈哈哈哈哈哈",
+      "view": 4787
+    },
+    {
+      "bvid": "BV1NYywYNET2",
+      "title": "要说再见了紫金山阿特拉斯",
+      "pubdate": 1729119296,
+      "duration": 82,
+      "pic": "https://i2.hdslb.com/bfs/archive/e520224d761cd67245064401745222e7b640a538.jpg",
+      "desc": "-",
+      "view": 801
+    },
+    {
+      "bvid": "BV1tymJYhEcB",
+      "title": "众望所归60000年的相遇，见到了紫金山阿特拉斯2023A3",
+      "pubdate": 1728944961,
+      "duration": 84,
+      "pic": "https://i1.hdslb.com/bfs/archive/3e5cad9eecd6c3aa04f040fd4ea26e6a233ebe0c.jpg",
+      "desc": "在漫长的等待后，终于见面了，太感动了",
+      "view": 489
+    },
+    {
+      "bvid": "BV1ve2SYdERq",
+      "title": "【研究生路上的风景】我在瓦赫宁根校园看到了极光！",
+      "pubdate": 1728646460,
+      "duration": 109,
+      "pic": "https://i2.hdslb.com/bfs/archive/e06b8aa0a755d0b6976a9068330c7bdf1b61cef6.jpg",
+      "desc": "从凌晨1点开始，我的社交媒体上就看到很多人在荷兰各地看到了极光。所以我把相机架在外面，原本以为厚厚的云层可能让我拍不到极光。结果早上醒来一看，发现相机居然拍到了那些美丽的光！这真的太激动了！这是我第一次在瓦赫宁根大学看到极光。",
+      "view": 72
+    },
+    {
+      "bvid": "BV1DK27YREM9",
+      "title": "【研究生路上的风景】从中秋到国庆，身处异乡看到的是同一轮明月",
+      "pubdate": 1728339946,
+      "duration": 127,
+      "pic": "https://i2.hdslb.com/bfs/archive/7d611d0cc46ee9fe914063200ef8fa8ea865edf2.jpg",
+      "desc": "中秋拍月，国庆拍星，无论何处，都处于同一片天空",
+      "view": 70
+    },
+    {
+      "bvid": "BV1fu4mexETY",
+      "title": "【研究生路上的风景】什么，狗狗公园竟然是拍摄极光星空的圣地？",
+      "pubdate": 1726397754,
+      "duration": 97,
+      "pic": "https://i2.hdslb.com/bfs/archive/c2a164c5c1113fd7cbd35cf4e0ee3a3750807f46.jpg",
+      "desc": "在刚刚过去的周末，经历了G2级的磁暴，但不知为何极光如此微弱。可能是运气不佳，恰好不在我所能观测的区域里。然而，我还是勉强拍摄到了几段由高层大气激发的紫红色极光。拍摄地点为Losloopgebied Ederheide / De Drieberg EDE，是当地有名的狗狗公园！",
+      "view": 111
+    },
+    {
+      "bvid": "BV16gHtexEFe",
+      "title": "【研究生路上的风景】我在瓦赫宁根遇到了最美日出日落和星河灿烂",
+      "pubdate": 1725392378,
+      "duration": 87,
+      "pic": "https://i0.hdslb.com/bfs/archive/ba2a14f7e333605f2ab4d9c801cb46dbbca2b3bb.jpg",
+      "desc": "8月12日来到荷兰开启我的研究生学习和生活，瓦赫宁根大学，坐落于荷兰瓦赫宁根，是一个很小的城市，但因为大学的存在而国际化，周边城市的光污染让靠近地表的夜空呈现出黄黄的色彩，而头顶5级的光污染区域又让黑夜更加深邃",
+      "view": 599
+    },
+    {
+      "bvid": "BV1topZe8E29",
+      "title": "【西藏之行】什么，我竟然在正式到达西藏的第二天早上5：30起床去转寺？",
+      "pubdate": 1723897025,
+      "duration": 1270,
+      "pic": "https://i0.hdslb.com/bfs/archive/07ba3a41aeb5b44f762d4871743b24cdbcaec8a5.jpg",
+      "desc": "正式到达西藏的第2天我5:30起床，本来想去扎央宗溶洞，但天不随人愿，时间原因没法前往，但也因此开启了一场奇妙的转寺旅程",
+      "view": 2073
+    },
+    {
+      "bvid": "BV1JiYWeGEWi",
+      "title": "【西藏之行】44个小时Z164硬座上海直达拉萨",
+      "pubdate": 1723101700,
+      "duration": 1729,
+      "pic": "https://i0.hdslb.com/bfs/archive/7e810ff53c5dfe9596001140b4854176945b14d7.jpg",
+      "desc": "2024年7月25日我乘坐Z164列车硬座前往拉萨，全程44个小时！开启了我神奇的西藏之旅！",
+      "view": 15860
+    },
+    {
+      "bvid": "BV1rT421973o",
+      "title": "嘿嘿是我5年本科的小合集",
+      "pubdate": 1714798404,
+      "duration": 324,
+      "pic": "https://i2.hdslb.com/bfs/archive/82436108154c5bb9731f483c8d4fdce15d212a12.png",
+      "desc": "在时间的缝隙里，我们像孩子一样探索未知，每一步都踏过青春的影子。图书馆的窗外，四季如画卷缓缓展开，而我们在知识的海洋里畅游。课堂的灯火，照亮了理想的征途，也映出了友情的温暖。星辰大海，不仅仅是梦想的远方，更是内心的指引灯塔。如今，回首，那些日子如诗篇般镌刻在心间，岁月悠长，我们仍在路上",
+      "view": 202
+    },
+    {
+      "bvid": "BV1394y167XK",
+      "title": "来加拿大三年我见证了什么..",
+      "pubdate": 1693086711,
+      "duration": 170,
+      "pic": "https://i0.hdslb.com/bfs/archive/5d9af861e13f28710e69e87c91d8ba8a30b3e7f5.jpg",
+      "desc": "这是我加拿大的三年合集！每年都会做一个总结，有一些画面留了下来，有一些却被遗忘，回看素材，似乎又回忆起那时之心境！这就是为什么我们要记录生活吧！",
+      "view": 241
+    },
+    {
+      "bvid": "BV1tv4y117hj",
+      "title": "延时摄影 | 我思故我在",
+      "pubdate": 1673799262,
+      "duration": 260,
+      "pic": "https://i1.hdslb.com/bfs/archive/3733eddf7f29e8a6f7e44467918d40578eb688b9.jpg",
+      "desc": "这里面的所有片段拍摄于我跨年前往加拿大育空地区, 花费了我超过30个小时处理这些延时素材",
+      "view": 55
+    },
+    {
+      "bvid": "BV1iv4y1z7oe",
+      "title": "寻找电影感 | 当雪下了一个晚上后",
+      "pubdate": 1671934758,
+      "duration": 469,
+      "pic": "https://i1.hdslb.com/bfs/archive/71b2a0353361378b3e1ea4dd75d8222c660a4358.jpg",
+      "desc": "温哥华临近2022的末尾遇到了罕见的大学，不少人被困机场，但是雪将带给你宁静！\n第一部分：天与云与山与水 00:11 \n第二部分：陆 & 雪 01:00 \n第三部分：枯 02:29 \n第四部分：新生 04:00 \n第五部分：生存 05:16 \n第六部分：我 06:41 \n哈哈哈哈哈拍得很差，随便看看！",
+      "view": 76
+    },
+    {
+      "bvid": "BV1dG4y1u7JF",
+      "title": "2022年度合集 | 拜了个拜2022——留学两年合集",
+      "pubdate": 1671057131,
+      "duration": 176,
+      "pic": "https://i1.hdslb.com/bfs/archive/255c9759cd120b04a605bb34a00c244950237699.jpg",
+      "desc": "2022快结束啦，也是来到温哥华的第二年",
+      "view": 81
+    },
+    {
+      "bvid": "BV1ka411R7i8",
+      "title": "你永远可以相信 Golden Ears",
+      "pubdate": 1662010995,
+      "duration": 84,
+      "pic": "https://i1.hdslb.com/bfs/archive/0b422949355cc7c70ccc9243ce2287203c183d0f.jpg",
+      "desc": "Golden Ears 距离温哥华大约70KM 是一个夏日与初秋烧烤划船的好去处，不过别忘记预约噢！",
+      "view": 48
+    },
+    {
+      "bvid": "BV1CT411F76w",
+      "title": "Joffre Lake 不愧是你",
+      "pubdate": 1661881757,
+      "duration": 56,
+      "pic": "https://i2.hdslb.com/bfs/archive/06b85fb8c55e0c20e6d626bfd0f77fbf04f35e99.jpg",
+      "desc": "Joffre lake 真的很不错，要不是太远了，简直就是天堂。下次有机会一定要去山上露营一晚。",
+      "view": 43
+    },
+    {
+      "bvid": "BV1fP41157R8",
+      "title": "海边一夜",
+      "pubdate": 1661571051,
+      "duration": 116,
+      "pic": "https://i2.hdslb.com/bfs/archive/c84e229a4a4c4f07b340c4ebfe9d739ca08d6973.jpg",
+      "desc": "你有多久没有看过海边的日出了？",
+      "view": 36
+    },
+    {
+      "bvid": "BV1jW4y1t7us",
+      "title": "一个人穿越加拿大",
+      "pubdate": 1661561072,
+      "duration": 171,
+      "pic": "https://i1.hdslb.com/bfs/archive/f807d9d03edbfe7c52a1e96a126b1a08f7a4b55c.jpg",
+      "desc": "2022年4月份终于结束了在UBC的第一个winter term，放假后就出去玩啦，通过VIA 火车4天3夜从温哥华坐到多伦多，访问了尼亚加拉大瀑布，后飞到卡尔加里前往班夫国家公园，但是可惜的是去的时间太早很多湖都冻着，野生动物好多也都在睡觉，最后坐车返回温哥华。",
+      "view": 97
+    },
+    {
+      "bvid": "BV1kZ4y1Q7YY",
+      "title": "[合集] ZAFU--UBC 2021 时光追忆",
+      "pubdate": 1639880128,
+      "duration": 183,
+      "pic": "https://i0.hdslb.com/bfs/archive/56f8884836c1bfa7a9f04eaa157ba14c0d39b305.jpg",
+      "desc": "从ZAFU到UBC的第一个学期结束啦\n2021也差不多结束了,\n在今年生日的时候差不多的剪辑了个视频回忆回忆.\n2022 GOOD LUCK",
+      "view": 70
+    },
+    {
+      "bvid": "BV1iw411o7Sy",
+      "title": "【校园延时】浙江农林大学ZAFU光影延时摄影",
+      "pubdate": 1624376260,
+      "duration": 219,
+      "pic": "https://i2.hdslb.com/bfs/archive/2668abe2a3d7df16fafac65c7dd58921d51baa6a.jpg",
+      "desc": "https://mp.weixin.qq.com/s/SuMfpuctiN-mrfsnn8QY3w\n三月的风，六月的雨，十一月的银杏，还有只属于你们的毕业季。218秒，永远爱着18岁的青春，装满了浙农林大的四季，再回首，这里永远是你的家......\n致谢：\n非常荣幸有机会参与浙江农林大学学生通讯社的第六部延时摄影的拍摄与制作，在这里非常感谢通讯社融媒体中心光影中工作室各位成员的积极配合和辛勤付出，当然同时也要感谢老师的指导以及其他部门对我们宣传以及策划方面的帮助。我们共同期待未来，同时也为在浙江农林大学本",
+      "view": 978
+    },
+    {
+      "bvid": "BV1Wf4y1Q7Hz",
+      "title": "【乡村振兴】探崂山蝶变，索乡村振兴之路 崂山村暑假社会实践锦集",
+      "pubdate": 1597744925,
+      "duration": 537,
+      "pic": "https://i2.hdslb.com/bfs/archive/b27aef5f5a850e65787a9e297bc659fdd72fc0a4.jpg",
+      "desc": "崂山村位处杭州市临安区，是玲珑街道最西边的一个宁静山村。村民的目前收益来源以毛竹、香榧，外出经商为主。以前的崂山村沿途都是毛竹加工棚，弄堂、里角、卫生死角到处都有，村民对环境保护，卫生习惯意识淡薄，走进崂山脏、乱、差、破旧的现状非常凸显。2017，对于崂山村是一个极其重要的的一年，换届后村委班子齐心协力，团结一致，在上任第一时间就建立村委班子工作机制，分工明确，责任到人，创立的“三不一同”阳光工作法得到了玲珑街道充分认可。乡村振兴的道路，崂山人正在凭借着他们自己的努力走着",
+      "view": 613
+    },
+    {
+      "bvid": "BV1S54118791",
+      "title": "【廉价美食】自制 秋刀鱼",
+      "pubdate": 1596808302,
+      "duration": 75,
+      "pic": "https://i1.hdslb.com/bfs/archive/c66196648f0d3d9874330dd01e12e58821c71d80.jpg",
+      "desc": "秋刀鱼（saury）廉价易制\n噪点有点多了\n设备：FUJI T30 + XF16-80 + V 85\nBGM：Celtic Guitar\n后期：FCPX",
+      "view": 114
+    },
+    {
+      "bvid": "BV1Ff4y197QT",
+      "title": "【旅拍】WWB 出走世界白唇鹿保育之旅",
+      "pubdate": 1596289063,
+      "duration": 165,
+      "pic": "https://i0.hdslb.com/bfs/archive/5325a8825a30a67b23c9333ee7caf7d4a2db1960.jpg",
+      "desc": "2020726-20200731期间参与WWB 出走世界白唇鹿保育项目，同时徒步瑞典国王之路祁连站\n拍摄：富士 XT30+XF1680 拍摄\nBGM：Magnificent Glorious\n@出走世界义工旅行 官方账号",
+      "view": 328
+    },
+    {
+      "bvid": "BV19T4y1g7n8",
+      "title": "【校园】回到浙江农林大学ZAFU校园的前2天匆匆忙忙拍了几段视频带你会想起你离开了四个月的校园",
+      "pubdate": 1588162330,
+      "duration": 230,
+      "pic": "https://i1.hdslb.com/bfs/archive/c2b7f32c79811eebf1b671375951104290fc4d7e.jpg",
+      "desc": "作为志愿者，提前的回到了已经离开了四个多月的校园，虽然粗糙，也是否能带你会想起往昔种种呢\n希望能引起大家回校的冲动吧\n做好防护，静等大家归来！",
+      "view": 369
+    }
+  ]
 }

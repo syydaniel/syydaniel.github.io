@@ -95,20 +95,27 @@ if (!archives) { console.log('Bilibili could not be read; the list on file stays
 const seen = new Set();
 archives = archives.filter((a) => a.bvid && !seen.has(a.bvid) && seen.add(a.bvid)).sort((a, b) => b.pubdate - a.pubdate);
 
-// The covers of the newest few films are kept on this origin (public/films/covers),
-// so their cards do not depend on Bilibili letting the image through; `local`
-// in the list says which have one.
+// The covers of the newest few films are kept on this origin (public/films/covers)
+// at a stage size and a card size, so their cards do not depend on Bilibili
+// letting the image through; `local` and `localSm` in the list say which have them.
 const COVERS = new URL('../public/films/covers/', import.meta.url);
 mkdirSync(COVERS, { recursive: true });
+const sharp = (await import('sharp')).default;
 for (const a of archives.slice(0, 3)) {
-  const file = new URL(`${a.bvid}.jpg`, COVERS);
+  const file = new URL(`${a.bvid}.jpg`, COVERS), small = new URL(`${a.bvid}-sm.jpg`, COVERS);
   if (!existsSync(file) && a.pic) {
     try {
       const res = await fetch(a.pic, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(20000) });
-      if (res.ok) { writeFileSync(file, Buffer.from(await res.arrayBuffer())); console.log(`cover kept: ${a.bvid}`); }
+      if (res.ok) {
+        const buf = Buffer.from(await res.arrayBuffer());
+        await sharp(buf).resize({ width: 1600, withoutEnlargement: true }).jpeg({ quality: 82, mozjpeg: true }).toFile(file);
+        await sharp(buf).resize({ width: 640, withoutEnlargement: true }).jpeg({ quality: 78, mozjpeg: true }).toFile(small);
+        console.log(`cover kept: ${a.bvid}`);
+      }
     } catch (e) { console.log(`cover ${a.bvid}: ${e.message}`); }
   }
   if (existsSync(file)) a.local = `/films/covers/${a.bvid}.jpg`;
+  if (existsSync(small)) a.localSm = `/films/covers/${a.bvid}-sm.jpg`;
 }
 let previous = { archives: [] };
 try { previous = JSON.parse(readFileSync(OUT, 'utf8')); } catch {}
