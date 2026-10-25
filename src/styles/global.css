@@ -59,6 +59,7 @@ main { overflow-x: clip; }
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
+  opacity: 0.55;
 }
 
 .aurora {
@@ -67,17 +68,36 @@ main { overflow-x: clip; }
     radial-gradient(ellipse at 8% 50%, color-mix(in srgb, var(--daiqing) 5%, transparent), transparent 45%),
     radial-gradient(ellipse at 80% 92%, color-mix(in srgb, var(--zhusha) 4%, transparent), transparent 40%);
 }
-/* The still wash: where the ink fluid does not run (the lite page, reduced
-   motion, a machine that could not keep up), the same inks lie on the paper as
-   a few soft pools, drawn once by the browser and never again. */
-html[data-atmosphere='still'] .aurora {
+/* ---------- 墨晕: the ink on the paper (Atmosphere.astro) ----------
+   Three layers of soft pools in the site's own inks, drawn once by the browser
+   and then only moved: each drifts on its own slow course, a transform the
+   compositor runs by itself. The layers bleed past the viewport so the drift
+   never shows an edge. The lite page and reduced motion keep them at rest. */
+.inkwash { position: fixed; inset: -10%; z-index: 0; pointer-events: none; transition: transform 1.8s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.inkwash > i { position: absolute; inset: 0; display: block; will-change: transform; }
+.inkwash > i:nth-child(1) {
   background:
-    radial-gradient(ellipse 58% 40% at 74% 16%, color-mix(in srgb, var(--daiqing) 17%, transparent), transparent 70%),
-    radial-gradient(ellipse 46% 34% at 16% 58%, color-mix(in srgb, var(--ink-3) 11%, transparent), transparent 70%),
-    radial-gradient(ellipse 40% 28% at 86% 76%, color-mix(in srgb, var(--ochre-2) 10%, transparent), transparent 70%),
-    radial-gradient(ellipse 34% 24% at 42% 34%, color-mix(in srgb, var(--moss) 9%, transparent), transparent 70%),
-    radial-gradient(ellipse 30% 20% at 60% 90%, color-mix(in srgb, var(--zhusha) 5%, transparent), transparent 70%);
+    radial-gradient(ellipse 34% 26% at 72% 24%, color-mix(in srgb, var(--daiqing) 18%, transparent), transparent 70%),
+    radial-gradient(ellipse 26% 20% at 22% 66%, color-mix(in srgb, var(--ink-3) 12%, transparent), transparent 70%);
+  animation: ink-drift-a 84s ease-in-out infinite alternate;
 }
+.inkwash > i:nth-child(2) {
+  background:
+    radial-gradient(ellipse 28% 22% at 84% 72%, color-mix(in srgb, var(--ochre-2) 11%, transparent), transparent 70%),
+    radial-gradient(ellipse 22% 18% at 44% 36%, color-mix(in srgb, var(--moss) 10%, transparent), transparent 70%);
+  animation: ink-drift-b 112s ease-in-out infinite alternate;
+}
+.inkwash > i:nth-child(3) {
+  background:
+    radial-gradient(ellipse 20% 16% at 58% 86%, color-mix(in srgb, var(--zhusha) 6%, transparent), transparent 70%),
+    radial-gradient(ellipse 30% 24% at 10% 22%, color-mix(in srgb, var(--daiqing-2) 9%, transparent), transparent 70%);
+  animation: ink-drift-c 140s ease-in-out infinite alternate;
+}
+@keyframes ink-drift-a { from { transform: translate3d(-2.5%, -1.5%, 0) scale(1); } to { transform: translate3d(2.5%, 2%, 0) scale(1.08); } }
+@keyframes ink-drift-b { from { transform: translate3d(2%, 1.5%, 0) scale(1.06); } to { transform: translate3d(-2.5%, -2%, 0) scale(1); } }
+@keyframes ink-drift-c { from { transform: translate3d(-1.5%, 2%, 0) scale(1.04) rotate(0.6deg); } to { transform: translate3d(2%, -1.5%, 0) scale(1) rotate(-0.6deg); } }
+html[data-lite] .inkwash > i { animation: none; will-change: auto; }
+@media (prefers-reduced-motion: reduce) { .inkwash > i { animation: none; will-change: auto; } }
 /* The lite page: no blur behind the cards (each one re-blurs its backdrop as the
    page scrolls), no blend pass for the grain. The navigation keeps its blur. */
 html[data-lite] .glass { backdrop-filter: none; -webkit-backdrop-filter: none; background: linear-gradient(135deg, color-mix(in srgb, var(--paper-hi) 94%, transparent), color-mix(in srgb, var(--paper-hi) 88%, transparent)); }
@@ -561,7 +581,7 @@ html[data-lang='cat'] .meta-line {
 
 /* ---------- On paper: the text and the cards, without the sky, the ink or the controls ---------- */
 @media print {
-  #atmosphere, .aurora, .skylight, #spotlight, #ink-trail, #cursor-badge, #intro, .chapter-rail, .chapter-slip, .chapter-watermark, .chapter-wash,
+  .inkwash, .aurora, .skylight, #spotlight, #ink-trail, #cursor-badge, #intro, .chapter-rail, .chapter-slip, .chapter-watermark, .chapter-wash,
   .footer-ridges, .marquee, .hero-ticker, .sky-cluster, .sky-card, .hero-live, .theme-toggle, .nav-cta, #nav-toggle, canvas { display: none !important; }
   html, body { background: #fff !important; color: #111 !important; }
   body::before, body::after { display: none !important; }

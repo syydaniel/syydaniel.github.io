@@ -454,7 +454,6 @@ document.querySelectorAll<SVGElement>('[data-seal]').forEach(seal => {
       document.body.appendChild(mark);
       mark.addEventListener('animationend', () => mark.remove(), { once: true });
     }
-    (window as any).__inkSplat?.((box.left + box.width / 2) / innerWidth, 1 - (box.top + box.height / 2) / innerHeight, 0.55, [0.52, 0.13, 0.08]);
     try { navigator.vibrate?.(12); } catch {}
   };
   (seal as any).__stamp = stamp;

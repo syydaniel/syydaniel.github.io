@@ -183,7 +183,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   const LAMP = new THREE.Vector3(-0.55, 0.62, 0.55);
   const lightRest = LAMP.clone();
   const lightAim = lightRest.clone();
-  let handX = 0, handZ = 0, handOn = false, pressAim = 0;
+  let handX = 0, handZ = 0, handOn = false, pressAim = 0, lastHand = 0;
   // The weather eases into the catchment over a couple of seconds rather than
   // snapping when it arrives: the water rises, the snow settles, the mist closes in.
   const skyAim = { diffuse: 0, rain: 0, water: WATER, snow: 0, fogNear: 4.5, fogFar: 9.5 };
@@ -233,6 +233,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   if (fine.matches) {
     surface.addEventListener('pointermove', e => {
       if (reduced.matches) return;
+      lastHand = performance.now();
       handOn = locate(e.clientX, e.clientY);
       pressAim = handOn ? 0.11 : 0;
       // The light leans toward the pointer, from wherever the Sun has it.
@@ -273,7 +274,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     if (frozen) return;
     const rect = host.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    const ratio = Math.min(devicePixelRatio || 1, mobile ? 1.25 : 1.5);
+    const ratio = Math.min(devicePixelRatio || 1, 1.25);
     renderer.setPixelRatio(ratio);
     renderer.setSize(rect.width, rect.height, false);
     camera.aspect = rect.width / rect.height;
@@ -288,7 +289,14 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   function tick(now: number) {
     frame = 0;
     if (frozen) return;
-    const dt = previous ? Math.min((now - previous) / 1000, 0.05) : 1 / 60;
+    // The landing runs at the full rate. Once landed, the water drifts at half
+    // rate, and at a quarter when the hand has been away a while: the relief
+    // is a full-screen shader, and a steady 30 beats a stuttering 60.
+    if (landing >= 1 && previous) {
+      const gap = now - lastHand > 2500 ? 66 : 32;
+      if (now - previous < gap) { frame = requestAnimationFrame(tick); return; }
+    }
+    const dt = previous ? Math.min((now - previous) / 1000, 0.08) : 1 / 60;
     previous = now;
     if (!reduced.matches) {
       time += dt;
