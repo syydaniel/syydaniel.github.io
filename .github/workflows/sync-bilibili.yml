@@ -35,13 +35,13 @@ jobs:
       - name: Commit the list when it changed
         id: commit
         run: |
-          if git diff --quiet -- src/data/bilibili.generated.json; then
+          if [ -z "$(git status --porcelain -- src/data/bilibili.generated.json public/films/covers)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No change."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src/data/bilibili.generated.json
+            git add src/data/bilibili.generated.json public/films/covers
             git commit -m "Bilibili: the list of films, read on $(date -u +%Y-%m-%d)"
             git push origin "HEAD:${GITHUB_REF_NAME}"
             echo "changed=true" >> "$GITHUB_OUTPUT"

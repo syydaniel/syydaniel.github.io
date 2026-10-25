@@ -280,12 +280,18 @@ const curated: Film[] = [
 // The films read from the Bilibili space that are not curated above: the date
 // as published (Shanghai time), the title as posted in both languages, the
 // archive cover.
-type Archive = { bvid: string; title: string; pubdate: number; duration: number; pic: string };
+type Archive = { bvid: string; title: string; pubdate: number; duration: number; pic: string; desc?: string; local?: string };
+// The first sentence of a description, for a tagline until one is written.
+const firstLine = (desc: string | undefined) => (desc ?? '').split(/\n/).map((l) => l.trim()).find((l) => l.length > 0)?.split(/(?<=[。！？.!?])\s*/)[0] ?? '';
 const dateInShanghai = (unix: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(unix * 1000));
 const mmss = (seconds: number) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
 const synced: Film[] = ((generated as { archives?: Archive[] }).archives ?? [])
   .filter((a) => a.bvid && a.pubdate && !curated.some((f) => f.bvid === a.bvid))
-  .map((a) => ({ bvid: a.bvid, date: dateInShanghai(a.pubdate), duration: mmss(a.duration || 0), title: { en: a.title, zh: a.title }, cover: a.pic.replace(/^http:/, 'https:') }));
+  .map((a) => ({
+    bvid: a.bvid, date: dateInShanghai(a.pubdate), duration: mmss(a.duration || 0), title: { en: a.title, zh: a.title }, cover: a.pic.replace(/^http:/, 'https:'),
+    // With its cover kept on this origin the film gets a stage of its own, the first line of its description for a tagline.
+    ...(a.local ? { featured: { still: a.local, stillSm: a.local, tagline: { en: firstLine(a.desc), zh: firstLine(a.desc) } } } : {})
+  }));
 export const films: Film[] = [...curated, ...synced].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
 // Films that belong to a chapter of the Journey timeline (by journey item id).

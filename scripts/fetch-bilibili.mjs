@@ -6,7 +6,7 @@
 // in; from a sandbox or behind a proxy it may not be reachable at all, in which
 // case the file is left as it is.
 //   node scripts/fetch-bilibili.mjs
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 const MID = 437321627;
@@ -94,6 +94,22 @@ if (!archives) { console.log('Bilibili could not be read; the list on file stays
 
 const seen = new Set();
 archives = archives.filter((a) => a.bvid && !seen.has(a.bvid) && seen.add(a.bvid)).sort((a, b) => b.pubdate - a.pubdate);
+
+// The covers of the newest few films are kept on this origin (public/films/covers),
+// so their cards do not depend on Bilibili letting the image through; `local`
+// in the list says which have one.
+const COVERS = new URL('../public/films/covers/', import.meta.url);
+mkdirSync(COVERS, { recursive: true });
+for (const a of archives.slice(0, 3)) {
+  const file = new URL(`${a.bvid}.jpg`, COVERS);
+  if (!existsSync(file) && a.pic) {
+    try {
+      const res = await fetch(a.pic, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(20000) });
+      if (res.ok) { writeFileSync(file, Buffer.from(await res.arrayBuffer())); console.log(`cover kept: ${a.bvid}`); }
+    } catch (e) { console.log(`cover ${a.bvid}: ${e.message}`); }
+  }
+  if (existsSync(file)) a.local = `/films/covers/${a.bvid}.jpg`;
+}
 let previous = { archives: [] };
 try { previous = JSON.parse(readFileSync(OUT, 'utf8')); } catch {}
 const same = JSON.stringify(previous.archives) === JSON.stringify(archives);
