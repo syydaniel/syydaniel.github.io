@@ -2,8 +2,12 @@
 // Videos are embedded with Bilibili's player, nothing is self-hosted.
 // `cover` is the Bilibili archive image id; featured films use a still pulled
 // from the 4K master instead, or for the animation the cover art without its
-// lettering (public/films/*.jpg).
+// lettering (public/films/*.jpg). Films published since this list was written
+// arrive through src/data/bilibili.generated.json (scripts/fetch-bilibili.mjs,
+// run by .github/workflows/sync-bilibili.yml) with the title as posted, until
+// they are curated here.
 import type { Loc } from './journey';
+import generated from './bilibili.generated.json';
 
 export const BILIBILI_SPACE = 'https://space.bilibili.com/437321627';
 
@@ -28,7 +32,7 @@ export interface Film {
 
 const hd = (id: string, ext = 'jpg') => `https://i1.hdslb.com/bfs/archive/${id}.${ext}`;
 
-export const films: Film[] = [
+const curated: Film[] = [
   {
     bvid: 'BV15cn664EJQ', date: '2026-10-22', duration: '08:28',
     title: { en: 'Naiwa Beyond', zh: '奶蛙·彼岸' },
@@ -272,6 +276,17 @@ export const films: Film[] = [
     cover: hd('c2b7f32c79811eebf1b671375951104290fc4d7e')
   }
 ];
+
+// The films read from the Bilibili space that are not curated above: the date
+// as published (Shanghai time), the title as posted in both languages, the
+// archive cover.
+type Archive = { bvid: string; title: string; pubdate: number; duration: number; pic: string };
+const dateInShanghai = (unix: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(unix * 1000));
+const mmss = (seconds: number) => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
+const synced: Film[] = ((generated as { archives?: Archive[] }).archives ?? [])
+  .filter((a) => a.bvid && a.pubdate && !curated.some((f) => f.bvid === a.bvid))
+  .map((a) => ({ bvid: a.bvid, date: dateInShanghai(a.pubdate), duration: mmss(a.duration || 0), title: { en: a.title, zh: a.title }, cover: a.pic.replace(/^http:/, 'https:') }));
+export const films: Film[] = [...curated, ...synced].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
 // Films that belong to a chapter of the Journey timeline (by journey item id).
 export const journeyFilms: Record<string, string[]> = {
