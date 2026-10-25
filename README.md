@@ -151,6 +151,17 @@ from Google on demand for its headings.
   of the page (`--chapter-tint` on the skylight, eased over two seconds). The ink carries the
   same minerals: now and then a drop of azurite, malachite, ochre or gamboge, and where the dye
   lies thick its colour deepens like a glaze.
+- **The lite page, 轻装** (`src/scripts/lite.ts`): a phone or a tablet (a coarse pointer, no hover), a
+  connection that asked for less data, or a device short of memory keeps the paper, the type and
+  the colours but not the GPU work: no ink fluid (a still wash of the same inks in CSS,
+  `html[data-atmosphere="still"]`), the catchment landed once and then kept as a picture with its
+  WebGL context released, the globe asleep while off screen (its context released and restored
+  as the reader comes back), the maps built only when reached, at a lower pixel ratio and
+  without the raster detail, no hover map in Journey, no filtered washes, no blur behind the
+  cards, no blend pass for the grain. Six WebGL contexts with their framebuffers at 3× is what
+  made a phone's browser give up on the page. On a desktop the ink runs, steps down its grain
+  when frames run long and, if even the coarsest cannot keep up, dries into the still wash.
+  `?lite=1` shows the lite page on a desktop, `?lite=0` the full one on a phone.
 - **Smoothness** (`src/scripts/warm.ts`): the three maps and their shaders are built in idle time
   after the page is up, one at a time, instead of the moment they scroll into view (or at once if
   the reader gets there first); phones short of memory, and readers who asked for less data, keep

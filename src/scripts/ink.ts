@@ -485,9 +485,19 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     // The governor: a second of long frames in a row steps the quality down.
     if (pageY < innerHeight * 1.6) {
       slowFrames = elapsed > 0.027 ? slowFrames + 1 : Math.max(0, slowFrames - 2);
-      if (slowFrames > 45 && quality > 0) {
-        quality--; slowFrames = 0; allocate();
-        for (let i = 0; i < 3; i++) drop(0.2 + Math.random() * 0.6, 0.25 + Math.random() * 0.5, 0.16, 5);
+      if (slowFrames > 45) {
+        slowFrames = 0;
+        if (quality > 0) {
+          quality--; allocate();
+          for (let i = 0; i < 3; i++) drop(0.2 + Math.random() * 0.6, 0.25 + Math.random() * 0.5, 0.16, 5);
+        } else {
+          // Even the coarsest grain cannot keep up: the ink dries into the
+          // still wash (global.css) and gives the GPU back.
+          visible = false;
+          document.documentElement.dataset.atmosphere = 'still';
+          setTimeout(() => { try { gl!.getExtension('WEBGL_lose_context')?.loseContext(); } catch {} }, 2200);
+          return;
+        }
       }
     }
     if (now > nextDrop) {
@@ -530,7 +540,7 @@ export function initInk(canvas: HTMLCanvasElement): boolean {
     }, 250);
   }, { passive: true });
   document.addEventListener('visibilitychange', wake);
-  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); visible = false; delete document.documentElement.dataset.atmosphere; });
+  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); visible = false; if (document.documentElement.dataset.atmosphere !== 'still') delete document.documentElement.dataset.atmosphere; });
   canvas.addEventListener('webglcontextrestored', () => { allocate(); document.documentElement.dataset.atmosphere = 'ink'; wake(); });
   reduced.addEventListener('change', () => { if (reduced.matches) { visible = false; } else wake(); });
   // Other layers pour into the ink: the catchment's pooled water, a pressed seal.

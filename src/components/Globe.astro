@@ -51,6 +51,7 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
 
 <script>
   import * as THREE from 'three';
+  import { lite } from '../scripts/lite';
   import { inkTokens, rgbOf } from '../scripts/theme';
   import { subsolar } from '../scripts/sky';
 
@@ -72,8 +73,11 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
   const lang = () => (document.documentElement.dataset.lang === 'zh' ? 'zh' : 'en');
   const loc = (v: Loc | string) => (typeof v === 'string' ? v : v[lang()] ?? v.en);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // On the lite page (scripts/lite.ts) the globe is drawn coarser and sleeps
+  // while it is off screen: its WebGL context is released and restored as the
+  // reader comes back (three.js re-uploads what it needs).
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lite, alpha: true, powerPreference: lite ? 'low-power' : 'default' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, lite ? 1.25 : 2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
   const FRAME_RADIUS = 1.56;
@@ -546,6 +550,14 @@ const visitedCountries = travel.countries.map(({ a3, flag, en, zh, dots, spots }
   }
   function wake() { if (!frame && onScreen && !document.hidden) frame = requestAnimationFrame(tick); }
   new IntersectionObserver((entries) => { onScreen = entries.some((e) => e.isIntersecting); if (onScreen) { canvas.parentElement?.classList.add('is-ready'); wake(); } }, { rootMargin: '120px' }).observe(canvas);
+  if (lite) {
+    let asleep = false;
+    new IntersectionObserver((entries) => {
+      const near = entries.some((e) => e.isIntersecting);
+      if (!near && !asleep) { asleep = true; if (frame) { cancelAnimationFrame(frame); frame = 0; } renderer.forceContextLoss(); }
+      else if (near && asleep) { asleep = false; renderer.forceContextRestore(); wake(); }
+    }, { rootMargin: '140%' }).observe(canvas);
+  }
   document.addEventListener('visibilitychange', wake);
   addEventListener('lang:change', hide);
   paintTheme();

@@ -67,6 +67,22 @@ main { overflow-x: clip; }
     radial-gradient(ellipse at 8% 50%, color-mix(in srgb, var(--daiqing) 5%, transparent), transparent 45%),
     radial-gradient(ellipse at 80% 92%, color-mix(in srgb, var(--zhusha) 4%, transparent), transparent 40%);
 }
+/* The still wash: where the ink fluid does not run (the lite page, reduced
+   motion, a machine that could not keep up), the same inks lie on the paper as
+   a few soft pools, drawn once by the browser and never again. */
+html[data-atmosphere='still'] .aurora {
+  background:
+    radial-gradient(ellipse 58% 40% at 74% 16%, color-mix(in srgb, var(--daiqing) 17%, transparent), transparent 70%),
+    radial-gradient(ellipse 46% 34% at 16% 58%, color-mix(in srgb, var(--ink-3) 11%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 28% at 86% 76%, color-mix(in srgb, var(--ochre-2) 10%, transparent), transparent 70%),
+    radial-gradient(ellipse 34% 24% at 42% 34%, color-mix(in srgb, var(--moss) 9%, transparent), transparent 70%),
+    radial-gradient(ellipse 30% 20% at 60% 90%, color-mix(in srgb, var(--zhusha) 5%, transparent), transparent 70%);
+}
+/* The lite page: no blur behind the cards (each one re-blurs its backdrop as the
+   page scrolls), no blend pass for the grain. The navigation keeps its blur. */
+html[data-lite] .glass { backdrop-filter: none; -webkit-backdrop-filter: none; background: linear-gradient(135deg, color-mix(in srgb, var(--paper-hi) 94%, transparent), color-mix(in srgb, var(--paper-hi) 88%, transparent)); }
+html[data-lite] .glass-soft { backdrop-filter: none; -webkit-backdrop-filter: none; background: linear-gradient(145deg, color-mix(in srgb, var(--paper-hi) 90%, transparent), color-mix(in srgb, var(--paper-hi) 84%, transparent)); }
+html[data-lite] .ambient-noise::before { mix-blend-mode: normal; opacity: calc(var(--grain-opacity) * 0.45); }
 
 /* ---------- Typography ---------- */
 .font-display {

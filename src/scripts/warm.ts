@@ -5,11 +5,14 @@
 // at once. Phones short of memory, and readers who asked for less data, keep
 // the lazy behaviour.
 
+import { lite } from './lite';
+
 type Job = { run: () => void; done: boolean };
 const queue: Job[] = [];
 const root = document.documentElement;
 const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
-const eager = !nav.connection?.saveData && (nav.deviceMemory === undefined || nav.deviceMemory >= 4);
+// Only a desktop builds ahead: a phone has neither the memory nor the idle GPU for three maps it may never reach.
+const eager = !lite && matchMedia('(hover: hover) and (pointer: fine)').matches && !nav.connection?.saveData && (nav.deviceMemory === undefined || nav.deviceMemory >= 4);
 const idle = (fn: () => void, timeout: number) =>
   'requestIdleCallback' in window ? (window as any).requestIdleCallback(fn, { timeout }) : setTimeout(fn, 300);
 
