@@ -7,6 +7,7 @@
 // the lines for street-level detail. Every colour is read from the theme tokens
 // and repainted on `themechange`.
 import type { Map as MLMap, StyleSpecification, LayerSpecification } from 'maplibre-gl';
+import { lite } from './lite';
 import { resolveColor } from './theme';
 
 type ML = typeof import('maplibre-gl').default;
@@ -152,7 +153,8 @@ const ESRI = (base: string) => `https://server.arcgisonline.com/ArcGIS/rest/serv
 export async function createAtlas(container: HTMLElement, opts: AtlasOptions): Promise<Atlas> {
   const [maplibregl, world] = await Promise.all([loadMapLibre(), loadWorld()]);
   let ink = atlasInk();
-  const detail = opts.detail !== false;
+  // The lite page (scripts/lite.ts) draws the atlas at a lower pixel ratio and without the raster detail underneath.
+  const detail = opts.detail !== false && !lite;
   const style: StyleSpecification = {
     version: 8,
     sources: {
@@ -181,7 +183,8 @@ export async function createAtlas(container: HTMLElement, opts: AtlasOptions): P
   const map = new maplibregl.Map({
     container, style, center: opts.center, zoom: opts.zoom, minZoom: opts.minZoom ?? 0.6, maxZoom: opts.maxZoom ?? 9,
     pitch: opts.pitch ?? 0, bearing: opts.bearing ?? 0, dragRotate: !!opts.rotate, pitchWithRotate: !!opts.rotate, touchPitch: !!opts.rotate,
-    attributionControl: { compact: true }, renderWorldCopies: true
+    attributionControl: { compact: true }, renderWorldCopies: true,
+    pixelRatio: Math.min(devicePixelRatio || 1, lite ? 1.5 : 2)
   });
   if (!opts.rotate) map.touchZoomRotate.disableRotation();
   // Beyond the edge of the world (visible when the table is tilted) the sea continues.

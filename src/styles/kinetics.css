@@ -14,6 +14,7 @@
 /* ---------- Atmosphere canvas under the CSS aurora ---------- */
 #atmosphere { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.8s ease; }
 html[data-atmosphere] #atmosphere { opacity: 1; }
+html[data-atmosphere='still'] #atmosphere { opacity: 0; }
 html[data-atmosphere] .aurora { opacity: 0.35; }
 .aurora { transition: opacity 1.8s ease; }
 
@@ -609,3 +610,13 @@ html[data-lang='zh'] .chapter-rail-item span { font-family: var(--font-cjk); fon
 
 /* The rail needs a margin of its own; on narrower screens it would sit on the text. */
 @media (max-width: 1399px) { .chapter-rail { display: none; } }
+
+
+/* ---------- 轻装: the lite page (scripts/lite.ts) ----------
+   Phones, tablets and slow connections keep the paper, the type and the colours
+   but not the GPU work: no filtered washes (an SVG filter at 3x is a large
+   raster per chapter), no blur on the watermarks and the ridges, no blur behind
+   the cards (the navigation keeps its own), no blend pass for the grain. */
+html[data-lite] .chapter-wash { display: none; }
+html[data-lite] .chapter-watermark, html[data-lite] .footer-ridges { filter: none !important; }
+html[data-lite] .sky-card { backdrop-filter: none; -webkit-backdrop-filter: none; background: color-mix(in srgb, var(--paper-hi) 97%, transparent); }

@@ -1,15 +1,22 @@
 ---
 // Full-viewport living background: ink in water (scripts/ink.ts) where the GPU
 // offers half-float render targets, otherwise the noise atmosphere
-// (scripts/atmosphere.ts). Reduced motion gets one still frame of the latter.
+// (scripts/atmosphere.ts). Reduced motion, and the lite page (scripts/lite.ts:
+// phones, tablets, slow connections), get a still wash in CSS instead
+// (html[data-atmosphere="still"], global.css); the ink also dries into that
+// wash on a machine that cannot keep its frames up.
 ---
 <canvas id="atmosphere" aria-hidden="true"></canvas>
 
 <script>
+  import { lite } from '../scripts/lite';
   import { initInk } from '../scripts/ink';
   import { initAtmosphere } from '../scripts/atmosphere';
   const canvas = document.getElementById('atmosphere') as HTMLCanvasElement | null;
-  if (canvas) {
+  if (canvas && (lite || matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    canvas.remove();
+    document.documentElement.dataset.atmosphere = 'still';
+  } else if (canvas) {
     let live = false;
     try { live = initInk(canvas); } catch { live = false; }
     if (!live) {

@@ -5,6 +5,7 @@
 // around the hand like paper under a finger. The camera lands from above when
 // the page opens and climbs again as the page scrolls. Three.js is loaded only
 // when the hero is on screen. Reduced motion gets one still frame.
+import { lite } from './lite';
 
 type Three = typeof import('three');
 
@@ -113,7 +114,9 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   const fine = matchMedia('(hover: hover) and (pointer: fine)');
   const mobile = matchMedia('(max-width: 767px)').matches;
   const THREE: Three = await import('three');
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+  // On the lite page (scripts/lite.ts) the catchment lands once and is then
+  // kept as a picture: the WebGL context is given back (freeze() below).
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !lite, powerPreference: lite ? 'low-power' : 'high-performance' });
   renderer.setClearColor(0x000000, 0);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 40);
@@ -160,7 +163,11 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   let hostHeight = Math.max(1, host.offsetHeight);
   if ('ResizeObserver' in window) new ResizeObserver(() => { hostHeight = Math.max(1, host.offsetHeight); }).observe(host);
   else addEventListener('resize', () => { hostHeight = Math.max(1, host.offsetHeight); }, { passive: true });
-  addEventListener('scroll', () => { scrollT = Math.max(0, Math.min(1, scrollY / hostHeight)); }, { passive: true });
+  addEventListener('scroll', () => {
+    scrollT = Math.max(0, Math.min(1, scrollY / hostHeight));
+    // Once frozen nothing renders, so the fade with the scroll is set here.
+    if (frozen) host.style.setProperty('--catchment-fade', String(Math.max(0, 1 - scrollT * 1.35)));
+  }, { passive: true });
 
   // ---- pointer: the light and the hand ----
   // The pointer's place on the ground plane steers the light (it comes from
@@ -243,8 +250,27 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   }
 
   // ---- lifecycle ----
-  let visible = true, frame = 0, previous = 0;
+  let visible = true, frame = 0, previous = 0, frozen = false;
+  // The lite page keeps the landed catchment as a picture and gives the GPU
+  // back: the last frame becomes an image in the canvas's place, the context
+  // is released. The light, the rain and the hand are lost; the relief stays.
+  function freeze() {
+    frozen = true;
+    try {
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const img = new Image();
+        img.decoding = 'async';
+        img.alt = '';
+        img.className = canvas.className;
+        img.style.cssText = canvas.style.cssText;
+        img.onload = () => { URL.revokeObjectURL(img.src); canvas.replaceWith(img); renderer.dispose(); renderer.forceContextLoss(); };
+        img.src = URL.createObjectURL(blob);
+      }, 'image/png');
+    } catch {}
+  }
   function resize() {
+    if (frozen) return;
     const rect = host.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     const ratio = Math.min(devicePixelRatio || 1, mobile ? 1.25 : 1.5);
@@ -254,12 +280,14 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
     camera.updateProjectionMatrix();
   }
   function render() {
+    if (frozen) return;
     placeCamera();
     uniforms.uTime.value = time;
     renderer.render(scene, camera);
   }
   function tick(now: number) {
     frame = 0;
+    if (frozen) return;
     const dt = previous ? Math.min((now - previous) / 1000, 0.05) : 1 / 60;
     previous = now;
     if (!reduced.matches) {
@@ -268,10 +296,12 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
       easeInputs(dt);
     }
     render();
+    // Landed and settled, on the lite page: keep this frame and stop.
+    if (lite && landing >= 1 && time > 4.5 && visible) { freeze(); return; }
     if (visible && !document.hidden && !reduced.matches) frame = requestAnimationFrame(tick);
   }
   function wake() {
-    if (frame) return;
+    if (frame || frozen) return;
     previous = 0;
     if (visible && !document.hidden) frame = requestAnimationFrame(tick);
   }
@@ -285,7 +315,7 @@ export async function initCatchment(host: HTMLElement, canvas: HTMLCanvasElement
   const begin = () => { host.dataset.ready = ''; wake(); };
   if (document.documentElement.dataset.intro === 'playing') addEventListener('intro:done', begin, { once: true });
   else begin();
-  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); delete host.dataset.ready; });
-  canvas.addEventListener('webglcontextrestored', () => { host.dataset.ready = ''; wake(); });
-  addEventListener('pagehide', e => { if (e.persisted) return; if (frame) cancelAnimationFrame(frame); geometry.dispose(); renderer.dispose(); });
+  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); if (!frozen) delete host.dataset.ready; });
+  canvas.addEventListener('webglcontextrestored', () => { if (!frozen) { host.dataset.ready = ''; wake(); } });
+  addEventListener('pagehide', e => { if (e.persisted || frozen) return; if (frame) cancelAnimationFrame(frame); geometry.dispose(); renderer.dispose(); });
 }

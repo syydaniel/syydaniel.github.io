@@ -5,6 +5,7 @@
 // clock, solar term and lunar date. Nothing here touches the globe, the maps or
 // the players, and every effect is skipped for reduced motion. Content is
 // readable before any of it runs.
+import { lite } from './lite';
 
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -236,6 +237,8 @@ document.querySelectorAll<HTMLElement>('.section-eyebrow[data-chapter]').forEach
   section.prepend(mark);
   // A wash of the chapter's own colour behind its head (--chapter-hue, kinetics.css),
   // its edge roughened like a brush wash and faded in as the chapter enters.
+  // Not on the lite page: a filtered SVG at a phone's pixel ratio is a large raster per chapter.
+  if (lite) { slipped = true; return; }
   const wash = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   wash.setAttribute('class', 'chapter-wash');
   wash.setAttribute('viewBox', '0 0 600 400');
